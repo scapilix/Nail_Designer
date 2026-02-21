@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,9 +34,9 @@ const Navbar = () => {
 
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <a href="/" className={`font-serif text-2xl font-bold tracking-tighter transition-colors duration-300 ${scrolled ? 'text-dark' : 'text-white'}`}>
+        <Link to="/" className={`font-serif text-2xl font-bold tracking-tighter transition-colors duration-300 ${scrolled ? 'text-dark' : 'text-white'}`}>
           TO<span className="text-primary italic">Beauty</span>
-        </a>
+        </Link>
 
         {/* Desktop Links */}
         <div className={`hidden lg:flex items-center gap-10 ${scrolled ? 'text-dark' : 'text-white'}`}>
@@ -58,6 +59,18 @@ const Navbar = () => {
           >
             AGENDAR AGORA
           </a>
+
+          <Link
+            to="/admin"
+            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 group ${
+              scrolled ? 'text-gray-400 hover:text-dark' : 'text-white/70 hover:text-white'
+            }`}
+          >
+            <div className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-gray-100 group-hover:bg-primary group-hover:text-white' : 'bg-white/10 group-hover:bg-primary'}`}>
+              <LogIn size={14} />
+            </div>
+            <span>LOGIN</span>
+          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -97,6 +110,14 @@ const Navbar = () => {
               >
                 AGENDAR AGORA
               </a>
+              <Link
+                to="/admin"
+                className="flex items-center justify-center gap-3 py-4 border-t border-gray-100 text-dark font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
+                <LogIn size={18} />
+                ADMIN LOGIN
+              </Link>
             </div>
           </Motion.div>
         )}
