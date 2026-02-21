@@ -1,16 +1,48 @@
-# React + Vite
+# TOBeauty — Premium Nail Salon Management 💅✨
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Plataforma de gestão de luxo para salões de manicure, focada em elegância, analytics de alta performance e experiência do utilizador premium.
 
-Currently, two official plugins are available:
+## 🚀 Funcionalidades Principais
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Agenda Pro Max**: Calendário inteligente com linha de tempo em tempo real, destaque automático do dia atual e gestão visual de marcações.
+- **Painel de Controlo (Analytics)**: Inteligência de dados com ranking de clientes V.I.P, best-sellers de inventário, distribuição de métodos de pagamento e análise de picos de faturação.
+- **Gestão de Inventário**: Controlo total da loja e stock com alertas visuais.
+- **Faturação & Despesas**: Fluxo completo de gestão financeira integrado.
+- **Sistema de Planos**: Estrutura de tiering (Básico, Pro, Premium) com badges dinâmicos.
+- **Portfolio & Equipa**: Gestão de montra visual e profissionais.
 
-## React Compiler
+## 🛠️ Tecnologias
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React.js + Vite
+- **Styling**: Tailwind CSS (Luxe Noir Aesthetics)
+- **Animações**: Framer Motion
+- **Backend**: Supabase (Database & Auth)
+- **Deployment**: Vercel
 
-## Expanding the ESLint configuration
+## ⚙️ Configuração Local & Deploy
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. **Instalar Dependências**:
+   ```bash
+   npm install
+   ```
+
+2. **Configuração Supabase**:
+   - Crie um projeto no [Supabase](https://supabase.com).
+   - Execute o conteúdo de `database_schema.sql` no SQL Editor do Supabase.
+   - Crie um ficheiro `.env` com as suas chaves:
+     ```env
+     VITE_SUPABASE_URL=seu_url
+     VITE_SUPABASE_ANON_KEY=sua_chave
+     ```
+
+3. **Iniciar Desenvolvimento**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Deploy no Vercel**:
+   - Ligue o seu repositório GitHub ao Vercel.
+   - Adicione as variáveis de ambiente acima nas definições do projeto no Vercel.
+
+---
+*Desenvolvido com foco no detalhe e na sofisticação.*
