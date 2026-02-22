@@ -15,6 +15,7 @@ const Scheduling = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [availableProId, setAvailableProId] = useState('');
+  const [suggestedSlots, setSuggestedSlots] = useState([]);
   
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
@@ -46,43 +47,95 @@ const Scheduling = () => {
       return;
     }
 
+    if (!bookingTime.endsWith('00') && !bookingTime.endsWith('30')) {
+      setStatusMessage({ type: 'error', text: 'Os horários devem ser à hora certa ou meia hora (ex: 10:00 ou 10:30).' });
+      return;
+    }
+
     setIsSubmitting(true);
     setStatusMessage({ type: '', text: '' });
+    setSuggestedSlots([]);
 
     try {
-      const dtIso = new Date(`${bookingDate}T${bookingTime}:00`).toISOString();
+      const dayStart = new Date(`${bookingDate}T00:00:00`).toISOString();
+      const dayEnd = new Date(`${bookingDate}T23:59:59`).toISOString();
+      const desiredTime = new Date(`${bookingDate}T${bookingTime}:00`).getTime();
 
       let assignedProId = selectedProfessional;
 
       if (selectedProfessional) {
-        const { data: overlapping, error: overlapErr } = await supabase
+        const { data: dayBookings, error: dayErr } = await supabase
           .from('bookings')
-          .select('id')
+          .select('booking_date')
           .eq('team_member_id', selectedProfessional)
-          .eq('booking_date', dtIso)
+          .gte('booking_date', dayStart)
+          .lte('booking_date', dayEnd)
           .neq('status', 'cancelado');
           
-        if (overlapErr) throw overlapErr;
+        if (dayErr) throw dayErr;
         
-        if (overlapping && overlapping.length > 0) {
-          setStatusMessage({ type: 'error', text: 'Desculpe, a profissional selecionada já tem marcação nesse horário.' });
+        const bookedTimes = dayBookings.map(b => new Date(b.booking_date).getTime());
+        
+        if (bookedTimes.includes(desiredTime)) {
+          const suggestions = [];
+          const offsets = [-60, -30, 30, 60];
+          for (let offset of offsets) {
+             const timeToCheck = desiredTime + (offset * 60 * 1000);
+             if (!bookedTimes.includes(timeToCheck)) {
+                const d = new Date(timeToCheck);
+                const hh = d.getHours();
+                if (hh >= 9 && hh <= 20) {
+                   const hhStr = String(hh).padStart(2, '0');
+                   const mmStr = String(d.getMinutes()).padStart(2, '0');
+                   suggestions.push(`${hhStr}:${mmStr}`);
+                }
+             }
+          }
+          
+          setSuggestedSlots(suggestions);
+          setStatusMessage({ type: 'error', text: 'Desculpe, a profissional selecionada já tem marcação nesse horário. Que tal uma destas opções?' });
           setIsSubmitting(false);
           return;
         }
       } else {
-        const { data: overlapping, error: overlapErr } = await supabase
+        const { data: dayBookings, error: dayErr } = await supabase
           .from('bookings')
-          .select('team_member_id')
-          .eq('booking_date', dtIso)
+          .select('team_member_id, booking_date')
+          .gte('booking_date', dayStart)
+          .lte('booking_date', dayEnd)
           .neq('status', 'cancelado');
           
-        if (overlapErr) throw overlapErr;
+        if (dayErr) throw dayErr;
 
-        const busyPros = overlapping ? overlapping.map(b => b.team_member_id) : [];
-        const freePro = team.find(p => !busyPros.includes(p.id));
+        const bookingsByTime = {};
+        dayBookings.forEach(b => {
+          const t = new Date(b.booking_date).getTime();
+          if (!bookingsByTime[t]) bookingsByTime[t] = [];
+          bookingsByTime[t].push(b.team_member_id);
+        });
+
+        const busyProsAtDesiredTime = bookingsByTime[desiredTime] || [];
+        const freePro = team.find(p => !busyProsAtDesiredTime.includes(p.id));
 
         if (!freePro) {
-          setStatusMessage({ type: 'error', text: 'Desculpe, não temos profissionais disponíveis nesse horário.' });
+          const suggestions = [];
+          const offsets = [-60, -30, 30, 60];
+          for (let offset of offsets) {
+            const timeToCheck = desiredTime + (offset * 60 * 1000);
+            const busyProsAtTime = bookingsByTime[timeToCheck] || [];
+            if (team.some(p => !busyProsAtTime.includes(p.id))) {
+              const d = new Date(timeToCheck);
+              const hh = d.getHours();
+              if (hh >= 9 && hh <= 20) {
+                 const hhStr = String(hh).padStart(2, '0');
+                 const mmStr = String(d.getMinutes()).padStart(2, '0');
+                 suggestions.push(`${hhStr}:${mmStr}`);
+              }
+            }
+          }
+
+          setSuggestedSlots(suggestions);
+          setStatusMessage({ type: 'error', text: 'Desculpe, não temos profissionais disponíveis nesse horário. Que tal uma destas opções?' });
           setIsSubmitting(false);
           return;
         }
@@ -215,6 +268,24 @@ const Scheduling = () => {
               {statusMessage.text && !isModalOpen && (
                 <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
                   {statusMessage.text}
+                  {suggestedSlots.length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                       {suggestedSlots.map(slot => (
+                          <button 
+                            key={slot}
+                            type="button"
+                            onClick={() => {
+                               setBookingTime(slot);
+                               setSuggestedSlots([]);
+                               setStatusMessage({ type: '', text: '' });
+                            }}
+                            className="px-3 py-1.5 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm text-xs tracking-wider"
+                          >
+                            {slot}
+                          </button>
+                       ))}
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -296,6 +367,7 @@ const Scheduling = () => {
                     <input 
                       required
                       type="time" 
+                      step="1800"
                       value={bookingTime}
                       onChange={e => setBookingTime(e.target.value)}
                       className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
