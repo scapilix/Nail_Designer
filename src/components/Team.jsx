@@ -1,31 +1,53 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Instagram, Linkedin } from 'lucide-react';
-import { useImage } from '../hooks/useImage';
+import React, { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Instagram, Linkedin, ChevronLeft, ChevronRight } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const Team = () => {
-  const { images } = useImage();
+  const [team, setTeam] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const team = [
-    {
-      name: 'Ana Silva',
-      role: 'Lead Nail Artist',
-      desc: 'Mestre em Manicure Russa e coloração avançada, com mais de 10 anos de experiência internacional.',
-      image: images.team_1
-    },
-    {
-      name: 'Luísa Pereira',
-      role: 'Master Technician',
-      desc: 'Especialista em extensões de gel e reconstrução, conhecida pela sua precisão geométrica impecável.',
-      image: images.team_2
-    },
-    {
-      name: 'Sofia Santos',
-      role: 'Nail Artist',
-      desc: 'Especialista em design minimalista e tendências contemporâneas de nail art.',
-      image: images.team_3
+  useEffect(() => {
+    const fetchTeam = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('team')
+          .select('*')
+          .order('name');
+        if (error) throw error;
+        setTeam(data || []);
+      } catch (err) {
+        console.error('Error fetching team:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeam();
+  }, []);
+
+  const next = () => setCurrentIndex((prev) => (prev + 1) % team.length);
+  const prev = () => setCurrentIndex((prev) => (prev - 1 + team.length) % team.length);
+
+  // Auto-slide if more than 3
+  useEffect(() => {
+    if (team.length <= 3) return;
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [team.length]);
+
+  const visibleCount = 3;
+  const getVisibleItems = () => {
+    if (team.length <= visibleCount) return team;
+    const items = [];
+    for (let i = 0; i < visibleCount; i++) {
+      items.push(team[(currentIndex + i) % team.length]);
     }
-  ];
+    return items;
+  };
+
+  if (loading) return null;
+  if (team.length === 0) return null;
 
   return (
     <section id="equipa" className="py-24 bg-secondary">
@@ -38,38 +60,70 @@ const Team = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-12">
-          {team.map((member, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              viewport={{ once: true }}
-              className="text-center group"
-            >
-              <div className="aspect-[4/5] rounded-[32px] overflow-hidden mb-8 shadow-lg relative">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-4">
-                  <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
-                    <Instagram className="w-4 h-4" />
-                  </a>
-                  <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
-                    <Linkedin className="w-4 h-4" />
-                  </a>
-                </div>
+        <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <AnimatePresence mode="popLayout" initial={false}>
+              {getVisibleItems().map((member, idx) => (
+                <motion.div
+                  key={member.id}
+                  layout
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.6 }}
+                  className="text-center group"
+                >
+                  <div className="aspect-[4/5] rounded-[32px] overflow-hidden mb-8 shadow-lg relative bg-gray-100">
+                    <img
+                      src={member.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop'}
+                      alt={member.name}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-4">
+                      <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
+                        <Instagram className="w-4 h-4" />
+                      </a>
+                      <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
+                        <Linkedin className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                  <h4 className="font-serif text-2xl mb-2 text-dark group-hover:text-primary transition-colors">{member.name}</h4>
+                  <p className="text-primary uppercase text-[10px] font-bold tracking-[0.2em] mb-4">{member.role}</p>
+                  <p className="text-sm text-gray-400 font-light leading-relaxed max-w-[280px] mx-auto italic border-t border-gray-100 pt-4 px-4 h-24 overflow-hidden text-ellipsis line-clamp-4">
+                    {member.details ? `"${member.details}"` : '"Dedicada à excelência em cada detalhe."'}
+                  </p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+
+          {team.length > 3 && (
+            <>
+              <button 
+                onClick={prev}
+                className="absolute left-[-60px] top-1/2 -translate-y-1/2 p-4 text-gray-300 hover:text-primary transition-colors hidden lg:block"
+              >
+                <ChevronLeft className="w-8 h-8" />
+              </button>
+              <button 
+                onClick={next}
+                className="absolute right-[-60px] top-1/2 -translate-y-1/2 p-4 text-gray-300 hover:text-primary transition-colors hidden lg:block"
+              >
+                <ChevronRight className="w-8 h-8" />
+              </button>
+              
+              <div className="flex justify-center gap-2 mt-12">
+                {team.map((_, i) => (
+                  <button 
+                    key={i}
+                    onClick={() => setCurrentIndex(i)}
+                    className={`h-1.5 rounded-full transition-all ${i === currentIndex ? 'w-8 bg-primary' : 'w-2 bg-gray-200'}`}
+                  />
+                ))}
               </div>
-              <h4 className="font-serif text-2xl mb-2 text-dark group-hover:text-primary transition-colors">{member.name}</h4>
-              <p className="text-primary uppercase text-[10px] font-bold tracking-[0.2em] mb-4">{member.role}</p>
-              <p className="text-sm text-gray-400 font-light leading-relaxed max-w-[280px] mx-auto italic border-t border-gray-100 pt-4">
-                "{member.desc}"
-              </p>
-            </motion.div>
-          ))}
+            </>
+          )}
         </div>
       </div>
     </section>

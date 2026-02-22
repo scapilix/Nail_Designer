@@ -5,11 +5,11 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#e1ae2d", // Gold
-          light: "#f2c94c",
-          dark: "#b8860b",
+          DEFAULT: "#B8860B", // Darker Gold for better contrast
+          light: "#e1ae2d",
+          dark: "#8B6508",
         },
-        secondary: "#fdfaf5", // Cream/Off-white
+        secondary: "#FFFFFF", // Pure white background
         dark: {
           DEFAULT: "#1a1a1a",
           lighter: "#2d2d2d",
