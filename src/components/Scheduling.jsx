@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check } from 'lucide-react';
-import { useImage } from '../hooks/useImage';
+import { supabase } from '../lib/supabase';
 
 const Scheduling = () => {
-  const { images } = useImage();
   const [selectedService, setSelectedService] = useState('');
   const [selectedProfessional, setSelectedProfessional] = useState('');
+  const [team, setTeam] = useState([]);
+  const [services, setServices] = useState([]);
 
-  const team = [
-    { id: 'ana', name: 'Ana Silva', role: 'Lead Artistry', image: images.team_1 },
-    { id: 'luisa', name: 'Luísa Pereira', role: 'Master Tech', image: images.team_2 },
-    { id: 'sofia', name: 'Sofia Santos', role: 'Nail Artist', image: images.team_3 },
-  ];
+  useEffect(() => {
+    const fetchTeamAndServices = async () => {
+      try {
+        const [teamRes, servicesRes] = await Promise.all([
+          supabase.from('team').select('*').order('name'),
+          supabase.from('services').select('*').order('name')
+        ]);
+        
+        if (teamRes.error) throw teamRes.error;
+        if (servicesRes.error) throw servicesRes.error;
+        
+        setTeam(teamRes.data || []);
+        setServices(servicesRes.data || []);
+      } catch (err) {
+        console.error('Error fetching data for scheduling:', err);
+      }
+    };
+    fetchTeamAndServices();
+  }, []);
 
   return (
     <section id="agendamento" className="py-24 bg-white relative overflow-hidden">
@@ -65,10 +80,9 @@ const Scheduling = () => {
                     className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm"
                   >
                     <option value="">Selecione um serviço</option>
-                    <option value="russian">Manicure Russa</option>
-                    <option value="gel">Extensões em Gel</option>
-                    <option value="art">Nail Art Artistry</option>
-                    <option value="spa">Spa Pedicure</option>
+                    {services.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} ({s.duration}min / {s.price}€)</option>
+                    ))}
                   </select>
                 </div>
 
@@ -96,8 +110,8 @@ const Scheduling = () => {
                         onClick={() => setSelectedProfessional(pro.id)}
                         className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${selectedProfessional === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-white border-gray-100 hover:border-gray-200'}`}
                       >
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
-                          <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" />
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-gray-100">
+                          <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-dark truncate">{pro.name}</p>
