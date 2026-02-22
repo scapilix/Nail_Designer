@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check } from 'lucide-react';
+import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check, X, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const Scheduling = () => {
@@ -13,6 +13,8 @@ const Scheduling = () => {
   const [clientEmail, setClientEmail] = useState('');
   const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [availableProId, setAvailableProId] = useState('');
   
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
@@ -37,10 +39,10 @@ const Scheduling = () => {
     fetchTeamAndServices();
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleCheckAvailability = async (e) => {
     e.preventDefault();
-    if (!selectedService || !bookingDate || !bookingTime || !clientName || !clientPhone) {
-      setStatusMessage({ type: 'error', text: 'Por favor, preencha os campos obrigatórios.' });
+    if (!selectedService || !bookingDate || !bookingTime) {
+      setStatusMessage({ type: 'error', text: 'Selecione o serviço, data e hora.' });
       return;
     }
 
@@ -48,11 +50,9 @@ const Scheduling = () => {
     setStatusMessage({ type: '', text: '' });
 
     try {
-      const dt = new Date(`${bookingDate}T${bookingTime}:00`);
-      const dtIso = dt.toISOString();
+      const dtIso = new Date(`${bookingDate}T${bookingTime}:00`).toISOString();
 
-      // Check availability
-      let availableProId = selectedProfessional;
+      let assignedProId = selectedProfessional;
 
       if (selectedProfessional) {
         const { data: overlapping, error: overlapErr } = await supabase
@@ -70,7 +70,6 @@ const Scheduling = () => {
           return;
         }
       } else {
-        // If "Qualquer uma"
         const { data: overlapping, error: overlapErr } = await supabase
           .from('bookings')
           .select('team_member_id')
@@ -88,10 +87,32 @@ const Scheduling = () => {
           return;
         }
         
-        availableProId = freePro.id;
+        assignedProId = freePro.id;
       }
 
-      // Find or create client
+      setAvailableProId(assignedProId);
+      setIsModalOpen(true);
+      
+    } catch (error) {
+      console.error('Error checking availability:', error);
+      setStatusMessage({ type: 'error', text: 'Ocorreu um erro ao verificar disponibilidade.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleConfirmBooking = async (e) => {
+    e.preventDefault();
+    if (!clientName || !clientPhone) {
+        setStatusMessage({ type: 'error', text: 'Preencha o seu nome e telemóvel.' });
+        return;
+    }
+    
+    setIsSubmitting(true);
+    
+    try {
+      const dtIso = new Date(`${bookingDate}T${bookingTime}:00`).toISOString();
+      
       let clientId;
       const { data: existingClients, error: clientErr } = await supabase
         .from('clients')
@@ -114,7 +135,6 @@ const Scheduling = () => {
         clientId = newClient.id;
       }
 
-      // Insert booking
       const { error: bookingErr } = await supabase
         .from('bookings')
         .insert([{
@@ -129,14 +149,17 @@ const Scheduling = () => {
 
       setStatusMessage({ type: 'success', text: 'Reserva efetuada com sucesso! Aguarde a nossa confirmação.' });
       
-      // Clear form
-      setClientName('');
-      setClientPhone('');
-      setClientEmail('');
-      setSelectedService('');
-      setSelectedProfessional('');
-      setBookingDate('');
-      setBookingTime('');
+      setTimeout(() => {
+          setIsModalOpen(false);
+          setClientName('');
+          setClientPhone('');
+          setClientEmail('');
+          setSelectedService('');
+          setSelectedProfessional('');
+          setBookingDate('');
+          setBookingTime('');
+          setStatusMessage({ type: '', text: '' });
+      }, 3000);
       
     } catch (error) {
       console.error('Error submitting booking:', error);
@@ -188,23 +211,15 @@ const Scheduling = () => {
 
           {/* Right Side - Form */}
           <div className="lg:w-3/5 bg-secondary p-12 lg:p-16">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {statusMessage.text && (
+            <form onSubmit={handleCheckAvailability} className="space-y-8">
+              {statusMessage.text && !isModalOpen && (
                 <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
                   {statusMessage.text}
                 </div>
               )}
 
               <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Os Seus Dados</label>
-                  <input required type="text" value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome Completo" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm mb-3" />
-                  <input required type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} placeholder="Telemóvel" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm mb-3" />
-                  <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} placeholder="Email (Opcional)" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm" />
-                </div>
-
-                <div className="space-y-3">
-
+                <div className="space-y-3 col-span-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-dark block">Serviço Especializado</label>
                   <select 
                     value={selectedService}
@@ -296,7 +311,7 @@ const Scheduling = () => {
                   disabled={isSubmitting}
                   className="w-full bg-dark text-white font-bold py-5 rounded-custom hover:bg-primary transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? 'A Processar...' : 'Verificar e Agendar'}
+                  {isSubmitting ? 'A Verificar...' : 'Verificar Disponibilidade'}
                   {!isSubmitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
                 </button>
               </div>
@@ -309,6 +324,76 @@ const Scheduling = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }} 
+              animate={{ scale: 1, y: 0 }} 
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl"
+            >
+              <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-secondary/30">
+                <div>
+                   <h3 className="font-serif text-2xl text-dark">Quase <i className="text-primary italic font-normal">Lá!</i></h3>
+                   <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Horário Disponível</p>
+                </div>
+                <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
+                  <X className="w-5 h-5 text-gray-500" />
+                </button>
+              </div>
+
+              <form onSubmit={handleConfirmBooking} className="p-8 space-y-6">
+                
+                {statusMessage.text && (
+                  <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                    {statusMessage.text}
+                  </div>
+                )}
+                
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-500 mb-6">Por favor, insira os seus dados para confirmar a marcação no dia <strong className="text-dark">{new Date(bookingDate).toLocaleDateString('pt-PT')}</strong> às <strong className="text-dark">{bookingTime}</strong>.</p>
+                  
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Nome Completo</label>
+                     <input required type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="O seu nome" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Telemóvel</label>
+                     <input required type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="+351 900 000 000" />
+                  </div>
+                  
+                  <div className="space-y-2">
+                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Email (Opcional)</label>
+                     <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="O seu melhor email" />
+                  </div>
+                </div>
+
+                <div className="pt-6">
+                  {statusMessage.type !== 'success' && (
+                     <button 
+                       type="submit" 
+                       disabled={isSubmitting}
+                       className="w-full btn-primary flex items-center justify-center gap-2 py-4 shadow-xl shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                     >
+                       {isSubmitting ? 'A Confirmar...' : <><CheckCircle className="w-5 h-5" /> Confirmar Marcação</>}
+                     </button>
+                  )}
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </section>
   );
 };
