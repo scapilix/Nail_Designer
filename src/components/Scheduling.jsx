@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Calendar as CalendarIcon, User, Clock, ChevronRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check } from 'lucide-react';
+import { useImage } from '../hooks/useImage';
 
 const Scheduling = () => {
+  const { images } = useImage();
   const [selectedService, setSelectedService] = useState('');
   const [selectedProfessional, setSelectedProfessional] = useState('');
+
+  const team = [
+    { id: 'ana', name: 'Ana Silva', role: 'Lead Artistry', image: images.team_1 },
+    { id: 'luisa', name: 'Luísa Pereira', role: 'Master Tech', image: images.team_2 },
+    { id: 'sofia', name: 'Sofia Santos', role: 'Nail Artist', image: images.team_3 },
+  ];
 
   return (
     <section id="agendamento" className="py-24 bg-white relative overflow-hidden">
@@ -64,18 +72,45 @@ const Scheduling = () => {
                   </select>
                 </div>
 
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Profissional</label>
-                  <select 
-                    value={selectedProfessional}
-                    onChange={(e) => setSelectedProfessional(e.target.value)}
-                    className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm"
-                  >
-                    <option value="">Qualquer profissional disponível</option>
-                    <option value="ana">Ana Silva (Lead Artistry)</option>
-                    <option value="luisa">Luísa Pereira (Master Tech)</option>
-                    <option value="sofia">Sofia Santos (Nail Artist)</option>
-                  </select>
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Escolha a sua Profissional</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedProfessional('')}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
+                        <User className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-dark">Qualquer uma</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">Disponível agora</p>
+                      </div>
+                    </button>
+
+                    {team.map((pro) => (
+                      <button
+                        key={pro.id}
+                        type="button"
+                        onClick={() => setSelectedProfessional(pro.id)}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${selectedProfessional === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                      >
+                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                          <img src={pro.image} alt={pro.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-dark truncate">{pro.name}</p>
+                          <p className="text-[10px] text-gray-400 uppercase tracking-wider truncate">{pro.role}</p>
+                        </div>
+                        {selectedProfessional === pro.id && (
+                          <div className="absolute top-2 right-2">
+                            <Check className="w-3 h-3 text-primary" />
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
