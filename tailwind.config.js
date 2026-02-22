@@ -9,7 +9,7 @@ export default {
           light: "#e1ae2d",
           dark: "#8B6508",
         },
-        secondary: "#FFFFFF", // Pure white background
+        secondary: "#F9FAFB", // Light Gray (gray-50) for contrast against white
         dark: {
           DEFAULT: "#1a1a1a",
           lighter: "#2d2d2d",

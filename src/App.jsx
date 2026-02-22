@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-// Build trigger: 2026-02-22 17:51
+// Build trigger: 2026-02-22 18:03
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';

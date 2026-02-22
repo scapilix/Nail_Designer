@@ -30,7 +30,7 @@ const AdminLayout = () => {
   ];
 
   return (
-    <div className="flex h-screen bg-secondary overflow-hidden">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar */}
       <aside className="w-72 bg-dark shadow-2xl flex flex-col z-20">
         <div className="p-10">
@@ -75,8 +75,8 @@ const AdminLayout = () => {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-secondary relative">
         {/* Top Header */}
-        <header className="sticky top-0 z-10 bg-secondary/80 backdrop-blur-md px-10 py-6 flex items-center justify-between border-b border-gray-100">
-          <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-xl border border-gray-100 shadow-sm w-96">
+        <header className="sticky top-0 z-10 bg-secondary/80 backdrop-blur-md px-10 py-6 flex items-center justify-between border-b border-gray-200">
+          <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm w-96">
             <Search className="w-4 h-4 text-gray-300" />
             <input 
               type="text" 
