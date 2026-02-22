@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink } from 'lucide-react';
+import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink, CheckCircle } from 'lucide-react';
 import { useImage } from '../hooks/useImage';
 
 const AdminSettings = () => {
   const [activeTab, setActiveTab] = useState('geral');
+  const [showToast, setShowToast] = useState(false);
 
   const tabs = [
     { id: 'geral', label: 'Geral & Loja', icon: <Store className="w-4 h-4" /> },
@@ -17,7 +18,7 @@ const AdminSettings = () => {
 
   const { images, updateImage, resetImages } = useImage();
 
-  const handleImageUpload = (e, key) => {
+  const handleImageUpload = async (e, key) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
@@ -25,15 +26,73 @@ const AdminSettings = () => {
         return;
       }
       const reader = new FileReader();
-      reader.onloadend = () => {
-        updateImage(key, reader.result);
+      reader.onloadend = async () => {
+        await updateImage(key, reader.result);
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
       };
       reader.readAsDataURL(file);
     }
   };
 
+  const imageCategories = [
+    {
+      title: 'Destaques do Início (Hero)',
+      keys: ['hero_bg1', 'hero_bg2', 'hero_bg3', 'hero_float1', 'hero_float2'],
+      labels: {
+        hero_bg1: 'Fundo Início 1',
+        hero_bg2: 'Fundo Início 2',
+        hero_bg3: 'Fundo Início 3',
+        hero_float1: 'Foto Flutuante 1',
+        hero_float2: 'Foto Flutuante 2',
+      }
+    },
+    {
+      title: 'Secção Sobre Nós',
+      keys: ['about_main', 'about_detail'],
+      labels: {
+        about_main: 'Foto Principal',
+        about_detail: 'Foto de Detalhe',
+      }
+    },
+    {
+      title: 'Cartões de Serviços',
+      keys: ['service_1', 'service_2', 'service_3', 'service_4'],
+      labels: {
+        service_1: 'Serviço 1 (Manicure)',
+        service_2: 'Serviço 2 (Extensões)',
+        service_3: 'Serviço 3 (Nail Art)',
+        service_4: 'Serviço 4 (Spa Pedicure)',
+      }
+    },
+    {
+      title: 'Secção da Equipa',
+      keys: ['team_1', 'team_2', 'team_3'],
+      labels: {
+        team_1: 'Membro 1',
+        team_2: 'Membro 2',
+        team_3: 'Membro 3',
+      }
+    }
+  ];
+
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 pb-20">
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            className="fixed bottom-10 left-1/2 z-[200] bg-green-500 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-green-400"
+          >
+            <CheckCircle className="w-5 h-5" />
+            <span className="font-bold text-sm uppercase tracking-widest">Alterações gravadas com sucesso!</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
@@ -116,39 +175,50 @@ const AdminSettings = () => {
             )}
 
             {activeTab === 'galeria' && (
-              <motion.div key="galeria" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm space-y-8">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h3 className="text-lg font-bold text-dark mb-1">Galeria de Imagens</h3>
-                    <p className="text-sm text-gray-400">Clique numa imagem para substituir o ficheiro (max 5MB). As alterações aplicam-se imediatamente a todo o site.</p>
-                  </div>
-                  <button onClick={resetImages} className="text-gray-400 hover:text-red-500 flex items-center gap-2 text-sm font-bold uppercase transition-colors px-4 py-2 border border-gray-100 rounded-lg hover:border-red-500">
-                    <RefreshCw className="w-4 h-4" /> Restaurar Originais
-                  </button>
-                </div>
-                
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  {Object.entries(images).map(([key, url]) => (
-                    <div key={key} className="space-y-2 group cursor-pointer relative">
-                      <div className="aspect-[4/3] rounded-2xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-colors relative isolate">
-                        <img src={url} alt={key} className="w-full h-full object-cover" />
-                        <label className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer">
-                          <Upload className="w-6 h-6 text-white mb-2" />
-                          <span className="text-white text-xs font-bold uppercase tracking-wider">Alterar</span>
-                          <input 
-                            type="file" 
-                            accept="image/*" 
-                            className="hidden" 
-                            onChange={(e) => handleImageUpload(e, key)}
-                          />
-                        </label>
-                      </div>
-                      <p className="text-xs font-bold uppercase tracking-widest text-dark text-center truncate px-2" title={key}>
-                        {key.replace(/_/g, ' ')}
-                      </p>
+              <motion.div key="galeria" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-12">
+                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm">
+                  <div className="flex justify-between items-end">
+                    <div>
+                      <h3 className="text-lg font-bold text-dark mb-1">Cestão de Imagens Estáticas</h3>
+                      <p className="text-sm text-gray-400">Personalize as fotos principais do seu site. Clique em qualquer imagem para substituir (max 5MB).</p>
                     </div>
-                  ))}
+                    <button onClick={resetImages} className="text-gray-400 hover:text-red-500 flex items-center gap-2 text-sm font-bold uppercase transition-colors px-4 py-2 border border-gray-100 rounded-lg hover:border-red-500">
+                      <RefreshCw className="w-4 h-4" /> Restaurar Originais
+                    </button>
+                  </div>
                 </div>
+
+                {imageCategories.map((cat, cIdx) => (
+                  <div key={cat.title} className="space-y-4">
+                    <div className="flex items-center gap-4 px-2">
+                       <span className="w-8 h-px bg-primary/30"></span>
+                       <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{cat.title}</h4>
+                       <span className="flex-1 h-px bg-gray-100"></span>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                      {cat.keys.map(key => (
+                        <div key={key} className="space-y-3 group cursor-pointer">
+                          <div className="aspect-[4/3] rounded-3xl overflow-hidden border-2 border-transparent group-hover:border-primary transition-all relative isolate shadow-sm hover:shadow-xl">
+                            <img src={images[key]} alt={key} className="w-full h-full object-cover" />
+                            <label className="absolute inset-0 bg-dark/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer backdrop-blur-sm">
+                              <Upload className="w-8 h-8 text-white mb-2" />
+                              <span className="text-white text-[10px] font-black uppercase tracking-widest">Substituir</span>
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                className="hidden" 
+                                onChange={(e) => handleImageUpload(e, key)}
+                              />
+                            </label>
+                          </div>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-dark text-center truncate px-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            {cat.labels[key]}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </motion.div>
             )}
 
