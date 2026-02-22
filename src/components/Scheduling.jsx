@@ -6,6 +6,14 @@ import { supabase } from '../lib/supabase';
 const Scheduling = () => {
   const [selectedService, setSelectedService] = useState('');
   const [selectedProfessional, setSelectedProfessional] = useState('');
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingTime, setBookingTime] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [clientPhone, setClientPhone] = useState('');
+  const [clientEmail, setClientEmail] = useState('');
+  const [statusMessage, setStatusMessage] = useState({ type: '', text: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
 
@@ -28,6 +36,116 @@ const Scheduling = () => {
     };
     fetchTeamAndServices();
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedService || !bookingDate || !bookingTime || !clientName || !clientPhone) {
+      setStatusMessage({ type: 'error', text: 'Por favor, preencha os campos obrigatórios.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setStatusMessage({ type: '', text: '' });
+
+    try {
+      const dt = new Date(`${bookingDate}T${bookingTime}:00`);
+      const dtIso = dt.toISOString();
+
+      // Check availability
+      let availableProId = selectedProfessional;
+
+      if (selectedProfessional) {
+        const { data: overlapping, error: overlapErr } = await supabase
+          .from('bookings')
+          .select('id')
+          .eq('team_member_id', selectedProfessional)
+          .eq('booking_date', dtIso)
+          .neq('status', 'cancelado');
+          
+        if (overlapErr) throw overlapErr;
+        
+        if (overlapping && overlapping.length > 0) {
+          setStatusMessage({ type: 'error', text: 'Desculpe, a profissional selecionada já tem marcação nesse horário.' });
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        // If "Qualquer uma"
+        const { data: overlapping, error: overlapErr } = await supabase
+          .from('bookings')
+          .select('team_member_id')
+          .eq('booking_date', dtIso)
+          .neq('status', 'cancelado');
+          
+        if (overlapErr) throw overlapErr;
+
+        const busyPros = overlapping ? overlapping.map(b => b.team_member_id) : [];
+        const freePro = team.find(p => !busyPros.includes(p.id));
+
+        if (!freePro) {
+          setStatusMessage({ type: 'error', text: 'Desculpe, não temos profissionais disponíveis nesse horário.' });
+          setIsSubmitting(false);
+          return;
+        }
+        
+        availableProId = freePro.id;
+      }
+
+      // Find or create client
+      let clientId;
+      const { data: existingClients, error: clientErr } = await supabase
+        .from('clients')
+        .select('id')
+        .eq('phone', clientPhone)
+        .limit(1);
+
+      if (clientErr) throw clientErr;
+
+      if (existingClients && existingClients.length > 0) {
+        clientId = existingClients[0].id;
+      } else {
+        const { data: newClient, error: newClientErr } = await supabase
+          .from('clients')
+          .insert([{ name: clientName, email: clientEmail, phone: clientPhone }])
+          .select('id')
+          .single();
+          
+        if (newClientErr) throw newClientErr;
+        clientId = newClient.id;
+      }
+
+      // Insert booking
+      const { error: bookingErr } = await supabase
+        .from('bookings')
+        .insert([{
+          client_id: clientId,
+          service_id: selectedService,
+          team_member_id: availableProId,
+          booking_date: dtIso,
+          status: 'pendente'
+        }]);
+
+      if (bookingErr) throw bookingErr;
+
+      setStatusMessage({ type: 'success', text: 'Reserva efetuada com sucesso! Aguarde a nossa confirmação.' });
+      
+      // Clear form
+      setClientName('');
+      setClientPhone('');
+      setClientEmail('');
+      setSelectedService('');
+      setSelectedProfessional('');
+      setBookingDate('');
+      setBookingTime('');
+      
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+      setStatusMessage({ type: 'error', text: 'Ocorreu um erro ao processar a reserva. Tente novamente.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   return (
     <section id="agendamento" className="py-24 bg-white relative overflow-hidden">
@@ -70,9 +188,23 @@ const Scheduling = () => {
 
           {/* Right Side - Form */}
           <div className="lg:w-3/5 bg-secondary p-12 lg:p-16">
-            <form className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {statusMessage.text && (
+                <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                  {statusMessage.text}
+                </div>
+              )}
+
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-3">
+                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Os Seus Dados</label>
+                  <input required type="text" value={clientName} onChange={e => setClientName(e.target.value)} placeholder="Nome Completo" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm mb-3" />
+                  <input required type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} placeholder="Telemóvel" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm mb-3" />
+                  <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} placeholder="Email (Opcional)" className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm" />
+                </div>
+
+                <div className="space-y-3">
+
                   <label className="text-xs font-bold uppercase tracking-widest text-dark block">Serviço Especializado</label>
                   <select 
                     value={selectedService}
@@ -128,26 +260,47 @@ const Scheduling = () => {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-dark block">Data Preferencial</label>
-                <div className="relative">
-                  <input 
-                    type="date" 
-                    className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
-                  />
-                  <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Data Preferencial</label>
+                  <div className="relative">
+                    <input 
+                      required
+                      type="date" 
+                      value={bookingDate}
+                      onChange={e => setBookingDate(e.target.value)}
+                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
+                    />
+                    <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Horário</label>
+                  <div className="relative">
+                    <input 
+                      required
+                      type="time" 
+                      value={bookingTime}
+                      onChange={e => setBookingTime(e.target.value)}
+                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
+                    />
+                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  </div>
                 </div>
               </div>
 
               <div className="pt-4">
                 <button 
-                  type="button" 
-                  className="w-full bg-dark text-white font-bold py-5 rounded-custom hover:bg-primary transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest"
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="w-full bg-dark text-white font-bold py-5 rounded-custom hover:bg-primary transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
                 >
-                  Verificar Disponibilidade
-                  <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                  {isSubmitting ? 'A Processar...' : 'Verificar e Agendar'}
+                  {!isSubmitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
                 </button>
               </div>
+
               
               <p className="text-center text-[10px] text-gray-400 uppercase tracking-widest">
                 Confirmação instantânea via SMS & Email.
