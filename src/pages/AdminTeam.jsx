@@ -67,27 +67,30 @@ const AdminTeam = () => {
     try {
       setUploading(true);
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file) {
+        setUploading(false);
+        return;
+      }
 
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `team/${fileName}`;
+      if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem não pode exceder 5MB.');
+        setUploading(false);
+        return;
+      }
 
-      const { error: uploadError } = await supabase.storage
-        .from('premium_salon_media')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('premium_salon_media')
-        .getPublicUrl(filePath);
-
-      setPreviewImage(publicUrl);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        alert('Erro ao processar a imagem.');
+        setUploading(false);
+      };
+      reader.readAsDataURL(file);
     } catch (e) {
       console.error(e);
-      alert('Erro ao carregar imagem para o Supabase Storage.');
-    } finally {
+      alert('Erro ao carregar imagem.');
       setUploading(false);
     }
   };
