@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink } from 'lucide-react';
 import { useImage } from '../hooks/useImage';
 
 const AdminSettings = () => {
@@ -19,8 +20,8 @@ const AdminSettings = () => {
   const handleImageUpload = (e, key) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1 * 1024 * 1024) {
-        alert('A imagem não pode exceder 1MB para armazenamento local.');
+      if (file.size > 5 * 1024 * 1024) {
+        alert('A imagem não pode exceder 5MB.');
         return;
       }
       const reader = new FileReader();
@@ -39,9 +40,17 @@ const AdminSettings = () => {
           <h2 className="font-serif text-4xl mb-2">Configurações de <i className="text-primary italic font-normal">Sistema</i></h2>
           <p className="text-gray-400 text-sm">Gira as preferências, acessos e notificações do salão.</p>
         </div>
-        <button className="btn-primary flex items-center gap-2">
-          <Save className="w-4 h-4" /> Guardar Alterações
-        </button>
+        <div className="flex items-center gap-4">
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-dark border border-gray-100 hover:bg-secondary transition-all"
+          >
+            <ExternalLink className="w-4 h-4" /> Ver Site
+          </Link>
+          <button className="btn-primary flex items-center gap-2">
+            <Save className="w-4 h-4" /> Guardar Alterações
+          </button>
+        </div>
       </div>
 
       <div className="flex gap-8">
