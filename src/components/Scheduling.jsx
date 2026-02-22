@@ -263,7 +263,7 @@ const Scheduling = () => {
           </div>
 
           {/* Right Side - Form */}
-          <div className="lg:w-3/5 bg-secondary p-12 lg:p-16">
+          <div className="flex-1 bg-secondary p-12 lg:p-16">
             <form onSubmit={handleCheckAvailability} className="space-y-8">
               {statusMessage.text && !isModalOpen && (
                 <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
