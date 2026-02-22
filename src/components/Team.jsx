@@ -8,33 +8,39 @@ const Team = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTeam = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('team')
-          .select('*')
-          .order('name');
-        if (error) throw error;
-        setTeam(data || []);
-      } catch (err) {
-        console.error('Error fetching team:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTeam();
+  const fetchTeam = React.useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from('team')
+        .select('*')
+        .order('name');
+      if (error) throw error;
+      setTeam(data || []);
+    } catch (err) {
+      console.error('Error fetching team:', err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const next = () => setCurrentIndex((prev) => (prev + 1) % team.length);
-  const prev = () => setCurrentIndex((prev) => (prev - 1 + team.length) % team.length);
+  useEffect(() => {
+    fetchTeam();
+  }, [fetchTeam]);
+
+  const next = React.useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % team.length);
+  }, [team.length]);
+
+  const prev = React.useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + team.length) % team.length);
+  }, [team.length]);
 
   // Auto-slide if more than 3
   useEffect(() => {
     if (team.length <= 3) return;
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [team.length]);
+  }, [team.length, next]);
 
   const visibleCount = 3;
   const getVisibleItems = () => {
@@ -63,7 +69,7 @@ const Team = () => {
         <div className="relative">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <AnimatePresence mode="popLayout" initial={false}>
-              {getVisibleItems().map((member, idx) => (
+              {getVisibleItems().map((member) => (
                 <motion.div
                   key={member.id}
                   layout
