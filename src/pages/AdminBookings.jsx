@@ -61,7 +61,7 @@ const AdminBookings = () => {
     const [ {data: c}, {data: s}, {data: t} ] = await Promise.all([
       supabase.from('clients').select('id, name').order('name'),
       supabase.from('services').select('id, name, duration, price').order('name'),
-      supabase.from('team').select('id, name').order('name')
+      supabase.from('team').select('id, name, photo_url, role').order('name')
     ]);
     setClients(c || []);
     setServices(s || []);
@@ -82,7 +82,7 @@ const AdminBookings = () => {
           id, booking_date, status, notes,
           client:client_id(id, name),
           service:service_id(id, name, duration, price),
-          team:team_member_id(id, name)
+          team:team_member_id(id, name, photo_url)
         `)
         .gte('booking_date', startOfWeek.toISOString())
         .lte('booking_date', endOfWeek.toISOString());
@@ -434,14 +434,43 @@ const AdminBookings = () => {
                     </select>
                   </div>
 
-                  <div className="space-y-3 col-span-2">
+                  <div className="space-y-4 col-span-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                        <Scissors className="w-3 h-3" /> Profissional Responsável
                     </label>
-                    <select value={formData.team_member_id} onChange={e => setFormData({...formData, team_member_id: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all">
-                      <option value="">Atribuição Flexível (Diana Silva)</option>
-                      {team.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                    </select>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Flex/Auto Option */}
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, team_member_id: ''})}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!formData.team_member_id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-secondary/50 border-gray-100 hover:border-gray-200'}`}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                          <User className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-dark italic">Diana Silva</p>
+                          <p className="text-[9px] text-gray-400 uppercase tracking-wider">Atribuição Flexível</p>
+                        </div>
+                      </button>
+
+                      {team.map((pro) => (
+                        <button
+                          key={pro.id}
+                          type="button"
+                          onClick={() => setFormData({...formData, team_member_id: pro.id})}
+                          className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${formData.team_member_id === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-secondary/50 border-gray-100 hover:border-gray-200'}`}
+                        >
+                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                            <img src={pro.photo_url} alt={pro.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-bold text-dark truncate">{pro.name}</p>
+                            <p className="text-[9px] text-gray-400 uppercase tracking-wider truncate">{pro.role}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="space-y-3">
