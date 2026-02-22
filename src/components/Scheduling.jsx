@@ -20,6 +20,18 @@ const Scheduling = () => {
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
 
+  const generateTimeSlots = () => {
+    const slots = [];
+    for (let i = 9; i <= 20; i++) {
+      slots.push(`${String(i).padStart(2, '0')}:00`);
+      if (i !== 20) {
+        slots.push(`${String(i).padStart(2, '0')}:30`);
+      }
+    }
+    return slots;
+  };
+  const timeSlots = generateTimeSlots();
+
   useEffect(() => {
     const fetchTeamAndServices = async () => {
       try {
@@ -364,14 +376,17 @@ const Scheduling = () => {
                 <div className="space-y-3">
                   <label className="text-xs font-bold uppercase tracking-widest text-dark block">Horário</label>
                   <div className="relative">
-                    <input 
+                    <select 
                       required
-                      type="time" 
-                      step="1800"
                       value={bookingTime}
                       onChange={e => setBookingTime(e.target.value)}
-                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
-                    />
+                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12 appearance-none"
+                    >
+                      <option value="" disabled hidden>Selecione a hora</option>
+                      {timeSlots.map(time => (
+                        <option key={time} value={time}>{time}</option>
+                      ))}
+                    </select>
                     <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
