@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 // Chaves para as imagens principais do site
 const defaultImages = {
@@ -8,8 +9,8 @@ const defaultImages = {
   hero_float1: 'https://images.unsplash.com/photo-1559599189-fe84dea4eb79?q=80&w=900&auto=format&fit=crop',
   hero_float2: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?q=80&w=900&auto=format&fit=crop',
 
-  about_main: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1000&auto=format&fit=crop', // Manicure working in salon
-  about_detail: 'https://images.unsplash.com/photo-1516975080661-46bca194f509?q=80&w=800&auto=format&fit=crop', // Detail of manicure tools/hands
+  about_main: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=1000&auto=format&fit=crop', 
+  about_detail: 'https://images.unsplash.com/photo-1516975080661-46bca194f509?q=80&w=800&auto=format&fit=crop', 
 
   service_1: 'https://images.unsplash.com/photo-1610992015732-2449b76344bc?q=80&w=800&auto=format&fit=crop',
   service_2: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?q=80&w=800&auto=format&fit=crop',
@@ -18,7 +19,7 @@ const defaultImages = {
 
   team_1: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?q=80&w=800&auto=format&fit=crop',
   team_2: 'https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?q=80&w=800&auto=format&fit=crop',
-  team_3: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?q=80&w=800&auto=format&fit=crop',
+  team_3: 'https://images.unsplash.com/photo-1588516999521-43030079545c?q=80&w=800&auto=format&fit=crop',
 };
 
 const ImageContext = createContext(null);
@@ -28,35 +29,56 @@ export const ImageProvider = ({ children }) => {
   const [images, setImages] = useState(defaultImages);
 
   useEffect(() => {
-    // Load from localStorage on mount
-    const saved = localStorage.getItem('tobeauty_custom_images');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        // Delaying state set to avoid synchronous cascading during render
-        setTimeout(() => setImages(prev => ({ ...prev, ...parsed })), 0);
-      } catch (e) {
-        console.error('Failed to parse custom images from localStorage', e);
+    const fetchCustomImages = async () => {
+      const { data, error } = await supabase
+        .from('site_images')
+        .select('image_key, image_url');
+      
+      if (error) {
+        console.error('Error fetching custom images:', error);
+        return;
       }
-    }
+
+      if (data && data.length > 0) {
+        const customMapped = data.reduce((acc, curr) => ({
+          ...acc,
+          [curr.image_key]: curr.image_url
+        }), {});
+        setImages(prev => ({ ...prev, ...customMapped }));
+      }
+    };
+
+    fetchCustomImages();
   }, []);
 
-  const updateImage = (key, base64data) => {
-    setImages(prev => {
-      const next = { ...prev, [key]: base64data };
-      try {
-        localStorage.setItem('tobeauty_custom_images', JSON.stringify(next));
-      } catch (err) {
-        console.error('Failed to save to localStorage (Quota Exceeded):', err);
-        setTimeout(() => alert('Erro: Limite de armazenamento excedido. A imagem ficará visível, mas não será guardada de forma permanente.'), 100);
-      }
-      return next;
-    });
+  const updateImage = async (key, base64data) => {
+    // 1. Update state immediately for responsiveness
+    setImages(prev => ({ ...prev, [key]: base64data }));
+
+    // 2. Persist to Supabase
+    const { error } = await supabase
+      .from('site_images')
+      .upsert({ image_key: key, image_url: base64data }, { onConflict: 'image_key' });
+
+    if (error) {
+      console.error('Failed to save to Supabase:', error);
+      alert('Erro: Falha ao guardar a imagem permanentemente na base de dados.');
+    }
   };
 
-  const resetImages = () => {
+  const resetImages = async () => {
+    // 1. Reset state
     setImages(defaultImages);
-    localStorage.removeItem('tobeauty_custom_images');
+
+    // 2. Clear from Supabase
+    const { error } = await supabase
+      .from('site_images')
+      .delete()
+      .neq('id', '00000000-0000-0000-0000-000000000000'); // Delete everything
+
+    if (error) {
+      console.error('Failed to reset images in Supabase:', error);
+    }
   };
 
   return (

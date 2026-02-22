@@ -31,8 +31,7 @@ CREATE TABLE IF NOT EXISTS public.invoices (
 );
 
 -- Tabela de Itens da Fatura (invoice_items)
-CREATE TABLE IF NOT EXISTS public.invoice_items (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+na   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   invoice_id UUID REFERENCES public.invoices(id) ON DELETE CASCADE,
   product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
   service_id UUID,
@@ -84,4 +83,10 @@ INSERT INTO public.expenses (description, category, amount, date) VALUES
   ('Renda do Salão', 'Fixa', 1500.00, '2026-02-01'),
   ('Eletricidade', 'Variável', 180.00, '2026-02-05'),
   ('Fornecedor Produtos Gel', 'Stock', 450.00, '2026-02-12'),
-  ('Marketing (Meta Ads)', 'Variável', 300.00, '2026-02-15');
+-- Tabela para imagens dinâmicas do site (Persistência)
+CREATE TABLE IF NOT EXISTS public.site_images (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  image_key TEXT UNIQUE NOT NULL,
+  image_url TEXT NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
