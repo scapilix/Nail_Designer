@@ -26,10 +26,10 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-white/95 backdrop-blur-md py-4 shadow-lg' : 'bg-transparent py-8'}`}>
+    <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[rgb(var(--nav-bg)/0.95)] backdrop-blur-md py-4 shadow-lg border-b border-primary/10' : 'bg-transparent py-8'}`}>
       {/* Dynamic top gradient for visibility on transparent mode */}
       {!scrolled && (
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-dark/60 to-transparent pointer-events-none -z-10"></div>
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[rgb(var(--nav-gradient)/0.8)] to-transparent pointer-events-none -z-10"></div>
       )}
 
       <div className="container mx-auto px-6 flex justify-between items-center">

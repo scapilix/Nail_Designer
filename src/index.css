@@ -13,6 +13,8 @@
     --dark-darker: 10 10 10; /* #0a0a0a */
     --text-main: 26 26 26;
     --bg-main: 249 250 251;
+    --nav-bg: 255 255 255;
+    --nav-gradient: 26 26 26;
   }
 
   .theme-neutral {
@@ -23,6 +25,8 @@
     --dark: 30 41 59; /* #1E293B */
     --text-main: 30 41 59;
     --bg-main: 255 255 255;
+    --nav-bg: 255 255 255;
+    --nav-gradient: 30 41 59;
   }
 
   .theme-dark {
@@ -32,7 +36,9 @@
     --secondary: 28 25 23; /* #1C1917 */
     --dark: 250 250 249; /* #FAFAF9 */
     --text-main: 250 250 249;
-    --bg-main: 12 10 9; /* #0C0A09 */
+    --bg-main: 5 5 5; /* Midnight Black */
+    --nav-bg: 12 10 9;
+    --nav-gradient: 0 0 0;
   }
 
   body {
