@@ -63,8 +63,8 @@ const AdminPlans = () => {
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 pb-20">
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-serif text-4xl mb-2">Planos de <i className="text-primary italic font-normal">Subscrição</i></h2>
-          <p className="text-gray-400 text-sm">Escolha o nível de ferramentas e inteligência ideal para o seu negócio.</p>
+          <h2 className="font-serif text-4xl mb-2 text-main">Planos de <i className="text-primary italic font-normal">Subscrição</i></h2>
+          <p className="text-muted text-sm">Escolha o nível de ferramentas e inteligência ideal para o seu negócio.</p>
         </div>
       </div>
 
@@ -74,8 +74,8 @@ const AdminPlans = () => {
             key={plan.id}
             className={`relative rounded-[40px] p-10 flex flex-col transition-all duration-500 hover:translate-y-[-10px] ${
               plan.active 
-              ? 'bg-white border-2 border-primary shadow-2xl shadow-primary/20 scale-105 z-10 py-14' 
-              : 'bg-white border border-gray-100 shadow-sm opacity-80 scale-95'
+              ? 'bg-card border-2 border-primary shadow-2xl shadow-primary/20 scale-105 z-10 py-14' 
+              : 'bg-card border border-border-main/50 shadow-sm opacity-80 scale-95'
             }`}
           >
             {plan.badge && (
@@ -89,22 +89,22 @@ const AdminPlans = () => {
             </div>
 
             <div className="mb-8">
-              <h3 className="font-serif text-2xl text-dark mb-1">{plan.name}</h3>
-              <p className="text-gray-400 text-xs">{plan.description}</p>
+              <h3 className="font-serif text-2xl text-main mb-1">{plan.name}</h3>
+              <p className="text-muted text-xs">{plan.description}</p>
             </div>
 
             <div className="flex items-baseline gap-1 mb-8">
-              <span className="text-4xl font-bold text-dark">{plan.price}</span>
-              <span className="text-gray-400 text-sm font-medium">{plan.period}</span>
+              <span className="text-4xl font-bold text-main">{plan.price}</span>
+              <span className="text-muted text-sm font-medium">{plan.period}</span>
             </div>
 
             <div className="space-y-4 mb-10 flex-1">
               {plan.features.map((feature, idx) => (
                 <div key={idx} className="flex items-center gap-3">
-                  <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.active ? 'bg-primary/10 text-primary' : 'bg-gray-50 text-gray-400'}`}>
+                  <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.active ? 'bg-primary/10 text-primary' : 'bg-main text-muted'}`}>
                     <Check className="w-3 h-3" strokeWidth={3} />
                   </div>
-                  <span className="text-sm font-medium text-gray-600 leading-tight">{feature}</span>
+                  <span className="text-sm font-medium text-muted leading-tight">{feature}</span>
                 </div>
               ))}
             </div>
@@ -112,8 +112,8 @@ const AdminPlans = () => {
             <button 
               className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
                 plan.active 
-                ? 'bg-gray-100 text-gray-400 cursor-default' 
-                : 'bg-dark text-white hover:bg-primary shadow-xl shadow-dark/10'
+                ? 'bg-main border border-border-main text-muted cursor-default' 
+                : 'bg-primary text-white hover:bg-primary-light shadow-xl shadow-primary/20'
               }`}
             >
               {plan.active ? 'Atualmente em Uso' : 'Alterar para este Plano'}
@@ -123,14 +123,14 @@ const AdminPlans = () => {
         ))}
       </div>
 
-      <div className="bg-dark rounded-[40px] p-12 relative overflow-hidden group">
+      <div className="bg-card rounded-[40px] p-12 relative overflow-hidden group border border-border-main">
          <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
          <div className="relative z-10 flex items-center justify-between">
             <div className="max-w-xl">
-               <h4 className="font-serif text-3xl text-white mb-4">Precisa de uma solução <i className="text-primary italic font-normal">Customizada</i>?</h4>
-               <p className="text-gray-400 text-sm leading-relaxed">Se gere múltiplas localizações ou precisa de integrações específicas com sistemas externos, a nossa equipa Enterprise está pronta para ajudar.</p>
+               <h4 className="font-serif text-3xl text-main mb-4">Precisa de uma solução <i className="text-primary italic font-normal">Customizada</i>?</h4>
+               <p className="text-muted text-sm leading-relaxed">Se gere múltiplas localizações ou precisa de integrações específicas com sistemas externos, a nossa equipa Enterprise está pronta para ajudar.</p>
             </div>
-            <button className="px-10 py-5 bg-white text-dark rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all shadow-xl">
+            <button className="px-10 py-5 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary-light transition-all shadow-xl shadow-primary/20">
                Contactar Consultor
             </button>
          </div>

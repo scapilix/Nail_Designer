@@ -27,9 +27,9 @@ import AdminClientes from './pages/AdminClientes';
 import AdminPlans from './pages/AdminPlans';
 // Placeholder Pages
 const PlaceholderPage = ({ title }) => (
-  <div className="bg-white/80 backdrop-blur-md p-20 rounded-[40px] shadow-sm border border-primary/10 text-center">
-    <h2 className="font-serif text-4xl mb-4 text-dark">{title}</h2>
-    <p className="text-dark/60">Esta secção está sob desenvolvimento com a mesma estética de luxo.</p>
+  <div className="bg-card/80 backdrop-blur-md p-20 rounded-[40px] shadow-sm border border-border-main text-center">
+    <h2 className="font-serif text-4xl mb-4 text-main">{title}</h2>
+    <p className="text-muted">Esta secção está sob desenvolvimento com a mesma estética de luxo.</p>
   </div>
 );
 

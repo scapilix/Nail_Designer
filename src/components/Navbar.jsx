@@ -53,8 +53,8 @@ const Navbar = () => {
             href="#agendamento"
             className={`px-6 py-2.5 rounded-custom text-xs font-bold transition-all duration-300 shadow-md flex items-center gap-2 ${
               scrolled 
-                ? 'bg-dark text-white hover:bg-primary' 
-                : 'bg-white text-dark hover:bg-primary hover:text-white'
+                ? 'bg-main text-white hover:bg-primary border border-border-main' 
+                : 'bg-card text-main border border-border-main hover:bg-primary hover:text-white'
             }`}
           >
             AGENDAR AGORA
@@ -66,7 +66,7 @@ const Navbar = () => {
               scrolled ? 'text-gray-400 hover:text-dark' : 'text-white/70 hover:text-white'
             }`}
           >
-            <div className={`p-2 rounded-full transition-colors ${scrolled ? 'bg-gray-100 group-hover:bg-primary group-hover:text-white' : 'bg-white/10 group-hover:bg-primary'}`}>
+            <div className={`p-2 border border-border-main rounded-full transition-colors ${scrolled ? 'bg-card group-hover:bg-primary group-hover:text-white' : 'bg-main/50 group-hover:bg-primary'}`}>
               <LogIn size={14} />
             </div>
             <span>LOGIN</span>
@@ -90,14 +90,14 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-100 overflow-hidden shadow-2xl"
+            className="lg:hidden bg-card border-t border-border-main overflow-hidden shadow-2xl"
           >
             <div className="flex flex-col p-8 space-y-6">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-dark font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                  className="text-main font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -112,7 +112,7 @@ const Navbar = () => {
               </a>
               <Link
                 to="/admin"
-                className="flex items-center justify-center gap-3 py-4 border-t border-gray-100 text-dark font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                className="flex items-center justify-center gap-3 py-4 border-t border-border-main text-main font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
                 onClick={() => setIsOpen(false)}
               >
                 <LogIn size={18} />

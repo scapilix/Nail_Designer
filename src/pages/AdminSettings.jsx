@@ -99,17 +99,17 @@ const AdminSettings = () => {
       {/* Header */}
       <div className="flex justify-between items-end">
         <div>
-          <h2 className="font-serif text-4xl mb-2">Configurações de <i className="text-primary italic font-normal">Sistema</i></h2>
-          <p className="text-gray-400 text-sm">Gira as preferências, acessos e notificações do salão.</p>
+          <h2 className="font-serif text-4xl mb-2 text-main">Configurações de <i className="text-primary italic font-normal">Sistema</i></h2>
+          <p className="text-muted text-sm">Gira as preferências, acessos e notificações do salão.</p>
         </div>
         <div className="flex items-center gap-4">
           <Link 
             to="/" 
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest text-gray-500 hover:text-dark border border-gray-100 hover:bg-secondary transition-all"
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold uppercase tracking-widest text-muted hover:text-main border border-border-main hover:bg-main transition-all"
           >
             <ExternalLink className="w-4 h-4" /> Ver Site
           </Link>
-          <button className="btn-primary flex items-center gap-2">
+          <button className="bg-primary text-white hover:bg-primary-light px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
             <Save className="w-4 h-4" /> Guardar Alterações
           </button>
         </div>
@@ -122,7 +122,7 @@ const AdminSettings = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`w-full flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-white text-dark shadow-sm border border-gray-100' : 'text-gray-400 hover:bg-secondary hover:text-dark'}`}
+              className={`w-full flex items-center gap-3 px-6 py-4 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-card text-main shadow-lg border border-border-main' : 'text-muted hover:bg-card hover:text-main border border-transparent'}`}
             >
               {tab.icon} {tab.label}
             </button>
@@ -133,16 +133,16 @@ const AdminSettings = () => {
         <div className="flex-1">
           <AnimatePresence mode="wait">
             {activeTab === 'aparencia' && (
-              <motion.div key="aparencia" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm space-y-8">
+              <motion.div key="aparencia" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-card rounded-[32px] p-10 border border-border-main shadow-sm space-y-8">
                 <div>
-                  <h3 className="text-lg font-bold text-dark mb-1">Temas do Sistema</h3>
-                  <p className="text-sm text-gray-400 mb-8">Selecione a aparência que melhor se adapta ao seu estilo de marca.</p>
+                  <h3 className="text-lg font-bold text-main mb-1">Temas do Sistema</h3>
+                  <p className="text-sm text-muted mb-8">Selecione a aparência que melhor se adapta ao seu estilo de marca.</p>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Classic Theme */}
                     <div 
                       onClick={() => setTheme('theme-classic')}
-                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-classic' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-classic' ? 'border-primary ring-4 ring-primary/10' : 'border-border-main/50 hover:border-primary/30'}`}
                     >
                       <div className="aspect-video bg-[#F9FAFB] p-4 flex flex-col gap-2">
                         <div className="w-1/2 h-2 bg-[#B8860B] rounded-full"></div>
@@ -153,17 +153,17 @@ const AdminSettings = () => {
                           <div className="h-4 bg-gray-200 rounded"></div>
                         </div>
                       </div>
-                      <div className="p-4 bg-white border-t border-gray-100">
-                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Noir Élégance (Atual)</p>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Ivory & Gold Luxury</p>
+                      <div className="p-4 bg-main border-t border-border-main/50">
+                        <p className="font-bold text-sm text-main group-hover:text-primary transition-colors">Noir Élégance</p>
+                        <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Ivory & Gold Luxury</p>
                       </div>
-                      {theme === 'theme-classic' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                      {theme === 'theme-classic' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full shadow-lg shadow-primary/30"><CheckCircle className="w-4 h-4" /></div>}
                     </div>
 
                     {/* Neutral White */}
                     <div 
                       onClick={() => setTheme('theme-neutral')}
-                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-neutral' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-neutral' ? 'border-primary ring-4 ring-primary/10' : 'border-border-main/50 hover:border-primary/30'}`}
                     >
                       <div className="aspect-video bg-white p-4 flex flex-col gap-2">
                         <div className="w-1/2 h-2 bg-[#3B82F6] rounded-full"></div>
@@ -173,17 +173,17 @@ const AdminSettings = () => {
                           <div className="flex-1 h-8 rounded-lg bg-gray-50"></div>
                         </div>
                       </div>
-                      <div className="p-4 bg-white border-t border-gray-100">
-                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Pure Canvas</p>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Neutral White Minimal</p>
+                      <div className="p-4 bg-main border-t border-border-main/50">
+                        <p className="font-bold text-sm text-main group-hover:text-primary transition-colors">Pure Canvas</p>
+                        <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Neutral White Minimal</p>
                       </div>
-                      {theme === 'theme-neutral' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                      {theme === 'theme-neutral' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full shadow-lg shadow-primary/30"><CheckCircle className="w-4 h-4" /></div>}
                     </div>
 
                     {/* Dark Premium */}
                     <div 
                       onClick={() => setTheme('theme-dark')}
-                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-dark' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-dark' ? 'border-primary ring-4 ring-primary/10' : 'border-border-main/50 hover:border-primary/30'}`}
                     >
                       <div className="aspect-video bg-[#0C0A09] p-4 flex flex-col gap-2">
                         <div className="w-1/2 h-2 bg-[#CA8A04] rounded-full"></div>
@@ -193,24 +193,24 @@ const AdminSettings = () => {
                           <div className="h-6 bg-stone-800 rounded"></div>
                         </div>
                       </div>
-                      <div className="p-4 bg-white border-t border-gray-100">
-                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Midnight Gold</p>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Dark Premium Luxury</p>
+                      <div className="p-4 bg-main border-t border-border-main/50">
+                        <p className="font-bold text-sm text-main group-hover:text-primary transition-colors">Noir Intense</p>
+                        <p className="text-[10px] text-muted uppercase tracking-widest mt-1">Noir Absolute & Gold</p>
                       </div>
-                      {theme === 'theme-dark' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                      {theme === 'theme-dark' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full shadow-lg shadow-primary/30"><CheckCircle className="w-4 h-4" /></div>}
                     </div>
                   </div>
                 </div>
 
-                <div className="h-px bg-gray-100 w-full"></div>
+                <div className="h-px bg-border-main/50 w-full"></div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-dark mb-1">Preferências de Interface</h3>
+                  <h3 className="text-lg font-bold text-main mb-1">Preferências de Interface</h3>
                   <div className="space-y-6 mt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-dark text-sm">Animações Suaves</p>
-                        <p className="text-xs text-gray-400">Ativa transições fluidas entre páginas e elementos.</p>
+                        <p className="font-bold text-main text-sm">Animações Suaves</p>
+                        <p className="text-xs text-muted">Ativa transições fluidas entre páginas e elementos.</p>
                       </div>
                       <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
                         <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1"></div>
@@ -222,44 +222,44 @@ const AdminSettings = () => {
             )}
 
             {activeTab === 'geral' && (
-              <motion.div key="geral" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm space-y-8">
+              <motion.div key="geral" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-card rounded-[32px] p-10 border border-border-main shadow-sm space-y-8">
                 <div>
-                  <h3 className="text-lg font-bold text-dark mb-1">Informações do Salão</h3>
-                  <p className="text-sm text-gray-400 mb-6">Estes dados serão visíveis para os clientes nos emails e faturas.</p>
+                  <h3 className="text-lg font-bold text-main mb-1">Informações do Salão</h3>
+                  <p className="text-sm text-muted mb-6">Estes dados serão visíveis para os clientes nos emails e faturas.</p>
                   
                   <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-dark block">Nome Comercial</label>
-                      <input type="text" defaultValue="TOBeauty Premium Salon" className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" />
+                      <label className="text-xs font-bold uppercase tracking-widest text-primary block">Nome Comercial</label>
+                      <input type="text" defaultValue="TOBeauty Premium Salon" className="w-full bg-main border border-border-main rounded-xl px-4 py-3 text-sm outline-none text-main focus:ring-1 focus:ring-primary" />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-dark block">NIF da Empresa</label>
-                      <input type="text" defaultValue="512345678" className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" />
+                      <label className="text-xs font-bold uppercase tracking-widest text-primary block">NIF da Empresa</label>
+                      <input type="text" defaultValue="512345678" className="w-full bg-main border border-border-main rounded-xl px-4 py-3 text-sm outline-none text-main focus:ring-1 focus:ring-primary" />
                     </div>
                     <div className="space-y-2 col-span-2">
-                      <label className="text-xs font-bold uppercase tracking-widest text-dark block">Morada Completa</label>
-                      <input type="text" defaultValue="Avenida da Liberdade 123, Lisboa" className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" />
+                      <label className="text-xs font-bold uppercase tracking-widest text-primary block">Morada Completa</label>
+                      <input type="text" defaultValue="Avenida da Liberdade 123, Lisboa" className="w-full bg-main border border-border-main rounded-xl px-4 py-3 text-sm outline-none text-main focus:ring-1 focus:ring-primary" />
                     </div>
                   </div>
                 </div>
 
-                <div className="h-px bg-gray-100 w-full"></div>
+                <div className="h-px bg-border-main/50 w-full"></div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-dark mb-1">Presença Digital</h3>
+                  <h3 className="text-lg font-bold text-main mb-1">Presença Digital</h3>
                   <div className="space-y-6 mt-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-bold text-dark text-sm">Site Público Ativo</p>
-                        <p className="text-xs text-gray-400">Permite aos clientes que vejam o site e agendem online.</p>
+                        <p className="font-bold text-main text-sm">Site Público Ativo</p>
+                        <p className="text-xs text-muted">Permite aos clientes que vejam o site e agendem online.</p>
                       </div>
                       <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
                         <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1"></div>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Globe className="w-5 h-5 text-gray-400" />
-                      <input type="text" defaultValue="https://tobeauty.pt" disabled className="flex-1 bg-secondary text-gray-500 border-none rounded-xl px-4 py-3 text-sm outline-none" />
+                      <Globe className="w-5 h-5 text-muted" />
+                      <input type="text" defaultValue="https://tobeauty.pt" disabled className="flex-1 bg-main text-muted border border-border-main rounded-xl px-4 py-3 text-sm outline-none opacity-60" />
                     </div>
                   </div>
                 </div>
@@ -268,13 +268,13 @@ const AdminSettings = () => {
 
             {activeTab === 'galeria' && (
               <motion.div key="galeria" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="space-y-12">
-                <div className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm">
+                <div className="bg-card rounded-[32px] p-10 border border-border-main shadow-sm">
                   <div className="flex justify-between items-end">
                     <div>
-                      <h3 className="text-lg font-bold text-dark mb-1">Cestão de Imagens Estáticas</h3>
-                      <p className="text-sm text-gray-400">Personalize as fotos principais do seu site. Clique em qualquer imagem para substituir (max 5MB).</p>
+                      <h3 className="text-lg font-bold text-main mb-1">Gestão de Imagens Estáticas</h3>
+                      <p className="text-sm text-muted">Personalize as fotos principais do seu site. Clique em qualquer imagem para substituir (max 5MB).</p>
                     </div>
-                    <button onClick={resetImages} className="text-gray-400 hover:text-red-500 flex items-center gap-2 text-sm font-bold uppercase transition-colors px-4 py-2 border border-gray-100 rounded-lg hover:border-red-500">
+                    <button onClick={resetImages} className="text-muted hover:text-red-500 flex items-center gap-2 text-sm font-bold uppercase transition-colors px-4 py-2 border border-border-main rounded-lg hover:border-red-500 hover:bg-red-500/5">
                       <RefreshCw className="w-4 h-4" /> Restaurar Originais
                     </button>
                   </div>
@@ -285,7 +285,7 @@ const AdminSettings = () => {
                     <div className="flex items-center gap-4 px-2">
                        <span className="w-8 h-px bg-primary/30"></span>
                        <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary">{cat.title}</h4>
-                       <span className="flex-1 h-px bg-gray-100"></span>
+                       <span className="flex-1 h-px bg-border-main/50"></span>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                       {cat.keys.map(key => (
@@ -303,7 +303,7 @@ const AdminSettings = () => {
                               />
                             </label>
                           </div>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-dark text-center truncate px-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-main text-center truncate px-2 opacity-60 group-hover:opacity-100 transition-opacity">
                             {cat.labels[key]}
                           </p>
                         </div>
@@ -314,9 +314,9 @@ const AdminSettings = () => {
               </motion.div>
             )}
 
-            {activeTab !== 'geral' && activeTab !== 'galeria' && (
-              <motion.div key="other" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm flex items-center justify-center min-h-[400px]">
-                <p className="text-gray-400 text-sm">Painel em desenvolvimento.</p>
+            {activeTab !== 'geral' && activeTab !== 'galeria' && activeTab !== 'aparencia' && (
+              <motion.div key="other" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-card rounded-[32px] p-10 border border-border-main shadow-sm flex items-center justify-center min-h-[400px]">
+                <p className="text-muted text-sm">Painel em desenvolvimento.</p>
               </motion.div>
             )}
           </AnimatePresence>

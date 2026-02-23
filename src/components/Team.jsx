@@ -86,10 +86,10 @@ const Team = () => {
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center gap-4">
-                      <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
+                      <a href="#" className="w-10 h-10 rounded-full bg-card border border-border-main text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all transform hover:scale-110">
                         <Instagram className="w-4 h-4" />
                       </a>
-                      <a href="#" className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center hover:bg-dark hover:text-white transition-all transform hover:scale-110">
+                      <a href="#" className="w-10 h-10 rounded-full bg-card border border-border-main text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-all transform hover:scale-110">
                         <Linkedin className="w-4 h-4" />
                       </a>
                     </div>

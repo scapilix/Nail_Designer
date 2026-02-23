@@ -236,7 +236,7 @@ const Scheduling = () => {
 
 
   return (
-    <section id="agendamento" className="py-24 bg-white relative overflow-hidden">
+    <section id="agendamento" className="py-24 bg-main relative overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row bg-dark rounded-[32px] overflow-hidden shadow-2xl">
           {/* Left Side - Info */}
@@ -291,7 +291,7 @@ const Scheduling = () => {
                                setSuggestedSlots([]);
                                setStatusMessage({ type: '', text: '' });
                             }}
-                            className="px-3 py-1.5 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 hover:border-red-300 transition-colors shadow-sm text-xs tracking-wider"
+                            className="px-3 py-1.5 bg-card text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors shadow-sm text-xs tracking-wider"
                           >
                             {slot}
                           </button>
@@ -307,7 +307,7 @@ const Scheduling = () => {
                   <select 
                     value={selectedService}
                     onChange={(e) => setSelectedService(e.target.value)}
-                    className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm"
+                    className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm"
                   >
                     <option value="">Selecione um serviço</option>
                     {services.map(s => (
@@ -322,7 +322,7 @@ const Scheduling = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedProfessional('')}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-card border-border-main hover:border-primary/50'}`}
                     >
                       <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
                         <User className="w-6 h-6" />
@@ -338,7 +338,7 @@ const Scheduling = () => {
                         key={pro.id}
                         type="button"
                         onClick={() => setSelectedProfessional(pro.id)}
-                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${selectedProfessional === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-white border-gray-100 hover:border-gray-200'}`}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${selectedProfessional === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-card border-border-main hover:border-primary/50'}`}
                       >
                         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-gray-100">
                           <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
@@ -367,7 +367,7 @@ const Scheduling = () => {
                       type="date" 
                       value={bookingDate}
                       onChange={e => setBookingDate(e.target.value)}
-                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
+                      className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
                     />
                     <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>
@@ -380,7 +380,7 @@ const Scheduling = () => {
                       required
                       value={bookingTime}
                       onChange={e => setBookingTime(e.target.value)}
-                      className="w-full bg-white border border-gray-100 rounded-custom px-4 py-4 text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12 appearance-none"
+                      className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12 appearance-none"
                     >
                       <option value="" disabled hidden>Selecione a hora</option>
                       {timeSlots.map(time => (
@@ -425,14 +425,14 @@ const Scheduling = () => {
               initial={{ scale: 0.95, y: 20 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-white rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl"
+              className="bg-card border border-border-main rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl"
             >
-              <div className="p-8 border-b border-gray-50 flex justify-between items-center bg-secondary/30">
+              <div className="p-8 border-b border-border-main flex justify-between items-center bg-main">
                 <div>
                    <h3 className="font-serif text-2xl text-dark">Quase <i className="text-primary italic font-normal">Lá!</i></h3>
                    <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Horário Disponível</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 bg-white rounded-full hover:bg-gray-100 transition-colors">
+                <button onClick={() => setIsModalOpen(false)} className="p-2 bg-card border border-border-main rounded-full hover:bg-main transition-colors">
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
               </div>

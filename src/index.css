@@ -39,12 +39,12 @@
     --primary: 212 175 55; /* Rich Metallic Gold */
     --primary-light: 234 199 90;
     --primary-dark: 184 134 11;
-    --secondary: 10 10 10; /* Very Dark Accent */
-    --dark: 250 250 249; /* White text on black */
+    --secondary: 0 0 0; /* Absolute Black */
+    --dark: 255 255 255; /* White text on black */
     --text-main: 255 255 255;
     --bg-main: 0 0 0; /* Absolute Black */
-    --bg-card: 8 8 8; /* Near Black Cards */
-    --border-main: 212 175 55 / 0.15; /* Suble Gold Border */
+    --bg-card: 0 0 0; /* No Cards, Absolute Black */
+    --border-main: 212 175 55 / 0.15; /* Subtle Gold Border */
     --text-muted: 161 161 170; /* zinc-400 */
     --nav-bg: 0 0 0;
     --nav-gradient: 0 0 0;

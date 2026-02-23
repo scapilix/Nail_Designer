@@ -194,11 +194,11 @@ const AdminBookings = () => {
 
   const getStatusColor = (status) => {
     switch(status) {
-      case 'concluido': return 'bg-green-50 border-green-100 text-green-700';
-      case 'em_andamento': return 'bg-blue-50 border-blue-100 text-blue-700';
-      case 'pendente': return 'bg-primary/10 border-primary/20 text-dark';
-      case 'cancelado': return 'bg-red-50 border-red-100 text-red-500 opacity-60';
-      default: return 'bg-gray-100 border-gray-200 text-gray-500';
+      case 'concluido': return 'bg-green-500/10 border-green-500/20 text-green-500';
+      case 'em_andamento': return 'bg-blue-500/10 border-blue-500/20 text-blue-500';
+      case 'pendente': return 'bg-primary/10 border-primary/20 text-main';
+      case 'cancelado': return 'bg-red-500/10 border-red-500/20 text-red-400 opacity-60';
+      default: return 'bg-main/50 border-border-main text-muted';
     }
   };
 
@@ -224,19 +224,19 @@ const AdminBookings = () => {
       {/* Header & Month controls */}
       <div className="flex justify-between items-end shrink-0">
         <div>
-          <h2 className="font-serif text-4xl mb-2">Agenda de <i className="text-primary italic font-normal">Marcações</i></h2>
-          <p className="text-gray-400 text-sm">Gerencie o tempo e a experiência das suas clientes num calendário unificado.</p>
+          <h2 className="font-serif text-4xl mb-2 text-main">Agenda de <i className="text-primary italic font-normal">Marcações</i></h2>
+          <p className="text-muted text-sm">Gerencie o tempo e a experiência das suas clientes num calendário unificado.</p>
         </div>
         <div className="flex gap-4">
-          <div className="flex items-center gap-4 bg-white rounded-[20px] border border-gray-100 p-2 shadow-sm">
-            <button onClick={prevWeek} className="p-2 hover:bg-secondary rounded-xl transition-colors"><ChevronLeft className="w-5 h-5 text-gray-400" /></button>
+          <div className="flex items-center gap-4 bg-card rounded-[20px] border border-border-main p-2 shadow-sm">
+            <button onClick={prevWeek} className="p-2 hover:bg-main rounded-xl transition-colors"><ChevronLeft className="w-5 h-5 text-muted" /></button>
             <div className="flex items-center gap-3 px-2">
                <CalendarDays className="w-4 h-4 text-primary" />
                <span className="text-sm font-bold capitalize min-w-[140px] text-center">{formatMonth(weekDays[0])}</span>
             </div>
-            <button onClick={nextWeek} className="p-2 hover:bg-secondary rounded-xl transition-colors"><ChevronRight className="w-5 h-5 text-gray-400" /></button>
+            <button onClick={nextWeek} className="p-2 hover:bg-main rounded-xl transition-colors"><ChevronRight className="w-5 h-5 text-muted" /></button>
           </div>
-          <button onClick={goToToday} className="px-6 py-2 bg-secondary text-dark rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors shadow-sm">Hoje</button>
+          <button onClick={goToToday} className="px-6 py-2 bg-card border border-border-main text-main rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-main transition-colors shadow-sm">Hoje</button>
           <button onClick={openAddModal} className="btn-primary flex items-center gap-2">
             <Plus className="w-4 h-4" /> Novo Agendamento
           </button>
@@ -247,24 +247,24 @@ const AdminBookings = () => {
       <div className="grid grid-cols-4 gap-4 shrink-0">
          {[
            { icon: <Clock />, val: kpis.pendente, label: 'Pendentes', color: 'bg-primary/20 text-primary' },
-           { icon: <Anchor />, val: kpis.emAndamento, label: 'Em Andamento', color: 'bg-blue-50 text-blue-500' },
-           { icon: <CheckCircle />, val: kpis.concluidos, label: 'Concluídos', color: 'bg-green-50 text-green-500' },
-           { icon: <XCircle />, val: kpis.cancelados, label: 'Cancelados', color: 'bg-red-50 text-red-400' }
+           { icon: <Anchor />, val: kpis.emAndamento, label: 'Em Andamento', color: 'bg-blue-500/10 text-blue-500' },
+           { icon: <CheckCircle />, val: kpis.concluidos, label: 'Concluídos', color: 'bg-green-500/10 text-green-500' },
+           { icon: <XCircle />, val: kpis.cancelados, label: 'Cancelados', color: 'bg-red-500/10 text-red-400' }
          ].map((k, i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center gap-4">
+            <div key={i} className="bg-card rounded-2xl p-4 border border-border-main shadow-sm flex items-center gap-4">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${k.color}`}>{React.cloneElement(k.icon, { className: 'w-5 h-5' })}</div>
               <div>
-                 <div className="text-2xl font-serif text-dark">{k.val}</div>
-                 <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{k.label}</div>
+                 <div className="text-2xl font-serif text-main">{k.val}</div>
+                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{k.label}</div>
               </div>
             </div>
          ))}
       </div>
 
       {/* Calendar Grid wrapper */}
-      <div className="flex-1 bg-white rounded-[32px] overflow-hidden shadow-sm border border-gray-100 flex flex-col min-h-0 relative group/calendar">
+      <div className="flex-1 bg-card rounded-[32px] overflow-hidden shadow-sm border border-border-main flex flex-col min-h-0 relative group/calendar">
         {loading && (
-          <div className="absolute inset-0 bg-white/60 z-50 flex items-center justify-center backdrop-blur-[2px]">
+          <div className="absolute inset-0 bg-main/60 z-50 flex items-center justify-center backdrop-blur-[2px]">
              <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                 <div className="text-primary font-bold tracking-widest uppercase text-[10px]">Sincronizando...</div>
@@ -273,18 +273,18 @@ const AdminBookings = () => {
         )}
 
         {/* Calendar Day Headers */}
-        <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-gray-100 bg-gray-50/50 shrink-0">
-          <div className="p-4 flex items-center justify-center border-r border-gray-100">
-            <CalendarIcon className="w-5 h-5 text-gray-300" />
+        <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-border-main bg-main/50 shrink-0">
+          <div className="p-4 flex items-center justify-center border-r border-border-main">
+            <CalendarIcon className="w-5 h-5 text-muted" />
           </div>
           {daysOfWeek.map((day, i) => {
             const dateObj = weekDays[i];
             const isToday = dateObj.toDateString() === new Date().toDateString();
             return (
-               <div key={day} className={`py-4 text-center border-r border-gray-100 flex flex-col justify-center relative ${isToday ? 'bg-primary/5' : ''}`}>
-                 <span className={`text-[10px] font-bold uppercase tracking-widest ${isToday ? 'text-primary' : 'text-gray-400'}`}>{day}</span>
+               <div key={day} className={`py-4 text-center border-r border-border-main flex flex-col justify-center relative ${isToday ? 'bg-primary/5' : ''}`}>
+                 <span className={`text-[10px] font-bold uppercase tracking-widest ${isToday ? 'text-primary' : 'text-muted'}`}>{day}</span>
                  <div className="flex items-center justify-center mt-1">
-                    <span className={`w-8 h-8 flex items-center justify-center rounded-full text-lg font-serif transition-colors ${isToday ? 'bg-primary text-white shadow-lg shadow-primary/30 font-bold' : 'text-dark'}`}>
+                    <span className={`w-8 h-8 flex items-center justify-center rounded-full text-lg font-serif transition-colors ${isToday ? 'bg-primary text-white shadow-lg shadow-primary/30 font-bold' : 'text-main'}`}>
                        {dateObj.getDate()}
                     </span>
                  </div>
@@ -300,12 +300,12 @@ const AdminBookings = () => {
             {/* Time Slots Labels */}
             {hours.map((h, rIdx) => (
               <React.Fragment key={`row-${rIdx}`}>
-                <div className="border-b border-r border-gray-50 flex items-start justify-center pt-2 text-[11px] font-bold text-gray-300 bg-white sticky left-0 z-20">
+                <div className="border-b border-r border-border-main flex items-start justify-center pt-2 text-[11px] font-bold text-muted bg-card sticky left-0 z-20">
                   {h}:00
                 </div>
                 {/* Column dividers and backgrounds */}
                 {Array.from({ length: 6 }).map((_, cIdx) => (
-                  <div key={`cell-${rIdx}-${cIdx}`} className={`border-b border-r border-gray-50 relative ${weekDays[cIdx].toDateString() === new Date().toDateString() ? 'bg-primary/[0.015]' : 'bg-white'}`}>
+                  <div key={`cell-${rIdx}-${cIdx}`} className={`border-b border-r border-border-main relative ${weekDays[cIdx].toDateString() === new Date().toDateString() ? 'bg-primary/[0.03]' : 'bg-card'}`}>
                   </div>
                 ))}
               </React.Fragment>
@@ -390,26 +390,26 @@ const AdminBookings = () => {
       {/* CRUD / View Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-dark/70 backdrop-blur-md">
-            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-white rounded-[40px] w-full max-w-xl overflow-hidden shadow-2xl border border-gray-100">
-              <div className="p-10 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-card rounded-[40px] w-full max-w-xl overflow-hidden shadow-2xl border border-border-main">
+              <div className="p-10 border-b border-border-main flex justify-between items-center bg-main/50">
                 <div>
-                  <h3 className="font-serif text-3xl text-dark">
+                  <h3 className="font-serif text-3xl text-main">
                     {selectedBooking ? 'Ficha do' : 'Novo'} <i className="text-primary italic font-normal">Agendamento</i>
                   </h3>
-                  <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Gestão Premium de Reservas</p>
+                  <p className="text-xs text-muted mt-1 uppercase tracking-widest font-bold">Gestão Premium de Reservas</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-                  <X className="w-5 h-5 text-gray-400" />
+                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 bg-main border border-border-main rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
+                  <X className="w-5 h-5 text-muted" />
                 </button>
               </div>
 
               <form onSubmit={handleSave} className="p-10 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
                  {selectedBooking && (
-                    <div className="grid grid-cols-3 gap-3 mb-4 p-2 bg-secondary/30 rounded-[24px] border border-gray-100">
+                    <div className="grid grid-cols-3 gap-3 mb-4 p-2 bg-main rounded-[24px] border border-border-main">
                        <button type="button" onClick={() => updateStatus(selectedBooking.id, 'em_andamento')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">Iniciar</button>
                        <button type="button" onClick={() => updateStatus(selectedBooking.id, 'concluido')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-green-500 text-white shadow-lg shadow-green-500/20 hover:bg-green-600 transition-all">Concluir</button>
-                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'cancelado')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-gray-200 text-gray-500 hover:bg-red-500 hover:text-white transition-all">Anular</button>
+                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'cancelado')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-main border border-border-main text-muted hover:bg-red-500 hover:text-white transition-all">Anular</button>
                     </div>
                  )}
 
@@ -418,9 +418,9 @@ const AdminBookings = () => {
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                        <User className="w-3 h-3" /> Identificação da Cliente
                     </label>
-                    <select required value={formData.client_id} onChange={e => setFormData({...formData, client_id: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all">
-                      <option value="" disabled>Selecionar Cliente</option>
-                      {clients.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    <select required value={formData.client_id} onChange={e => setFormData({...formData, client_id: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-medium outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card transition-all">
+                      <option value="" disabled className="bg-card">Selecionar Cliente</option>
+                      {clients.map(c => <option key={c.id} value={c.id} className="bg-card">{c.name}</option>)}
                     </select>
                   </div>
 
@@ -428,9 +428,9 @@ const AdminBookings = () => {
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                        <Sparkles className="w-3 h-3" /> Serviço a Executar
                     </label>
-                    <select required value={formData.service_id} onChange={e => setFormData({...formData, service_id: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all">
-                      <option value="" disabled>Selecionar Serviço</option>
-                      {services.map(s => <option key={s.id} value={s.id}>{s.name} &middot; {s.duration}min &middot; {s.price}€</option>)}
+                    <select required value={formData.service_id} onChange={e => setFormData({...formData, service_id: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-medium outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card transition-all">
+                      <option value="" disabled className="bg-card">Selecionar Serviço</option>
+                      {services.map(s => <option key={s.id} value={s.id} className="bg-card">{s.name} &middot; {s.duration}min &middot; {s.price}€</option>)}
                     </select>
                   </div>
 
@@ -443,30 +443,30 @@ const AdminBookings = () => {
                       <button
                         type="button"
                         onClick={() => setFormData({...formData, team_member_id: ''})}
-                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!formData.team_member_id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-secondary/50 border-gray-100 hover:border-gray-200'}`}
+                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!formData.team_member_id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-main border-border-main hover:border-primary/30'}`}
                       >
-                        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                        <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted">
                           <User className="w-5 h-5" />
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-dark italic">Diana Silva</p>
-                          <p className="text-[9px] text-gray-400 uppercase tracking-wider">Atribuição Flexível</p>
+                          <p className="text-xs font-bold text-main italic">Diana Silva</p>
+                           <p className="text-[9px] text-muted uppercase tracking-wider">Atribuição Flexível</p>
                         </div>
                       </button>
 
-                      {team.map((pro) => (
+                       {team.map((pro) => (
                         <button
                           key={pro.id}
                           type="button"
                           onClick={() => setFormData({...formData, team_member_id: pro.id})}
-                          className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${formData.team_member_id === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-secondary/50 border-gray-100 hover:border-gray-200'}`}
+                          className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${formData.team_member_id === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-main border-border-main hover:border-primary/30'}`}
                         >
-                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-border-main shadow-sm flex-shrink-0">
                             <img src={pro.photo_url} alt={pro.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-dark truncate">{pro.name}</p>
-                            <p className="text-[9px] text-gray-400 uppercase tracking-wider truncate">{pro.role}</p>
+                            <p className="text-xs font-bold text-main truncate">{pro.name}</p>
+                            <p className="text-[9px] text-muted uppercase tracking-wider truncate">{pro.role}</p>
                           </div>
                         </button>
                       ))}
@@ -477,27 +477,27 @@ const AdminBookings = () => {
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                        <CalendarIcon className="w-3 h-3" /> Data
                     </label>
-                    <input required type="date" value={formData.booking_date} onChange={e => setFormData({...formData, booking_date: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white" />
+                    <input required type="date" value={formData.booking_date} onChange={e => setFormData({...formData, booking_date: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-bold outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card" />
                   </div>
 
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                        <Clock className="w-3 h-3" /> Horário
                     </label>
-                    <input required type="time" value={formData.booking_time} onChange={e => setFormData({...formData, booking_time: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white" />
+                    <input required type="time" value={formData.booking_time} onChange={e => setFormData({...formData, booking_time: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-bold outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card" />
                   </div>
 
                   <div className="space-y-3 col-span-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-primary block">Informações Adicionais</label>
-                    <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="w-full bg-secondary/50 border border-gray-100 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white h-24 resize-none transition-all" placeholder="Preferências, alergias ou notas técnicas..."></textarea>
+                    <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card h-24 resize-none transition-all" placeholder="Preferências, alergias ou notas técnicas..."></textarea>
                   </div>
                 </div>
 
                 <div className="pt-10 flex justify-end gap-5">
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-dark transition-colors">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-main transition-colors">
                     Descartar
                   </button>
-                  <button type="submit" className="bg-dark text-white hover:bg-primary px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20">
+                  <button type="submit" className="bg-primary text-white hover:bg-primary-light px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20">
                     {selectedBooking ? 'Salvar Alterações' : 'Confirmar Reserva'}
                   </button>
                 </div>

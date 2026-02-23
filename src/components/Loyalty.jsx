@@ -10,7 +10,7 @@ const Loyalty = () => {
           {/* Decorative Pattern */}
           <div className="absolute inset-0 opacity-10 pointer-events-none">
             <div className="absolute top-10 right-10 w-96 h-96 border-[40px] border-white rounded-full"></div>
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-white rounded-full"></div>
+            <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-card rounded-full"></div>
           </div>
 
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-16">
@@ -19,7 +19,7 @@ const Loyalty = () => {
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
-                className="inline-flex items-center gap-2 bg-white/20 px-4 py-2 rounded-full mb-8"
+                className="inline-flex items-center gap-2 bg-card/20 px-4 py-2 rounded-full mb-8"
               >
                 <Crown className="w-4 h-4" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Platinum Membership</span>
@@ -33,11 +33,11 @@ const Loyalty = () => {
               </p>
               
               <div className="grid sm:grid-cols-2 gap-8">
-                <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                <div className="bg-card/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
                   <div className="text-3xl font-bold mb-1">100€ = 10pts</div>
                   <div className="text-xs uppercase tracking-widest opacity-70">Conversão Direta</div>
                 </div>
-                <div className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
+                <div className="bg-card/10 backdrop-blur-md p-6 rounded-2xl border border-white/20">
                   <div className="text-3xl font-bold mb-1">-20% OFF</div>
                   <div className="text-xs uppercase tracking-widest opacity-70">A partir da 5ª Visita</div>
                 </div>
