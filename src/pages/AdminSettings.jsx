@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink, CheckCircle, Palette } from 'lucide-react';
+import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink, CheckCircle, Palette } from 'lucide-react';
 import { useImage } from '../hooks/useImage';
 import { useTheme } from '../context/ThemeContext';
 
@@ -280,7 +280,7 @@ const AdminSettings = () => {
                   </div>
                 </div>
 
-                {imageCategories.map((cat, cIdx) => (
+                {imageCategories.map((cat) => (
                   <div key={cat.title} className="space-y-4">
                     <div className="flex items-center gap-4 px-2">
                        <span className="w-8 h-px bg-primary/30"></span>
