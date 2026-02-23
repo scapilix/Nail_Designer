@@ -27,9 +27,9 @@ import AdminClientes from './pages/AdminClientes';
 import AdminPlans from './pages/AdminPlans';
 // Placeholder Pages
 const PlaceholderPage = ({ title }) => (
-  <div className="bg-white p-20 rounded-[40px] shadow-sm border border-gray-100 text-center">
-    <h2 className="font-serif text-4xl mb-4">{title}</h2>
-    <p className="text-gray-400">Esta secção está sob desenvolvimento com a mesma estética de luxo.</p>
+  <div className="bg-white/80 backdrop-blur-md p-20 rounded-[40px] shadow-sm border border-primary/10 text-center">
+    <h2 className="font-serif text-4xl mb-4 text-dark">{title}</h2>
+    <p className="text-dark/60">Esta secção está sob desenvolvimento com a mesma estética de luxo.</p>
   </div>
 );
 
@@ -50,6 +50,9 @@ const PublicPage = () => (
   </div>
 );
 
+import { ThemeProvider } from './context/ThemeContext';
+import { ImageProvider } from './context/ImageContext';
+
 function App() {
   const { pathname } = useLocation();
 
@@ -58,22 +61,25 @@ function App() {
   }, [pathname]);
 
   return (
-    <Routes>
-      <Route path="/" element={<PublicPage />} />
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<AdminDashboard />} />
-        <Route path="bookings" element={<AdminBookings />} />
-        <Route path="clients" element={<AdminClientes />} />
-        <Route path="services" element={<AdminServices />} />
-        <Route path="team" element={<AdminTeam />} />
-        <Route path="store" element={<AdminStore />} />
-        <Route path="expenses" element={<AdminExpenses />} />
-        <Route path="invoices" element={<AdminInvoices />} />
-        <Route path="plans" element={<AdminPlans />} />
-        <Route path="settings" element={<AdminSettings />} />
-      </Route>
-
-    </Routes>
+    <ThemeProvider>
+      <ImageProvider>
+        <Routes>
+          <Route path="/" element={<PublicPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="bookings" element={<AdminBookings />} />
+            <Route path="clients" element={<AdminClientes />} />
+            <Route path="services" element={<AdminServices />} />
+            <Route path="team" element={<AdminTeam />} />
+            <Route path="store" element={<AdminStore />} />
+            <Route path="expenses" element={<AdminExpenses />} />
+            <Route path="invoices" element={<AdminInvoices />} />
+            <Route path="plans" element={<AdminPlans />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Route>
+        </Routes>
+      </ImageProvider>
+    </ThemeProvider>
   );
 }
 

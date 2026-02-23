@@ -5,15 +5,15 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#B8860B", // Darker Gold for better contrast
-          light: "#e1ae2d",
-          dark: "#8B6508",
+          DEFAULT: "rgb(var(--primary))",
+          light: "rgb(var(--primary-light))",
+          dark: "rgb(var(--primary-dark))",
         },
-        secondary: "#F9FAFB", // Light Gray (gray-50) for contrast against white
+        secondary: "rgb(var(--secondary))",
         dark: {
-          DEFAULT: "#1a1a1a",
-          lighter: "#2d2d2d",
-          darker: "#0a0a0a",
+          DEFAULT: "rgb(var(--dark))",
+          lighter: "rgb(var(--dark-lighter))",
+          darker: "rgb(var(--dark-darker))",
         },
       },
       fontFamily: {

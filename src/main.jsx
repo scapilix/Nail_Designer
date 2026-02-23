@@ -8,9 +8,7 @@ import { ImageProvider } from './context/ImageContext.jsx'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ImageProvider>
-        <App />
-      </ImageProvider>
+      <App />
     </BrowserRouter>
   </React.StrictMode>,
 )

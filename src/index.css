@@ -3,9 +3,43 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --primary: 184 134 11; /* #B8860B */
+    --primary-light: 225 174 45; /* #e1ae2d */
+    --primary-dark: 139 101 8; /* #8B6508 */
+    --secondary: 249 250 251; /* #F9FAFB */
+    --dark: 26 26 26; /* #1a1a1a */
+    --dark-lighter: 45 45 45; /* #2d2d2d */
+    --dark-darker: 10 10 10; /* #0a0a0a */
+    --text-main: 26 26 26;
+    --bg-main: 249 250 251;
+  }
+
+  .theme-neutral {
+    --primary: 59 130 246; /* #3B82F6 */
+    --primary-light: 96 165 250; /* #60A5FA */
+    --primary-dark: 37 99 235;
+    --secondary: 248 250 252; /* #F8FAFC */
+    --dark: 30 41 59; /* #1E293B */
+    --text-main: 30 41 59;
+    --bg-main: 255 255 255;
+  }
+
+  .theme-dark {
+    --primary: 202 138 4; /* #CA8A04 */
+    --primary-light: 234 179 8;
+    --primary-dark: 161 98 7;
+    --secondary: 28 25 23; /* #1C1917 */
+    --dark: 250 250 249; /* #FAFAF9 */
+    --text-main: 250 250 249;
+    --bg-main: 12 10 9; /* #0C0A09 */
+  }
+
   body {
     @apply bg-secondary text-dark font-sans selection:bg-primary selection:text-white;
     scroll-behavior: smooth;
+    background-color: rgb(var(--bg-main));
+    color: rgb(var(--text-main));
   }
 }
 

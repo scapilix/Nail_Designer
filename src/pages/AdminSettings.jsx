@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Save, Bell, Shield, Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink, CheckCircle } from 'lucide-react';
+import { Store, Globe, Users, Image as ImageIcon, Upload, RefreshCw, ExternalLink, CheckCircle, Palette } from 'lucide-react';
 import { useImage } from '../hooks/useImage';
+import { useTheme } from '../context/ThemeContext';
 
 const AdminSettings = () => {
   const [activeTab, setActiveTab] = useState('geral');
   const [showToast, setShowToast] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const tabs = [
     { id: 'geral', label: 'Geral & Loja', icon: <Store className="w-4 h-4" /> },
+    { id: 'aparencia', label: 'Aparência', icon: <Palette className="w-4 h-4" /> },
     { id: 'notificacoes', label: 'Notificações', icon: <Bell className="w-4 h-4" /> },
     { id: 'galeria', label: 'Galeria do Site', icon: <ImageIcon className="w-4 h-4" /> },
     { id: 'seguranca', label: 'Segurança', icon: <Shield className="w-4 h-4" /> },
@@ -129,6 +132,95 @@ const AdminSettings = () => {
         {/* Tab Content */}
         <div className="flex-1">
           <AnimatePresence mode="wait">
+            {activeTab === 'aparencia' && (
+              <motion.div key="aparencia" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm space-y-8">
+                <div>
+                  <h3 className="text-lg font-bold text-dark mb-1">Temas do Sistema</h3>
+                  <p className="text-sm text-gray-400 mb-8">Selecione a aparência que melhor se adapta ao seu estilo de marca.</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Classic Theme */}
+                    <div 
+                      onClick={() => setTheme('theme-classic')}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-classic' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                    >
+                      <div className="aspect-video bg-[#F9FAFB] p-4 flex flex-col gap-2">
+                        <div className="w-1/2 h-2 bg-[#B8860B] rounded-full"></div>
+                        <div className="w-full h-8 bg-white rounded-lg shadow-sm border border-gray-100"></div>
+                        <div className="grid grid-cols-3 gap-2 mt-auto">
+                          <div className="h-4 bg-gray-200 rounded"></div>
+                          <div className="h-4 bg-gray-200 rounded"></div>
+                          <div className="h-4 bg-gray-200 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-white border-t border-gray-100">
+                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Noir Élégance (Atual)</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Ivory & Gold Luxury</p>
+                      </div>
+                      {theme === 'theme-classic' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                    </div>
+
+                    {/* Neutral White */}
+                    <div 
+                      onClick={() => setTheme('theme-neutral')}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-neutral' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                    >
+                      <div className="aspect-video bg-white p-4 flex flex-col gap-2">
+                        <div className="w-1/2 h-2 bg-[#3B82F6] rounded-full"></div>
+                        <div className="w-full h-8 bg-[#F8FAFC] rounded-lg border border-blue-50"></div>
+                        <div className="flex gap-2 mt-auto">
+                          <div className="w-8 h-8 rounded-full bg-gray-100"></div>
+                          <div className="flex-1 h-8 rounded-lg bg-gray-50"></div>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-white border-t border-gray-100">
+                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Pure Canvas</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Neutral White Minimal</p>
+                      </div>
+                      {theme === 'theme-neutral' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                    </div>
+
+                    {/* Dark Premium */}
+                    <div 
+                      onClick={() => setTheme('theme-dark')}
+                      className={`cursor-pointer group relative rounded-2xl overflow-hidden border-2 transition-all ${theme === 'theme-dark' ? 'border-primary ring-4 ring-primary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                    >
+                      <div className="aspect-video bg-[#0C0A09] p-4 flex flex-col gap-2">
+                        <div className="w-1/2 h-2 bg-[#CA8A04] rounded-full"></div>
+                        <div className="w-full h-8 bg-[#1C1917] rounded-lg border border-stone-800"></div>
+                        <div className="grid grid-cols-2 gap-2 mt-auto">
+                          <div className="h-6 bg-stone-800 rounded"></div>
+                          <div className="h-6 bg-stone-800 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="p-4 bg-white border-t border-gray-100">
+                        <p className="font-bold text-sm text-dark group-hover:text-primary transition-colors">Midnight Gold</p>
+                        <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Dark Premium Luxury</p>
+                      </div>
+                      {theme === 'theme-dark' && <div className="absolute top-3 right-3 bg-primary text-white p-1 rounded-full"><CheckCircle className="w-4 h-4" /></div>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="h-px bg-gray-100 w-full"></div>
+
+                <div>
+                  <h3 className="text-lg font-bold text-dark mb-1">Preferências de Interface</h3>
+                  <div className="space-y-6 mt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-dark text-sm">Animações Suaves</p>
+                        <p className="text-xs text-gray-400">Ativa transições fluidas entre páginas e elementos.</p>
+                      </div>
+                      <div className="w-12 h-6 bg-primary rounded-full relative cursor-pointer">
+                        <div className="w-4 h-4 bg-white rounded-full absolute top-1 right-1"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {activeTab === 'geral' && (
               <motion.div key="geral" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} className="bg-white rounded-[32px] p-10 border border-gray-100 shadow-sm space-y-8">
                 <div>
