@@ -38,7 +38,7 @@ const Portfolio = () => {
     }
   ];
   return (
-    <section id="galeria" className="py-24 bg-dark text-white overflow-hidden">
+    <section id="galeria" className="py-24 bg-black text-white overflow-hidden">
       <div className="container mx-auto px-6 text-center mb-20">
         <motion.span
           initial={{ opacity: 0 }}
@@ -72,7 +72,7 @@ const Portfolio = () => {
             </div>
             
             {/* Overlay */}
-            <div className="absolute inset-0 bg-dark/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-8">
               <span className="text-primary text-[10px] uppercase tracking-[0.3em] mb-2 translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                 {item.category}
               </span>

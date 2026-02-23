@@ -35,7 +35,7 @@ const AdminPlans = () => {
         'Painel Analytics de Vendas'
       ],
       icon: <Sparkles className="w-6 h-6" />,
-      color: 'bg-dark text-white',
+      color: 'bg-main border border-border-main text-main',
       active: false
     },
     {

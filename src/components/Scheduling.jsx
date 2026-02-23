@@ -238,7 +238,7 @@ const Scheduling = () => {
   return (
     <section id="agendamento" className="py-24 bg-main relative overflow-hidden">
       <div className="container mx-auto px-6">
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row bg-dark rounded-[32px] overflow-hidden shadow-2xl">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row bg-black rounded-[32px] overflow-hidden shadow-2xl">
           {/* Left Side - Info */}
           <div className="lg:w-2/5 p-12 lg:p-16 text-white flex flex-col justify-between relative overflow-hidden">
             <div className="relative z-10">
@@ -303,7 +303,7 @@ const Scheduling = () => {
 
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-3 col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Serviço Especializado</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Serviço Especializado</label>
                   <select 
                     value={selectedService}
                     onChange={(e) => setSelectedService(e.target.value)}
@@ -317,7 +317,7 @@ const Scheduling = () => {
                 </div>
 
                 <div className="space-y-4 md:col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Escolha a sua Profissional</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Escolha a sua Profissional</label>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <button
                       type="button"
@@ -328,7 +328,7 @@ const Scheduling = () => {
                         <User className="w-6 h-6" />
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-dark">Qualquer uma</p>
+                        <p className="text-sm font-bold text-main">Qualquer uma</p>
                         <p className="text-[10px] text-gray-400 uppercase tracking-wider">Disponível agora</p>
                       </div>
                     </button>
@@ -344,7 +344,7 @@ const Scheduling = () => {
                           <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-dark truncate">{pro.name}</p>
+                          <p className="text-sm font-bold text-main truncate">{pro.name}</p>
                           <p className="text-[10px] text-gray-400 uppercase tracking-wider truncate">{pro.role}</p>
                         </div>
                         {selectedProfessional === pro.id && (
@@ -360,7 +360,7 @@ const Scheduling = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Data Preferencial</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Data Preferencial</label>
                   <div className="relative">
                     <input 
                       required
@@ -374,7 +374,7 @@ const Scheduling = () => {
                 </div>
                 
                 <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-dark block">Horário</label>
+                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Horário</label>
                   <div className="relative">
                     <select 
                       required
@@ -396,7 +396,7 @@ const Scheduling = () => {
                 <button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full bg-dark text-white font-bold py-5 rounded-custom hover:bg-primary transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
+                  className="w-full bg-main border border-border-main text-main font-bold py-5 rounded-custom hover:bg-primary hover:text-white transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? 'A Verificar...' : 'Verificar Disponibilidade'}
                   {!isSubmitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
@@ -419,7 +419,7 @@ const Scheduling = () => {
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/80 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
           >
             <motion.div 
               initial={{ scale: 0.95, y: 20 }} 
@@ -429,7 +429,7 @@ const Scheduling = () => {
             >
               <div className="p-8 border-b border-border-main flex justify-between items-center bg-main">
                 <div>
-                   <h3 className="font-serif text-2xl text-dark">Quase <i className="text-primary italic font-normal">Lá!</i></h3>
+                   <h3 className="font-serif text-2xl text-main">Quase <i className="text-primary italic font-normal">Lá!</i></h3>
                    <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Horário Disponível</p>
                 </div>
                 <button onClick={() => setIsModalOpen(false)} className="p-2 bg-card border border-border-main rounded-full hover:bg-main transition-colors">
@@ -446,7 +446,7 @@ const Scheduling = () => {
                 )}
                 
                 <div className="space-y-4">
-                  <p className="text-sm text-gray-500 mb-6">Por favor, insira os seus dados para confirmar a marcação no dia <strong className="text-dark">{new Date(bookingDate).toLocaleDateString('pt-PT')}</strong> às <strong className="text-dark">{bookingTime}</strong>.</p>
+                  <p className="text-sm text-muted mb-6">Por favor, insira os seus dados para confirmar a marcação no dia <strong className="text-main">{new Date(bookingDate).toLocaleDateString('pt-PT')}</strong> às <strong className="text-main">{bookingTime}</strong>.</p>
                   
                   <div className="space-y-2">
                      <label className="text-[10px] font-black uppercase tracking-widest text-primary">Nome Completo</label>

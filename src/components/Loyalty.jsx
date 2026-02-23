@@ -26,7 +26,7 @@ const Loyalty = () => {
               </motion.div>
               
               <h2 className="font-serif text-4xl md:text-6xl mb-8 leading-tight">
-                Programa de <i className="italic text-dark">Fidelidade VIP</i>
+                Programa de <i className="italic text-main">Fidelidade VIP</i>
               </h2>
               <p className="text-white/80 text-lg mb-12 font-light leading-relaxed">
                 A sua lealdade merece ser recompensada. Por cada visita, acumule pontos "Elegance" que podem ser trocados por serviços exclusivos ou produtos da nossa boutique.
@@ -49,7 +49,7 @@ const Loyalty = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-card p-10 rounded-[32px] text-dark shadow-3xl w-full max-w-[400px] text-center"
+              className="bg-card border border-border-main p-10 rounded-[32px] text-main shadow-3xl w-full max-w-[400px] text-center"
             >
               <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
                 <Star className="w-10 h-10 text-primary fill-primary" />
@@ -58,7 +58,7 @@ const Loyalty = () => {
               <p className="text-sm text-muted mb-10 leading-relaxed italic">
                 Aderir é imediato e gratuito. Os seus primeiros 5 pontos são creditados na primeira reserva online.
               </p>
-              <button className="w-full bg-dark text-white py-5 rounded-custom font-bold hover:bg-primary transition-all duration-300 shadow-xl uppercase tracking-widest text-sm">
+              <button className="w-full bg-main border border-border-main text-main py-5 rounded-custom font-bold hover:bg-primary hover:text-white transition-all duration-300 shadow-xl uppercase tracking-widest text-sm">
                 Aderir ao Clube
               </button>
               <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-muted font-bold uppercase tracking-widest">

@@ -145,9 +145,9 @@ const AdminClientes = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { title: 'Total de Clientes', value: clients.length, icon: <Users className="w-6 h-6" />, color: 'bg-dark' },
+          { title: 'Total de Clientes', value: clients.length, icon: <Users className="w-6 h-6" />, color: 'bg-main border border-border-main' },
           { title: 'Clientes VIP (>100€)', value: clients.filter(c => c.total_spent > 100).length, icon: <TrendingUp className="w-6 h-6" />, color: 'bg-primary' },
-          { title: 'Novos Este Mês', value: '+3', icon: <Calendar className="w-6 h-6" />, color: 'bg-dark' }, // Static mockup for demo
+          { title: 'Novos Este Mês', value: '+3', icon: <Calendar className="w-6 h-6" />, color: 'bg-main border border-border-main' }, // Static mockup for demo
         ].map((stat, i) => (
           <motion.div 
             key={i}

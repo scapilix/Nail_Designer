@@ -32,7 +32,7 @@ const Amenities = () => {
             
             <div className="flex flex-wrap gap-4">
               {payments.map((p, idx) => (
-                <div key={idx} className="flex items-center gap-2 bg-card px-4 py-2 rounded-full border border-border-main shadow-sm text-[10px] font-bold uppercase tracking-wider text-dark">
+                <div key={idx} className="flex items-center gap-2 bg-card px-4 py-2 rounded-full border border-border-main shadow-sm text-[10px] font-bold uppercase tracking-wider text-main">
                   <span className="text-primary">{p.icon}</span>
                   {p.name}
                 </div>

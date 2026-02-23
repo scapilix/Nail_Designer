@@ -40,7 +40,7 @@ const FAQ = () => {
               viewport={{ once: true }}
               className="group bg-card rounded-custom border border-border-main overflow-hidden shadow-sm open:ring-1 open:ring-primary/30 transition-all"
             >
-              <summary className="list-none flex justify-between items-center p-6 md:p-8 cursor-pointer font-bold text-dark select-none">
+              <summary className="list-none flex justify-between items-center p-6 md:p-8 cursor-pointer font-bold text-main select-none">
                 <span className="text-sm md:text-base uppercase tracking-wider">{faq.question}</span>
                 <ChevronDown className="w-5 h-5 text-primary group-open:rotate-180 transition-transform duration-300" />
               </summary>

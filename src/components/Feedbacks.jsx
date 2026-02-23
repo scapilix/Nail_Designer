@@ -52,13 +52,13 @@ const Feedbacks = () => {
                   <div className="flex text-primary mb-1">
                     {[1, 2, 3, 4, 5].map((s) => <Star key={s} className="w-3 h-3 fill-primary" />)}
                   </div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-dark">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-main">
                     4.9 / 5 Baseado em 861 Avaliações
                   </div>
                 </div>
               </div>
               
-              <p className="text-lg italic text-dark leading-relaxed font-light mb-8 relative z-10">
+              <p className="text-lg italic text-main leading-relaxed font-light mb-8 relative z-10">
                 "O TO Beauty é mais do que um salão, é uma experiência de auto-cuidado elevada ao máximo nível. A atenção aos detalhes é incomparável."
               </p>
               

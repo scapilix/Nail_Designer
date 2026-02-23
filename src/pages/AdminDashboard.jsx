@@ -118,9 +118,9 @@ const AdminDashboard = () => {
   }, []);
 
   const stats = [
-    { title: 'Total Reservas', value: data.totalReservas, icon: <Calendar className="w-6 h-6" />, trend: '+12.5%', color: 'bg-dark' },
+    { title: 'Total Reservas', value: data.totalReservas, icon: <Calendar className="w-6 h-6" />, trend: '+12.5%', color: 'bg-main border border-border-main' },
     { title: 'Novos Clientes', value: data.newClients, icon: <Users className="w-6 h-6" />, trend: '+8.2%', color: 'bg-primary' },
-    { title: 'Faturação', value: `${data.revenue.toFixed(2)}€`, icon: <TrendingUp className="w-6 h-6" />, trend: '+15.3%', color: 'bg-dark' },
+    { title: 'Faturação', value: `${data.revenue.toFixed(2)}€`, icon: <TrendingUp className="w-6 h-6" />, trend: '+15.3%', color: 'bg-main border border-border-main' },
     { title: 'Vendas Brutas', value: `${data.storeSales.toFixed(2)}€`, icon: <ShoppingBag className="w-6 h-6" />, trend: '+4.1%', color: 'bg-primary' },
   ];
 

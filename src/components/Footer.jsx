@@ -16,7 +16,7 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               {[Instagram, Youtube, Mail].map((Icon, idx) => (
-                <a key={idx} href="#" className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-dark hover:bg-primary hover:text-white transition-all transform hover:-translate-y-1">
+                <a key={idx} href="#" className="w-10 h-10 rounded-full bg-main border border-border-main flex items-center justify-center text-main hover:bg-primary hover:text-white transition-all transform hover:-translate-y-1">
                   <Icon className="w-4 h-4" />
                 </a>
               ))}
@@ -25,7 +25,7 @@ const Footer = () => {
 
           {/* Links Col */}
           <div>
-            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-dark">Explorar</h5>
+            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-main">Explorar</h5>
             <ul className="space-y-4 text-sm font-medium text-muted">
               {['Início', 'Serviços', 'Sobre nós', 'Equipa', 'Galeria', 'Admin'].map((link) => (
                 <li key={link}>
@@ -43,7 +43,7 @@ const Footer = () => {
 
           {/* Contact Col */}
           <div>
-            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-dark">Contactos</h5>
+            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-main">Contactos</h5>
             <ul className="space-y-6 text-sm font-medium text-muted">
               <li className="flex gap-4">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
@@ -62,7 +62,7 @@ const Footer = () => {
 
           {/* Newsletter Col */}
           <div>
-            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-dark">Newsletter</h5>
+            <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-main">Newsletter</h5>
             <p className="text-muted text-xs mb-6 font-light">
               Subscreva para receber convites exclusivos para eventos e promoções sazonais.
             </p>

@@ -69,7 +69,7 @@ const Services = () => {
                   alt={service.title}
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-dark/20 group-hover:bg-dark/40 transition-colors"></div>
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
                 <div className="absolute top-4 right-4 bg-card/90 border border-border-main backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-main shadow-sm">
                   {service.price}
                 </div>

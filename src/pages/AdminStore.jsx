@@ -225,13 +225,13 @@ const AdminStore = () => {
             <div className="flex items-center gap-2 text-amber-500 text-xs font-bold uppercase tracking-widest mb-4">
                <TrendingDown className="w-4 h-4" /> Menos Vendido (Alerta)
             </div>
-            <div className="font-serif text-2xl text-dark mb-1">{worstSeller?.name || 'N/A'}</div>
+            <div className="font-serif text-2xl text-main mb-1">{worstSeller?.name || 'N/A'}</div>
             <div className="text-sm text-gray-500">Apenas {worstSeller?.total_sold || 0} escoamento</div>
          </div>
          <div className="bg-white rounded-[24px] border border-gray-100 p-6 shadow-sm flex flex-col items-center justify-center text-center">
             <Calendar className="w-8 h-8 text-primary mb-3" />
             <div className="text-xs uppercase tracking-widest font-bold text-gray-400">Melhor Dia de Vendas</div>
-            <div className="font-serif text-2xl text-dark">{bestDay}</div>
+            <div className="font-serif text-2xl text-main">{bestDay}</div>
          </div>
       </div>
 

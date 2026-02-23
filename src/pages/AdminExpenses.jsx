@@ -261,12 +261,12 @@ const AdminExpenses = () => {
                  ) : filtered.length > 0 ? (
                    filtered.map(exp => (
                      <motion.tr key={exp.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="hover:bg-gray-50/50 transition-colors group">
-                       <td className="px-6 py-4 font-bold text-dark max-w-[250px] truncate">{exp.description}</td>
+                       <td className="px-6 py-4 font-bold text-main max-w-[250px] truncate">{exp.description}</td>
                        <td className="px-6 py-4 text-sm text-gray-500 font-medium">{exp.category}</td>
-                       <td className="px-6 py-4 text-sm text-dark font-medium">{new Date(exp.date).toLocaleDateString()}</td>
+                       <td className="px-6 py-4 text-sm text-main font-medium">{new Date(exp.date).toLocaleDateString()}</td>
                        <td className="px-6 py-4">
                          {exp.receipt_url ? (
-                            <a href={exp.receipt_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-dark text-xs font-bold tracking-widest uppercase transition-colors">
+                            <a href={exp.receipt_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:text-primary-light text-xs font-bold tracking-widest uppercase transition-colors">
                                <FileText className="w-4 h-4"/> Ver Anexo
                             </a>
                          ) : (

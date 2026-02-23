@@ -51,7 +51,7 @@
   }
 
   body {
-    @apply bg-secondary text-dark font-sans selection:bg-primary selection:text-white;
+    @apply bg-secondary text-main font-sans selection:bg-primary selection:text-white;
     scroll-behavior: smooth;
     background-color: rgb(var(--bg-main));
     color: rgb(var(--text-main));
@@ -64,7 +64,7 @@
   }
 
   .btn-dark {
-    @apply bg-dark text-white px-8 py-3 rounded-custom font-bold hover:bg-primary transition-all uppercase tracking-widest text-sm shadow-md hover:shadow-lg;
+    @apply bg-main border border-border-main text-main px-8 py-3 rounded-custom font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest text-sm shadow-md hover:shadow-lg;
   }
 
   .glass-card {
