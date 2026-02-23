@@ -79,7 +79,7 @@ const Team = () => {
                   transition={{ duration: 0.6 }}
                   className="text-center group"
                 >
-                  <div className="aspect-[4/5] rounded-[32px] overflow-hidden mb-8 shadow-lg relative bg-gray-100">
+                  <div className="aspect-[4/5] rounded-[32px] overflow-hidden mb-8 shadow-lg relative bg-secondary/50">
                     <img
                       src={member.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=400&auto=format&fit=crop'}
                       alt={member.name}
