@@ -7,7 +7,7 @@ const AboutUs = () => {
   const { images } = useImage();
   
   return (
-    <section id="sobre" className="py-24 bg-white overflow-hidden">
+    <section id="sobre" className="py-24 bg-main overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-20 items-center">
           {/* Image Side */}
@@ -32,7 +32,7 @@ const AboutUs = () => {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.3 }}
               viewport={{ once: true }}
-              className="absolute -bottom-10 -right-10 w-72 h-72 rounded-custom overflow-hidden border-8 border-white shadow-2xl z-20 hidden md:block"
+              className="absolute -bottom-10 -right-10 w-72 h-72 rounded-custom overflow-hidden border-8 border-card shadow-2xl z-20 hidden md:block"
             >
               <img
                 src={images.about_detail}
@@ -57,7 +57,7 @@ const AboutUs = () => {
               <i className="text-primary font-normal italic">Conta uma História</i>
             </h2>
             
-            <div className="space-y-6 text-gray-600 leading-relaxed mb-10">
+            <div className="space-y-6 text-muted leading-relaxed mb-10">
               <p>
                 Fundado com a visão de redefinir o conceito de manicure de luxo, o TO Beauty Salon dedica-se à excelência em cada gesto. Especializamo-nos na técnica russa e em nail art de alta performance.
               </p>

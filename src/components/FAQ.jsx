@@ -23,7 +23,7 @@ const faqs = [
 
 const FAQ = () => {
   return (
-    <section id="faq" className="py-24 bg-secondary">
+    <section id="faq" className="py-24 bg-main">
       <div className="container mx-auto px-6 max-w-4xl">
         <div className="text-center mb-16">
           <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-4 block">Dúvidas Frequentes</span>
@@ -38,13 +38,13 @@ const FAQ = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="group bg-white rounded-custom border border-gray-100 overflow-hidden shadow-sm open:ring-1 open:ring-primary/30 transition-all"
+              className="group bg-card rounded-custom border border-border-main overflow-hidden shadow-sm open:ring-1 open:ring-primary/30 transition-all"
             >
               <summary className="list-none flex justify-between items-center p-6 md:p-8 cursor-pointer font-bold text-dark select-none">
                 <span className="text-sm md:text-base uppercase tracking-wider">{faq.question}</span>
                 <ChevronDown className="w-5 h-5 text-primary group-open:rotate-180 transition-transform duration-300" />
               </summary>
-              <div className="px-6 pb-8 md:px-8 md:pb-10 text-gray-500 text-sm md:text-base leading-relaxed border-t border-gray-50 pt-4">
+              <div className="px-6 pb-8 md:px-8 md:pb-10 text-muted text-sm md:text-base leading-relaxed border-t border-border-main pt-4">
                 {faq.answer}
               </div>
             </motion.details>

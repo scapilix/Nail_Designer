@@ -13,6 +13,9 @@
     --dark-darker: 10 10 10; /* #0a0a0a */
     --text-main: 26 26 26;
     --bg-main: 249 250 251;
+    --bg-card: 255 255 255;
+    --border-main: 243 244 246; /* gray-100 */
+    --text-muted: 107 114 128; /* gray-500 */
     --nav-bg: 255 255 255;
     --nav-gradient: 26 26 26;
   }
@@ -25,6 +28,9 @@
     --dark: 30 41 59; /* #1E293B */
     --text-main: 30 41 59;
     --bg-main: 255 255 255;
+    --bg-card: 249 250 252;
+    --border-main: 241 245 249; /* slate-100 */
+    --text-muted: 100 116 139; /* slate-500 */
     --nav-bg: 255 255 255;
     --nav-gradient: 30 41 59;
   }
@@ -37,6 +43,9 @@
     --dark: 250 250 249; /* #FAFAF9 */
     --text-main: 250 250 249;
     --bg-main: 5 5 5; /* Midnight Black */
+    --bg-card: 18 18 18;
+    --border-main: 38 38 38; /* stone-800 */
+    --text-muted: 168 162 158; /* stone-400 */
     --nav-bg: 12 10 9;
     --nav-gradient: 0 0 0;
   }

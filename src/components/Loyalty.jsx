@@ -4,7 +4,7 @@ import { Star, Gift, Crown } from 'lucide-react';
 
 const Loyalty = () => {
   return (
-    <section className="py-24 bg-white overflow-hidden">
+    <section className="py-24 bg-main overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="bg-primary text-white rounded-[40px] p-8 md:p-20 relative overflow-hidden shadow-2xl">
           {/* Decorative Pattern */}
@@ -49,19 +49,19 @@ const Loyalty = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="bg-white p-10 rounded-[32px] text-dark shadow-3xl w-full max-w-[400px] text-center"
+              className="bg-card p-10 rounded-[32px] text-dark shadow-3xl w-full max-w-[400px] text-center"
             >
               <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-8">
                 <Star className="w-10 h-10 text-primary fill-primary" />
               </div>
               <h3 className="font-bold text-2xl mb-4 tracking-tight">Comece a Acumular</h3>
-              <p className="text-sm text-gray-500 mb-10 leading-relaxed italic">
+              <p className="text-sm text-muted mb-10 leading-relaxed italic">
                 Aderir é imediato e gratuito. Os seus primeiros 5 pontos são creditados na primeira reserva online.
               </p>
               <button className="w-full bg-dark text-white py-5 rounded-custom font-bold hover:bg-primary transition-all duration-300 shadow-xl uppercase tracking-widest text-sm">
                 Aderir ao Clube
               </button>
-              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+              <div className="mt-6 flex items-center justify-center gap-2 text-[10px] text-muted font-bold uppercase tracking-widest">
                 <Gift className="w-3 h-3" />
                 Prenda de Boas-vindas aguarda-a
               </div>

@@ -38,7 +38,7 @@ const Services = () => {
   ];
 
   return (
-    <section id="servicos" className="py-24 bg-secondary">
+    <section id="servicos" className="py-24 bg-main">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div className="max-w-xl">
@@ -48,7 +48,7 @@ const Services = () => {
               <i className="text-primary font-normal italic">Puro Luxo</i>
             </h2>
           </div>
-          <p className="text-gray-500 max-w-sm mb-2 text-sm">
+          <p className="text-muted max-w-sm mb-2 text-sm">
             Cada serviço é adaptado às suas necessidades individuais, utilizando apenas os melhores produtos do mercado mundial.
           </p>
         </div>
@@ -61,7 +61,7 @@ const Services = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-white group rounded-custom overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-gray-100"
+              className="bg-card group rounded-custom overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 border border-border-main"
             >
               <div className="aspect-[4/5] overflow-hidden relative">
                 <img
@@ -79,11 +79,11 @@ const Services = () => {
                 <h3 className="font-serif text-xl mb-3 text-dark group-hover:text-primary transition-colors">
                   {service.title}
                 </h3>
-                <p className="text-gray-500 text-sm mb-6 line-clamp-2">
+                <p className="text-muted text-sm mb-6 line-clamp-2">
                   {service.description}
                 </p>
                 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-4 border-t border-border-main">
                   <div className="flex items-center gap-2 text-xs font-medium text-gray-400">
                     <Clock className="w-4 h-4" />
                     {service.duration}

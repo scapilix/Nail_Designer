@@ -28,7 +28,7 @@ const reviews = [
 
 const Feedbacks = () => {
   return (
-    <section id="feedback" className="py-24 bg-white overflow-hidden">
+    <section id="feedback" className="py-24 bg-main overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div>
@@ -38,7 +38,7 @@ const Feedbacks = () => {
               <i className="text-primary font-normal italic">Clientes Dizem</i>
             </h2>
             
-            <div className="bg-secondary p-10 rounded-[32px] border border-gray-100 relative">
+            <div className="bg-card p-10 rounded-[32px] border border-border-main relative">
               <Quote className="absolute top-8 right-8 text-primary/10 w-24 h-24 rotate-180" />
               
               <div className="flex items-center gap-6 mb-8 relative z-10">
@@ -82,7 +82,7 @@ const Feedbacks = () => {
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-white p-8 rounded-custom border border-gray-100 shadow-sm hover:shadow-xl transition-all"
+                className="bg-card p-8 rounded-custom border border-border-main shadow-sm hover:shadow-xl transition-all"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex text-primary">
@@ -92,14 +92,14 @@ const Feedbacks = () => {
                   </div>
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-300">Google Verified</span>
                 </div>
-                <p className="text-sm text-gray-600 mb-6 italic">"{review.text}"</p>
+                <p className="text-sm text-muted mb-6 italic">"{review.text}"</p>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-secondary">
                     <img src={review.avatar} alt={review.name} />
                   </div>
                   <div>
                     <div className="font-bold text-xs uppercase tracking-tight">{review.name}</div>
-                    <div className="text-[10px] text-gray-400">{review.role}</div>
+                    <div className="text-[10px] text-muted">{review.role}</div>
                   </div>
                 </div>
               </Motion.div>

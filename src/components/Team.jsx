@@ -56,12 +56,12 @@ const Team = () => {
   if (team.length === 0) return null;
 
   return (
-    <section id="equipa" className="py-24 bg-secondary">
+    <section id="equipa" className="py-24 bg-main">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-20">
           <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-4 block">Nossa Equipa</span>
           <h2 className="font-serif text-4xl md:text-5xl mb-6 italic">Mestres da Arte</h2>
-          <p className="text-gray-500 font-light leading-relaxed">
+          <p className="text-muted font-light leading-relaxed">
             Uma equipa dedicada e apaixonada pela perfeição, focada em transformar a sua visão em realidade.
           </p>
         </div>
@@ -96,7 +96,7 @@ const Team = () => {
                   </div>
                   <h4 className="font-serif text-2xl mb-2 text-dark group-hover:text-primary transition-colors">{member.name}</h4>
                   <p className="text-primary uppercase text-[10px] font-bold tracking-[0.2em] mb-4">{member.role}</p>
-                  <p className="text-sm text-gray-400 font-light leading-relaxed max-w-[280px] mx-auto italic border-t border-gray-100 pt-4 px-4 h-24 overflow-hidden text-ellipsis line-clamp-4">
+                  <p className="text-sm text-muted font-light leading-relaxed max-w-[280px] mx-auto italic border-t border-border-main pt-4 px-4 h-24 overflow-hidden text-ellipsis line-clamp-4">
                     {member.details ? `"${member.details}"` : '"Dedicada à excelência em cada detalhe."'}
                   </p>
                 </motion.div>

@@ -10,6 +10,9 @@ export default {
           dark: "rgb(var(--primary-dark))",
         },
         secondary: "rgb(var(--secondary))",
+        card: "rgb(var(--bg-card))",
+        "border-main": "rgb(var(--border-main))",
+        muted: "rgb(var(--text-muted))",
         dark: {
           DEFAULT: "rgb(var(--dark))",
           lighter: "rgb(var(--dark-lighter))",
