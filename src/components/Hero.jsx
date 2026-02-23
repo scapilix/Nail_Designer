@@ -9,7 +9,7 @@ const Hero = () => {
   const { images } = useImage();
 
   return (
-    <section id="inicio" className="relative h-screen flex items-center justify-center bg-dark overflow-hidden">
+    <section id="inicio" className="relative h-screen flex items-center justify-center bg-main overflow-hidden">
 
       {/* ── Full-screen Remotion Video (speaks for itself) ──────── */}
       <div className="absolute inset-0 z-0">
