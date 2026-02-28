@@ -38,7 +38,7 @@ const SidebarSection = ({ title, items }) => (
           `}
         >
           <span className="relative z-10 transition-transform duration-500 group-hover:scale-110 group-active:scale-90">
-            {React.cloneElement(item.icon, { size: 18, strokeWidth: isActive ? 2.5 : 2 })}
+            {React.cloneElement(item.icon, { size: 18, strokeWidth: 2 })}
           </span>
           <span className="relative z-10 text-xs font-bold tracking-wide flex-1 whitespace-nowrap">
             {item.name}
