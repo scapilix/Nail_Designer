@@ -7,7 +7,8 @@ import {
   Calendar, 
   ShoppingBag,
   ArrowUpRight,
-  ChevronRight
+  ChevronRight,
+  Sparkles
 } from 'lucide-react';
 
 const StatCard = ({ title, value, icon, trend, color, change }) => (
