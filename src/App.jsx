@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-// Build trigger: 2026-02-22 18:35
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
@@ -25,13 +24,14 @@ import AdminSettings from './pages/AdminSettings';
 import AdminTeam from './pages/AdminTeam';
 import AdminClientes from './pages/AdminClientes';
 import AdminPlans from './pages/AdminPlans';
-// Placeholder Pages
-const PlaceholderPage = ({ title }) => (
-  <div className="card p-12 text-center">
-    <h2 className="text-2xl font-bold text-dark mb-2">{title}</h2>
-    <p className="text-muted text-sm">Esta secção está em desenvolvimento.</p>
-  </div>
-);
+import AdminOrders from './pages/AdminOrders';
+import AdminCommissions from './pages/AdminCommissions';
+import AdminCashier from './pages/AdminCashier';
+import AdminGoals from './pages/AdminGoals';
+import AdminReports from './pages/AdminReports';
+import AdminAnamnesis from './pages/AdminAnamnesis';
+import AdminOnlineBooking from './pages/AdminOnlineBooking';
+import AdminWhatsApp from './pages/AdminWhatsApp';
 
 const PublicPage = () => (
   <div className="animate-fade-in">
@@ -76,22 +76,19 @@ function App() {
             <Route path="invoices" element={<AdminInvoices />} />
             <Route path="plans" element={<AdminPlans />} />
             <Route path="settings" element={<AdminSettings />} />
-            
-            {/* New ERP Modules (Placeholders) */}
-            <Route path="orders" element={<PlaceholderPage title="Comandas & Vendas" />} />
-            <Route path="commissions" element={<PlaceholderPage title="Gestão de Comissões" />} />
-            <Route path="cashier" element={<PlaceholderPage title="Controle de Caixa" />} />
-            <Route path="goals" element={<PlaceholderPage title="Metas e Performance" />} />
-            <Route path="reports" element={<PlaceholderPage title="Relatórios Avançados" />} />
-            <Route path="anamnesis" element={<PlaceholderPage title="Fichas de Anamnese" />} />
-            <Route path="online-booking" element={<PlaceholderPage title="Configuração de Agendamento" />} />
-            <Route path="whatsapp" element={<PlaceholderPage title="WhatsApp Marketing" />} />
+            <Route path="orders" element={<AdminOrders />} />
+            <Route path="commissions" element={<AdminCommissions />} />
+            <Route path="cashier" element={<AdminCashier />} />
+            <Route path="goals" element={<AdminGoals />} />
+            <Route path="reports" element={<AdminReports />} />
+            <Route path="anamnesis" element={<AdminAnamnesis />} />
+            <Route path="online-booking" element={<AdminOnlineBooking />} />
+            <Route path="whatsapp" element={<AdminWhatsApp />} />
           </Route>
         </Routes>
       </ImageProvider>
     </ThemeProvider>
   );
 }
-
 
 export default App;

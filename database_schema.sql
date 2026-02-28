@@ -1,92 +1,171 @@
--- Tabela de Clientes
-CREATE TABLE IF NOT EXISTS public.clients (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  email TEXT,
-  phone TEXT,
-  total_spent NUMERIC DEFAULT 0,
-  last_visit TIMESTAMP WITH TIME ZONE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
-);
+-- =============================================
+-- COMPLETE DATABASE SCHEMA FOR TO BEAUTY ERP
+-- Run this in Supabase SQL Editor
+-- =============================================
 
--- Tabela de Produtos/Inventário
-CREATE TABLE IF NOT EXISTS public.products (
+-- Services table
+CREATE TABLE IF NOT EXISTS public.services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   category TEXT,
-  stock_quantity INTEGER DEFAULT 0,
+  duration INTEGER DEFAULT 30,
   price NUMERIC DEFAULT 0,
-  total_sold INTEGER DEFAULT 0,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
 );
 
--- Tabela de Faturas / Vendas (invoices)
-CREATE TABLE IF NOT EXISTS public.invoices (
+-- Team members table
+CREATE TABLE IF NOT EXISTS public.team_members (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  role TEXT,
+  phone TEXT,
+  email TEXT,
+  commission_rate NUMERIC DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+-- Bookings table
+CREATE TABLE IF NOT EXISTS public.bookings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   client_id UUID REFERENCES public.clients(id) ON DELETE SET NULL,
-  total_amount NUMERIC NOT NULL,
-  status TEXT DEFAULT 'pendente', -- 'pago', 'pendente', 'cancelado'
-  payment_method TEXT DEFAULT 'Dinheiro', -- 'Dinheiro', 'MBWay', 'Multibanco'
-  issue_date TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  service_id UUID REFERENCES public.services(id) ON DELETE SET NULL,
+  team_member_id UUID REFERENCES public.team_members(id) ON DELETE SET NULL,
+  booking_date DATE NOT NULL,
+  booking_time TEXT NOT NULL,
+  status TEXT DEFAULT 'pendente',
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
 );
 
--- Tabela de Itens da Fatura (invoice_items)
-na   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  invoice_id UUID REFERENCES public.invoices(id) ON DELETE CASCADE,
+-- Plans/Packages table
+CREATE TABLE IF NOT EXISTS public.plans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  price NUMERIC DEFAULT 0,
+  sessions INTEGER DEFAULT 1,
+  validity_days INTEGER DEFAULT 30,
+  services_included TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+-- Orders/Comandas table
+CREATE TABLE IF NOT EXISTS public.orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES public.clients(id) ON DELETE SET NULL,
+  client_name TEXT,
+  team_member_id UUID REFERENCES public.team_members(id) ON DELETE SET NULL,
+  total_amount NUMERIC DEFAULT 0,
+  status TEXT DEFAULT 'aberta',
+  payment_method TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+-- Order items table
+CREATE TABLE IF NOT EXISTS public.order_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES public.services(id) ON DELETE SET NULL,
   product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
-  service_id UUID,
+  item_name TEXT NOT NULL,
   quantity INTEGER DEFAULT 1,
-  price_at_time NUMERIC NOT NULL
+  unit_price NUMERIC DEFAULT 0,
+  total_price NUMERIC DEFAULT 0
 );
 
--- Tabela de Despesas (expenses)
-CREATE TABLE IF NOT EXISTS public.expenses (
+-- Commissions table
+CREATE TABLE IF NOT EXISTS public.commissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  description TEXT NOT NULL,
-  category TEXT,
+  team_member_id UUID REFERENCES public.team_members(id) ON DELETE CASCADE,
+  member_name TEXT,
+  order_id UUID,
+  amount NUMERIC DEFAULT 0,
+  rate NUMERIC DEFAULT 0,
+  date DATE DEFAULT CURRENT_DATE,
+  status TEXT DEFAULT 'pendente',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+-- Cash register table
+CREATE TABLE IF NOT EXISTS public.cash_register (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type TEXT NOT NULL,
   amount NUMERIC NOT NULL,
-  date DATE DEFAULT CURRENT_DATE NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  description TEXT,
+  payment_method TEXT,
+  date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
 );
 
--- ==========================================================
--- DADOS DE EXEMPLO (SEED DATA)
--- Podes apagar ou manter se quiseres ter dados iniciais reais
--- ==========================================================
-
-INSERT INTO public.clients (name, email, phone, total_spent, last_visit) VALUES
-  ('Ana Sofia Marques', 'ana.sofia@email.com', '+351 912 345 678', 850.00, '2026-02-21 10:00:00'),
-  ('Marta Ribeiro', 'marta.r@email.com', '+351 923 456 789', 320.00, '2026-02-20 15:30:00'),
-  ('Joana Costa', 'joana.costa@email.com', '+351 934 567 890', 125.00, '2026-02-19 09:15:00'),
-  ('Beatriz Santos', 'beatriz.s@email.com', '+351 965 678 901', 95.00, '2026-01-10 14:00:00')
-ON CONFLICT DO NOTHING;
-
-INSERT INTO public.products (name, category, stock_quantity, price, total_sold) VALUES
-  ('Gel de Construção Rosa', 'Stock', 15, 25.99, 42),
-  ('Verniz Vermelho Paixão', 'Stock', 8, 12.50, 15),
-  ('Creme Mãos Karité', 'Revenda', 30, 18.00, 120),
-  ('Óleo de Cutículas', 'Revenda', 50, 9.50, 200)
-ON CONFLICT DO NOTHING;
-
--- Gerar Faturas Simples para a Ana Sofia e Marta
-INSERT INTO public.invoices (client_id, total_amount, status, payment_method, issue_date) 
-SELECT id, 45.00, 'pago', 'MBWay', '2026-02-21 10:45:00' FROM public.clients WHERE name = 'Ana Sofia Marques';
-
-INSERT INTO public.invoices (client_id, total_amount, status, payment_method, issue_date) 
-SELECT id, 35.00, 'pendente', 'Dinheiro', '2026-02-20 16:00:00' FROM public.clients WHERE name = 'Marta Ribeiro';
-
-INSERT INTO public.invoices (client_id, total_amount, status, payment_method, issue_date) 
-SELECT id, 20.00, 'pago', 'Multibanco', '2026-02-19 10:00:00' FROM public.clients WHERE name = 'Joana Costa';
-
--- Despesas Fictícias deste mês
-INSERT INTO public.expenses (description, category, amount, date) VALUES
-  ('Renda do Salão', 'Fixa', 1500.00, '2026-02-01'),
-  ('Eletricidade', 'Variável', 180.00, '2026-02-05'),
-  ('Fornecedor Produtos Gel', 'Stock', 450.00, '2026-02-12'),
--- Tabela para imagens dinâmicas do site (Persistência)
-CREATE TABLE IF NOT EXISTS public.site_images (
+-- Goals table
+CREATE TABLE IF NOT EXISTS public.goals (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  image_key TEXT UNIQUE NOT NULL,
-  image_url TEXT NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  title TEXT NOT NULL,
+  target_value NUMERIC DEFAULT 0,
+  current_value NUMERIC DEFAULT 0,
+  period TEXT DEFAULT 'mensal',
+  start_date DATE,
+  end_date DATE,
+  status TEXT DEFAULT 'ativa',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
 );
+
+-- Anamnesis table
+CREATE TABLE IF NOT EXISTS public.anamnesis (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  client_id UUID REFERENCES public.clients(id) ON DELETE CASCADE,
+  client_name TEXT,
+  allergies TEXT,
+  medications TEXT,
+  health_conditions TEXT,
+  skin_type TEXT,
+  nail_conditions TEXT,
+  preferences TEXT,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL
+);
+
+-- Add missing columns to existing tables
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS birthday DATE;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS referral_source TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE public.clients ADD COLUMN IF NOT EXISTS visit_count INTEGER DEFAULT 0;
+
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS brand TEXT;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS cost_price NUMERIC DEFAULT 0;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS min_stock INTEGER DEFAULT 5;
+
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS client_name TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS service_name TEXT;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS date DATE;
+
+ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS notes TEXT;
+
+-- RLS Policies (allow all for development)
+DO $$
+DECLARE t TEXT;
+BEGIN
+  FOR t IN SELECT unnest(ARRAY['services','team_members','bookings','plans','orders','order_items','commissions','cash_register','goals','anamnesis'])
+  LOOP
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
+    EXECUTE format('DROP POLICY IF EXISTS "Allow all" ON public.%I', t);
+    EXECUTE format('CREATE POLICY "Allow all" ON public.%I FOR ALL USING (true) WITH CHECK (true)', t);
+  END LOOP;
+END $$;
+
+-- Seed data
+INSERT INTO public.services (name, category, duration, price) VALUES
+  ('Manicure Clássica', 'Manicure', 45, 20.00),
+  ('Manicure Gel', 'Manicure', 60, 35.00),
+  ('Pedicure Spa', 'Pedicure', 75, 40.00),
+  ('Nail Art Premium', 'Nail Art', 90, 55.00),
+  ('Remoção de Gel', 'Manutenção', 30, 15.00)
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.team_members (name, role, phone, commission_rate) VALUES
+  ('Leticia Silva', 'Nail Designer', '+351 912 345 678', 40),
+  ('Ana Santos', 'Esteticista', '+351 923 456 789', 35)
+ON CONFLICT DO NOTHING;
