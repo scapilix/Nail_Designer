@@ -1,141 +1,82 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Check, Sparkles, Zap, Crown, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Package, Plus, X, Edit, Trash2, Search, Star, Clock } from 'lucide-react';
 
 const AdminPlans = () => {
-  const plans = [
-    {
-      id: 'basic',
-      name: 'Básico',
-      price: '19€',
-      period: '/mês',
-      description: 'Essencial para a gestão do seu espaço.',
-      features: [
-        'Agenda de Marcações Pro',
-        'Gestão de Clientes',
-        'Ficha de Serviços',
-        'Atribuição de Equipa',
-        'Suporte via Email'
-      ],
-      icon: <Zap className="w-6 h-6" />,
-      color: 'bg-gray-100 text-gray-400',
-      active: false
-    },
-    {
-      id: 'pro',
-      name: 'Pro',
-      price: '39€',
-      period: '/mês',
-      description: 'Gestão comercial completa para o seu salão.',
-      features: [
-        'Tudo do plano Básico',
-        'Gestão de Inventário (Loja)',
-        'Controlo de Gastos (Despesas)',
-        'Faturação Simplificada',
-        'Painel Analytics de Vendas'
-      ],
-      icon: <Sparkles className="w-6 h-6" />,
-      color: 'bg-main border border-border-main text-main',
-      active: false
-    },
-    {
-      id: 'premium',
-      name: 'Premium',
-      price: '59€',
-      period: '/mês',
-      description: 'Potência máxima e exclusividade total.',
-      features: [
-        'Tudo do plano Pro',
-        'Dashboard de Gestão Preditiva',
-        'Sistema de Fidelização Avançado',
-        'Exportação Automática para Contabilidade',
-        'Prioridade em Novas Funcionalidades',
-        'Consultoria de Performance Trimestral'
-      ],
-      icon: <Crown className="w-6 h-6" />,
-      color: 'bg-primary text-white',
-      badge: 'Plano Ativo',
-      active: true
-    }
-  ];
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [formData, setFormData] = useState({ name: '', description: '', price: 0, sessions: 1, validity_days: 30, services_included: '' });
+
+  const fetchData = async () => { setLoading(true); const { data } = await supabase.from('plans').select('*').order('name'); setPlans(data || []); setLoading(false); };
+  useEffect(() => { fetchData(); }, []);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (selected) { await supabase.from('plans').update(formData).eq('id', selected.id); }
+    else { await supabase.from('plans').insert([formData]); }
+    setIsModalOpen(false); setSelected(null); fetchData();
+  };
+
+  const handleDelete = async (id) => { if (!confirm('Apagar?')) return; await supabase.from('plans').delete().eq('id', id); fetchData(); };
+  const openNew = () => { setSelected(null); setFormData({ name: '', description: '', price: 0, sessions: 1, validity_days: 30, services_included: '' }); setIsModalOpen(true); };
+  const openEdit = (p) => { setSelected(p); setFormData({ name: p.name||'', description: p.description||'', price: p.price||0, sessions: p.sessions||1, validity_days: p.validity_days||30, services_included: p.services_included||'' }); setIsModalOpen(true); };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-10 pb-20">
-      <div className="flex justify-between items-end">
-        <div>
-          <h2 className="font-serif text-4xl mb-2 text-main">Planos de <i className="text-primary italic font-normal">Subscrição</i></h2>
-          <p className="text-muted text-sm">Escolha o nível de ferramentas e inteligência ideal para o seu negócio.</p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div><h1 className="text-2xl font-bold text-dark">Pacotes</h1><p className="text-muted text-sm mt-1">Pacotes de serviços predefinidos</p></div>
+        <button onClick={openNew} className="btn-primary flex items-center gap-2"><Plus size={16} /> Novo Pacote</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-8 items-center">
-        {plans.map((plan) => (
-          <div 
-            key={plan.id}
-            className={`relative rounded-[40px] p-10 flex flex-col transition-all duration-500 hover:translate-y-[-10px] ${
-              plan.active 
-              ? 'bg-card border-2 border-primary shadow-2xl shadow-primary/20 scale-105 z-10 py-14' 
-              : 'bg-card border border-border-main/50 shadow-sm opacity-80 scale-95'
-            }`}
-          >
-            {plan.badge && (
-              <div className="absolute top-6 right-6 px-4 py-1.5 bg-primary text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-lg shadow-primary/30 animate-pulse">
-                {plan.badge}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {plans.map(p => (
+          <div key={p.id} className="card p-6 hover:shadow-md transition-all relative">
+            <div className="flex items-start justify-between mb-4">
+              <div className="p-2.5 rounded-lg bg-primary/10 text-primary"><Package size={20} /></div>
+              <div className="flex gap-1">
+                <button onClick={() => openEdit(p)} className="p-1.5 rounded hover:bg-slate-100 text-muted hover:text-blue-600"><Edit size={14} /></button>
+                <button onClick={() => handleDelete(p.id)} className="p-1.5 rounded hover:bg-red-50 text-muted hover:text-red-600"><Trash2 size={14} /></button>
               </div>
-            )}
-
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-8 ${plan.color} shadow-lg`}>
-              {plan.icon}
             </div>
-
-            <div className="mb-8">
-              <h3 className="font-serif text-2xl text-main mb-1">{plan.name}</h3>
-              <p className="text-muted text-xs">{plan.description}</p>
+            <h3 className="text-lg font-bold text-dark mb-1">{p.name}</h3>
+            {p.description && <p className="text-sm text-muted mb-4">{p.description}</p>}
+            <div className="text-3xl font-bold text-primary mb-4">{Number(p.price||0).toFixed(2)}€</div>
+            <div className="space-y-2 border-t border-border-main pt-4">
+              <div className="flex items-center gap-2 text-sm text-muted"><Star size={14} className="text-primary" />{p.sessions || 1} sessões</div>
+              <div className="flex items-center gap-2 text-sm text-muted"><Clock size={14} className="text-primary" />Validade: {p.validity_days || 30} dias</div>
+              {p.services_included && <div className="text-xs text-muted mt-2">Inclui: {p.services_included}</div>}
             </div>
-
-            <div className="flex items-baseline gap-1 mb-8">
-              <span className="text-4xl font-bold text-main">{plan.price}</span>
-              <span className="text-muted text-sm font-medium">{plan.period}</span>
-            </div>
-
-            <div className="space-y-4 mb-10 flex-1">
-              {plan.features.map((feature, idx) => (
-                <div key={idx} className="flex items-center gap-3">
-                  <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${plan.active ? 'bg-primary/10 text-primary' : 'bg-main text-muted'}`}>
-                    <Check className="w-3 h-3" strokeWidth={3} />
-                  </div>
-                  <span className="text-sm font-medium text-muted leading-tight">{feature}</span>
-                </div>
-              ))}
-            </div>
-
-            <button 
-              className={`w-full py-5 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${
-                plan.active 
-                ? 'bg-main border border-border-main text-muted cursor-default' 
-                : 'bg-primary text-white hover:bg-primary-light shadow-xl shadow-primary/20'
-              }`}
-            >
-              {plan.active ? 'Atualmente em Uso' : 'Alterar para este Plano'}
-              {!plan.active && <ArrowRight className="w-3 h-3" />}
-            </button>
           </div>
         ))}
+        {plans.length === 0 && <div className="col-span-3 card p-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhum pacote criado'}</div>}
       </div>
 
-      <div className="bg-card rounded-[40px] p-12 relative overflow-hidden group border border-border-main">
-         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-primary/10 to-transparent pointer-events-none" />
-         <div className="relative z-10 flex items-center justify-between">
-            <div className="max-w-xl">
-               <h4 className="font-serif text-3xl text-main mb-4">Precisa de uma solução <i className="text-primary italic font-normal">Customizada</i>?</h4>
-               <p className="text-muted text-sm leading-relaxed">Se gere múltiplas localizações ou precisa de integrações específicas com sistemas externos, a nossa equipa Enterprise está pronta para ajudar.</p>
-            </div>
-            <button className="px-10 py-5 bg-primary text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-primary-light transition-all shadow-xl shadow-primary/20">
-               Contactar Consultor
-            </button>
-         </div>
-      </div>
-    </motion.div>
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="modal-content w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
+              <form onSubmit={handleSave}>
+                <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">{selected ? 'Editar' : 'Novo'} Pacote</h2><button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
+                <div className="p-6 space-y-4">
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Nome *</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="luxury-input" /></div>
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Descrição</label><textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="luxury-input h-20 resize-none" /></div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Preço (€)</label><input type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} className="luxury-input" /></div>
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Sessões</label><input type="number" value={formData.sessions} onChange={e => setFormData({...formData, sessions: Number(e.target.value)})} className="luxury-input" /></div>
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Validade (dias)</label><input type="number" value={formData.validity_days} onChange={e => setFormData({...formData, validity_days: Number(e.target.value)})} className="luxury-input" /></div>
+                  </div>
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Serviços Incluídos</label><input value={formData.services_included} onChange={e => setFormData({...formData, services_included: e.target.value})} className="luxury-input" placeholder="Ex: Manicure, Pedicure..." /></div>
+                </div>
+                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl"><button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

@@ -4,9 +4,9 @@
 
 @layer base {
   :root {
-    --primary: 124 58 237;
-    --primary-light: 139 92 246;
-    --primary-dark: 109 40 217;
+    --primary: 180 130 40;
+    --primary-light: 212 175 55;
+    --primary-dark: 150 105 25;
     --secondary: 248 250 252;
     --dark: 30 41 59;
     --text-main: 30 41 59;
@@ -14,7 +14,7 @@
     --bg-card: 248 250 252;
     --border-main: 226 232 240;
     --text-muted: 100 116 139;
-    --nav-bg: 124 58 237;
+    --nav-bg: 26 26 30;
     --accent: 16 185 129;
   }
 
@@ -49,7 +49,7 @@
   }
 
   .sidebar-link-active {
-    @apply bg-white/20 text-white font-semibold;
+    @apply bg-white/15 text-white font-semibold;
   }
 
   .luxury-input {

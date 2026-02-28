@@ -1,282 +1,113 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
-import { 
-  Plus, Search, Settings2, Edit2, Trash2, Clock, Euro, Sparkles, Scissors, Droplets, X, Save
-} from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Scissors, Plus, X, Edit, Trash2, Clock, DollarSign, Search } from 'lucide-react';
 
 const AdminServices = () => {
-  const [filter, setFilter] = useState('Todos');
-  const [search, setSearch] = useState('');
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  // Modal State
+  const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [formData, setFormData] = useState({ name: '', category: 'Nails', price: '', duration: '', description: '' });
+  const [selected, setSelected] = useState(null);
+  const [formData, setFormData] = useState({ name: '', category: '', duration: 30, price: 0, description: '' });
 
-  const categories = ['Todos', 'Nails', 'Feet', 'Design'];
-
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  const fetchServices = async () => {
+  const fetchData = async () => {
     setLoading(true);
-    try {
-      const { data, error } = await supabase.from('services').select('*').order('name');
-      if (error) throw error;
-      setServices(data || []);
-    } catch (e) {
-      console.error(e);
-      alert('Erro ao carregar serviços.');
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await supabase.from('services').select('*').order('category').order('name');
+    setServices(data || []);
+    setLoading(false);
   };
-
-  const handleDelete = async (id) => {
-    if(!window.confirm('Tem a certeza que deseja apagar este serviço?')) return;
-    try {
-      const { error } = await supabase.from('services').delete().eq('id', id);
-      if (error) throw error;
-      fetchServices();
-    } catch (e) {
-      console.error(e);
-      alert('Erro ao apagar serviço.');
-    }
-  };
-
-  const openModal = (service = null) => {
-    if (service) {
-      setEditId(service.id);
-      setFormData({
-        name: service.name,
-        category: service.category || 'Nails',
-        price: service.price,
-        duration: service.duration,
-        description: service.description || ''
-      });
-    } else {
-      setEditId(null);
-      setFormData({ name: '', category: 'Nails', price: '', duration: '', description: '' });
-    }
-    setIsModalOpen(true);
-  };
+  useEffect(() => { fetchData(); }, []);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    try {
-      const payload = {
-        name: formData.name,
-        category: formData.category,
-        price: Number(formData.price),
-        duration: Number(formData.duration),
-        description: formData.description
-      };
-
-      if (editId) {
-        const { error } = await supabase.from('services').update(payload).eq('id', editId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('services').insert([payload]);
-        if (error) throw error;
-      }
-      setIsModalOpen(false);
-      fetchServices();
-    } catch (e) {
-      console.error(e);
-      alert('Erro ao guardar serviço.');
-    }
+    if (selected) { await supabase.from('services').update(formData).eq('id', selected.id); }
+    else { await supabase.from('services').insert([formData]); }
+    setIsModalOpen(false); setSelected(null); fetchData();
   };
 
-  const getIcon = (cat) => {
-    switch (cat) {
-      case 'Nails': return <Scissors className="w-5 h-5" />;
-      case 'Feet': return <Droplets className="w-5 h-5" />;
-      default: return <Sparkles className="w-5 h-5" />;
-    }
+  const handleDelete = async (id) => {
+    if (!confirm('Apagar este serviço?')) return;
+    await supabase.from('services').delete().eq('id', id);
+    fetchData();
   };
 
-  const filteredServices = services.filter(s => {
-    if (filter !== 'Todos' && s.category !== filter) return false;
-    if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const openNew = () => { setSelected(null); setFormData({ name: '', category: '', duration: 30, price: 0, description: '' }); setIsModalOpen(true); };
+  const openEdit = (s) => { setSelected(s); setFormData({ name: s.name||'', category: s.category||'', duration: s.duration||30, price: s.price||0, description: s.description||'' }); setIsModalOpen(true); };
+
+  const filtered = services.filter(s => s.name?.toLowerCase().includes(search.toLowerCase()));
+  const categories = [...new Set(services.map(s => s.category).filter(Boolean))];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-8 relative">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className="font-serif text-4xl mb-2 text-main">Gestão de <i className="text-primary italic font-normal">Serviços</i></h2>
-          <p className="text-muted text-sm">Adicione, edite ou remova os seus serviços de luxo.</p>
+          <h1 className="text-2xl font-bold text-dark">Serviços</h1>
+          <p className="text-muted text-sm mt-1">Gerir serviços oferecidos pelo salão</p>
         </div>
-        <button onClick={() => openModal()} className="bg-primary text-white hover:bg-primary-light px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          Novo Serviço
-        </button>
+        <button onClick={openNew} className="btn-primary flex items-center gap-2"><Plus size={16} /> Novo Serviço</button>
       </div>
 
-      {/* Filters and Search */}
-      <div className="bg-card p-4 rounded-[32px] border border-border-main shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-        <div className="flex bg-main p-1.5 rounded-2xl w-full md:w-auto border border-border-main/50">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setFilter(cat)}
-              className={`px-6 py-2 rounded-xl text-xs font-bold uppercase tracking-widest transition-all ${
-                filter === cat 
-                  ? 'bg-card text-main shadow-lg border border-border-main' 
-                  : 'text-muted hover:text-main'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="stat-card"><p className="text-xs font-medium text-muted uppercase">Total Serviços</p><p className="text-2xl font-bold text-dark mt-1">{services.length}</p></div>
+        <div className="stat-card"><p className="text-xs font-medium text-muted uppercase">Categorias</p><p className="text-2xl font-bold text-dark mt-1">{categories.length}</p></div>
+        <div className="stat-card"><p className="text-xs font-medium text-muted uppercase">Preço Médio</p><p className="text-2xl font-bold text-dark mt-1">{services.length ? (services.reduce((a,s) => a + Number(s.price||0), 0) / services.length).toFixed(2) : '0.00'}€</p></div>
+      </div>
 
-        <div className="flex gap-4 w-full md:w-auto">
-          <div className="flex items-center gap-3 bg-main px-4 py-3 rounded-2xl w-full md:w-[300px] border border-border-main">
-            <Search className="w-4 h-4 text-muted" />
-            <input 
-              type="text" 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Procurar serviço..." 
-              className="bg-transparent border-none outline-none text-sm w-full text-main placeholder:text-muted" 
-            />
+      <div className="flex items-center gap-2 bg-white border border-border-main px-4 py-2.5 rounded-lg">
+        <Search className="w-4 h-4 text-muted" />
+        <input type="text" placeholder="Pesquisar serviços..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-transparent border-none outline-none text-sm w-full text-dark placeholder:text-muted" />
+      </div>
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {filtered.map(s => (
+          <div key={s.id} className="card p-5 hover:shadow-md transition-all">
+            <div className="flex items-start justify-between mb-3">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary"><Scissors size={18} /></div>
+              <div className="flex gap-1">
+                <button onClick={() => openEdit(s)} className="p-1.5 rounded hover:bg-slate-100 text-muted hover:text-blue-600"><Edit size={14} /></button>
+                <button onClick={() => handleDelete(s.id)} className="p-1.5 rounded hover:bg-red-50 text-muted hover:text-red-600"><Trash2 size={14} /></button>
+              </div>
+            </div>
+            <h3 className="font-semibold text-dark text-sm">{s.name}</h3>
+            {s.category && <span className="badge badge-info mt-1 inline-block">{s.category}</span>}
+            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border-main">
+              <div className="flex items-center gap-1 text-xs text-muted"><Clock size={12} />{s.duration}min</div>
+              <div className="flex items-center gap-1 text-sm font-bold text-primary"><DollarSign size={12} />{Number(s.price||0).toFixed(2)}€</div>
+            </div>
           </div>
-        </div>
+        ))}
+        {filtered.length === 0 && <div className="col-span-3 card p-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhum serviço encontrado'}</div>}
       </div>
 
-      {/* Services Grid */}
-      {loading ? (
-        <div className="text-center py-20 text-muted">Carregando Serviços do Banco de Dados...</div>
-      ) : filteredServices.length === 0 ? (
-        <div className="text-center py-20 text-muted">Nenhum serviço encontrado.</div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {filteredServices.map(service => (
-              <motion.div
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                key={service.id}
-                className="group bg-card rounded-[32px] p-8 border border-border-main shadow-sm hover:bg-main/50 hover:border-primary/30 transition-all duration-300 relative overflow-hidden flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-main border border-border-main flex items-center justify-center text-muted group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                      {getIcon(service.category)}
-                    </div>
-                    <span className="bg-green-500/10 text-green-500 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-500/20">
-                      Disponível
-                    </span>
-                  </div>
-                  
-                  <h3 className="font-bold text-xl text-main mb-2">{service.name}</h3>
-                  <p className="text-sm text-muted mb-6 line-clamp-2">{service.description || 'Sem descrição.'}</p>
-                  
-                  <div className="flex gap-4 items-center">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-main bg-main border border-border-main px-3 py-1.5 rounded-lg">
-                      <Clock className="w-3.5 h-3.5 text-primary" /> {service.duration}m
-                    </div>
-                    <div className="flex items-center gap-1 text-xs font-bold uppercase tracking-widest text-muted">
-                      <span className="text-primary font-black">/</span> {service.category}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-6 border-t border-border-main/50 flex justify-between items-end">
-                  <div>
-                    <div className="text-[10px] uppercase font-bold tracking-widest text-muted mb-1">Preço Base</div>
-                    <div className="flex items-center font-serif text-3xl text-main">
-                      {Number(service.price).toFixed(2)}
-                      <Euro className="w-5 h-5 text-primary ml-1" />
-                    </div>
-                  </div>
-                  
-                  {/* Actions */}
-                  <div className="flex gap-2 relative z-10">
-                    <button onClick={() => openModal(service)} className="p-2.5 bg-main border border-border-main text-muted hover:text-main hover:bg-card rounded-xl transition-all cursor-pointer">
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(service.id)} className="p-2.5 bg-red-500/10 text-red-400 hover:text-white hover:bg-red-500 rounded-xl transition-all cursor-pointer border border-red-500/20">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* CRUD Modal */}
       <AnimatePresence>
         {isModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-              className="bg-card border border-border-main rounded-[40px] w-full max-w-2xl overflow-hidden shadow-2xl"
-            >
-              <div className="p-8 border-b border-border-main/50 flex justify-between items-center bg-main/50">
-                <h3 className="font-serif text-3xl text-main">{editId ? 'Editar' : 'Novo'} <i className="text-primary italic font-normal">Serviço</i></h3>
-                <button onClick={() => setIsModalOpen(false)} className="p-3 bg-card border border-border-main rounded-full hover:bg-main transition-colors">
-                  <X className="w-5 h-5 text-muted hover:text-main" />
-                </button>
-              </div>
-
-              <form onSubmit={handleSave} className="p-10 space-y-8">
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-primary">Nome do Serviço</label>
-                    <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-main border border-border-main rounded-xl px-5 py-4 text-sm outline-none text-main focus:ring-1 focus:ring-primary" placeholder="Ex: Manicure Francesa" />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-xs font-bold uppercase tracking-widest text-primary">Preço (€)</label>
-                    <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} className="w-full bg-main border border-border-main rounded-xl px-5 py-4 text-sm outline-none text-main focus:ring-1 focus:ring-primary" placeholder="0.00" />
-                  </div>
-
-                  <div className="space-y-3">
-                    <label className="text-xs font-bold uppercase tracking-widest text-primary">Duração (Minutos)</label>
-                    <input required type="number" value={formData.duration} onChange={e => setFormData({...formData, duration: e.target.value})} className="w-full bg-main border border-border-main rounded-xl px-5 py-4 text-sm outline-none text-main focus:ring-1 focus:ring-primary" placeholder="60" />
-                  </div>
-
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-primary">Categoria</label>
-                    <select value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="w-full bg-main border border-border-main rounded-xl px-5 py-4 text-sm outline-none text-main focus:ring-1 focus:ring-primary">
-                      {categories.filter(c => c !== 'Todos').map(c => <option key={c} value={c} className="bg-card">{c}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-xs font-bold uppercase tracking-widest text-primary">Pequena Descrição</label>
-                    <textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full bg-main border border-border-main rounded-xl px-5 py-4 text-sm outline-none text-main focus:ring-1 focus:ring-primary h-28 resize-none placeholder:text-muted" placeholder="Detalhes maravilhosos sobre o serviço..."></textarea>
-                  </div>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="modal-content w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
+              <form onSubmit={handleSave}>
+                <div className="flex items-center justify-between p-6 border-b border-border-main">
+                  <h2 className="text-lg font-bold text-dark">{selected ? 'Editar Serviço' : 'Novo Serviço'}</h2>
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button>
                 </div>
-
-                <div className="pt-8 flex justify-end gap-4 border-t border-border-main/50">
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-8 py-4 text-sm font-bold uppercase tracking-[0.2em] text-muted hover:text-main transition-colors">
-                    Descartar
-                  </button>
-                  <button type="submit" className="bg-primary text-white hover:bg-primary-light px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20 flex items-center gap-2">
-                    <Save className="w-4 h-4" /> Guardar Alterações
-                  </button>
+                <div className="p-6 space-y-4">
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Nome *</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="luxury-input" /></div>
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Categoria</label><input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="luxury-input" placeholder="Ex: Manicure, Pedicure..." /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Duração (min)</label><input type="number" value={formData.duration} onChange={e => setFormData({...formData, duration: Number(e.target.value)})} className="luxury-input" /></div>
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Preço (€)</label><input type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: Number(e.target.value)})} className="luxury-input" /></div>
+                  </div>
+                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Descrição</label><textarea value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="luxury-input h-20 resize-none" /></div>
+                </div>
+                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancelar</button>
+                  <button type="submit" className="btn-primary">Guardar</button>
                 </div>
               </form>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 
