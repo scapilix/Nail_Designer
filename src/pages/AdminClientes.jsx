@@ -305,7 +305,7 @@ const AdminClientes = () => {
                 {activeTab === 'historico' && (
                   <div className="text-center py-12 text-muted">
                     <Calendar size={40} className="mx-auto mb-3 opacity-30" />
-                    <p className="font-medium">Histórico de atendimentos</p>
+                    <p className="font-medium">Histórico de serviços</p>
                     <p className="text-sm mt-1">O histórico será carregado aqui</p>
                   </div>
                 )}

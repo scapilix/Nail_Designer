@@ -53,7 +53,7 @@ const AdminCommissions = () => {
               </div>
             </div>
           ))}
-          {team.length === 0 && <p className="text-sm text-muted text-center py-4">Nenhum profissional cadastrado</p>}
+          {team.length === 0 && <p className="text-sm text-muted text-center py-4">Nenhum profissional registado</p>}
         </div>
       </div>
 

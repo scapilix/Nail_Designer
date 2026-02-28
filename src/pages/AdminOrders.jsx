@@ -24,7 +24,7 @@ const AdminOrders = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-dark">Comandas</h1><p className="text-muted text-sm mt-1">Vendas e atendimentos em aberto</p></div>
+        <div><h1 className="text-2xl font-bold text-dark">Comandas</h1><p className="text-muted text-sm mt-1">Vendas e serviços em aberto</p></div>
         <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Comanda</button>
       </div>
 

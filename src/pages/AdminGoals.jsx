@@ -21,7 +21,7 @@ const AdminGoals = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-bold text-dark">Metas</h1><p className="text-muted text-sm mt-1">Acompanhe o progresso do seu salão</p></div>
+        <div><h1 className="text-2xl font-bold text-dark">Metas</h1><p className="text-muted text-sm mt-1">Siga o progresso do seu salão</p></div>
         <button onClick={openNew} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Meta</button>
       </div>
 

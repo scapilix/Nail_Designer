@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { 
@@ -10,6 +10,7 @@ const AdminBookings = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
+  const scrollRef = useRef(null);
 
   const [clients, setClients] = useState([]);
   const [services, setServices] = useState([]);
@@ -27,6 +28,18 @@ const AdminBookings = () => {
     const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
+
+  // Auto-scroll to current time
+  useEffect(() => {
+    if (scrollRef.current) {
+      const currentHour = new Date().getHours();
+      const currentMin = new Date().getMinutes();
+      const totalMinFromStart = (currentHour - 8) * 60 + currentMin;
+      const slotHeight = 48; // each 15min slot ~48px
+      const scrollTarget = Math.max(0, (totalMinFromStart / 15) * slotHeight - 150);
+      scrollRef.current.scrollTop = scrollTarget;
+    }
+  }, [loading]);
 
   const weekDays = React.useMemo(() => {
     const d = new Date(currentDate);
@@ -101,7 +114,7 @@ const AdminBookings = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Tem certeza que deseja apagar este agendamento?')) return;
+    if (!confirm('Tem a certeza que pretende apagar este agendamento?')) return;
     await supabase.from('bookings').delete().eq('id', id);
     fetchBookings();
   };
@@ -213,7 +226,7 @@ const AdminBookings = () => {
         </div>
 
         {/* Time slots */}
-        <div className="relative max-h-[calc(100vh-220px)] overflow-y-auto">
+        <div ref={scrollRef} className="relative max-h-[calc(100vh-220px)] overflow-y-auto">
           {/* Current time indicator */}
           {nowInHours >= 8 && nowInHours <= 20 && (
             <div 

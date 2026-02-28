@@ -183,6 +183,11 @@ ALTER TABLE public.products ADD COLUMN IF NOT EXISTS min_stock INTEGER DEFAULT 5
 ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS client_name TEXT;
 ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS service_name TEXT;
 ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS date DATE;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'dinheiro';
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'pendente';
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS total_amount NUMERIC DEFAULT 0;
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS issue_date TIMESTAMPTZ DEFAULT now();
+ALTER TABLE public.invoices ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now();
 ALTER TABLE public.expenses ADD COLUMN IF NOT EXISTS notes TEXT;
 
 -- ==================
@@ -322,7 +327,7 @@ INSERT INTO public.plans (name, description, price, sessions, validity_days, ser
 INSERT INTO public.orders (client_name, total_amount, status, payment_method, notes) VALUES
   ('Maria Oliveira',  35.00, 'fechada',   'mbway',     'Manicure gel feita'),
   ('Ana Pereira',     80.00, 'fechada',   'cartao',    'Manicure russa + pedicure'),
-  ('Cláudia Vieira',  40.00, 'aberta',    NULL,        'Em atendimento'),
+  ('Cláudia Vieira',  40.00, 'aberta',    NULL,        'Em serviço'),
   ('Sofia Costa',     55.00, 'aberta',    NULL,        'A aguardar nail art'),
   ('Beatriz Santos',  20.00, 'fechada',   'dinheiro',  NULL),
   ('Inês Rodrigues',  70.00, 'cancelada', NULL,        'Cancelou por conflito de horário');

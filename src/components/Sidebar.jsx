@@ -60,7 +60,7 @@ const Sidebar = () => {
       ]
     },
     {
-      title: 'Cadastros',
+      title: 'Registos',
       items: [
         { name: 'Clientes', icon: <Users />, path: '/admin/clients' },
         { name: 'Serviços', icon: <Scissors />, path: '/admin/services' },
