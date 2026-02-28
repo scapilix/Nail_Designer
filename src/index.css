@@ -4,20 +4,19 @@
 
 @layer base {
   :root {
-    --primary: 184 134 11; /* #B8860B */
-    --primary-light: 225 174 45; /* #e1ae2d */
-    --primary-dark: 139 101 8; /* #8B6508 */
-    --secondary: 249 250 251; /* #F9FAFB */
-    --dark: 26 26 26; /* #1a1a1a */
-    --dark-lighter: 45 45 45; /* #2d2d2d */
-    --dark-darker: 10 10 10; /* #0a0a0a */
-    --text-main: 26 26 26;
-    --bg-main: 249 250 251;
-    --bg-card: 255 255 255;
-    --border-main: 243 244 246; /* gray-100 */
-    --text-muted: 107 114 128; /* gray-500 */
-    --nav-bg: 255 255 255;
-    --nav-gradient: 26 26 26;
+    --primary: 212 175 55; /* Rose Gold/Metallic Gold #D4AF37 */
+    --primary-light: 234 199 90;
+    --primary-dark: 184 134 11;
+    --secondary: 10 10 12; /* Midnight Black #0A0A0C */
+    --dark: 255 255 255;
+    --text-main: 255 255 255;
+    --bg-main: 10 10 12;
+    --bg-card: 18 18 22; /* Deep Silk #121216 */
+    --border-main: 255 255 255 / 0.08;
+    --text-muted: 156 163 175;
+    --nav-bg: 10 10 12;
+    --nav-gradient: 212 175 55;
+    --accent: 251 191 36; /* Amber #FBBF24 */
   }
 
   .theme-neutral {
@@ -60,14 +59,22 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-white px-8 py-3 rounded-custom font-bold hover:bg-opacity-90 transition-all uppercase tracking-widest text-sm shadow-md hover:shadow-lg;
+    @apply bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all uppercase tracking-widest text-sm shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98];
   }
 
   .btn-dark {
-    @apply bg-main border border-border-main text-main px-8 py-3 rounded-custom font-bold hover:bg-primary hover:text-white transition-all uppercase tracking-widest text-sm shadow-md hover:shadow-lg;
+    @apply bg-card border border-border-main text-white px-8 py-3 rounded-xl font-bold hover:bg-white hover:text-secondary transition-all uppercase tracking-widest text-sm shadow-md hover:shadow-lg;
   }
 
   .glass-card {
-    @apply bg-white/80 backdrop-blur-md border border-white/20 rounded-custom;
+    @apply bg-card/60 backdrop-blur-xl border border-white/10 rounded-3xl shadow-2xl;
+  }
+
+  .sidebar-link {
+    @apply flex items-center gap-4 px-6 py-4 rounded-2xl transition-all duration-500 group relative overflow-hidden;
+  }
+
+  .sidebar-link-active {
+    @apply bg-gradient-to-r from-primary/20 to-transparent text-primary border-l-4 border-primary shadow-xl shadow-primary/5;
   }
 }

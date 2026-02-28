@@ -10,28 +10,29 @@ import {
   ChevronRight
 } from 'lucide-react';
 
-const StatCard = ({ title, value, icon, trend, color }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="bg-card p-8 rounded-[32px] border border-border-main shadow-sm hover:shadow-xl transition-all duration-500 group"
-  >
-    <div className="flex justify-between items-start mb-6">
-      <div className={`w-14 h-14 ${color} rounded-2xl flex items-center justify-center text-white shadow-lg`}>
-        {icon}
+const StatCard = ({ title, value, icon, trend, color, change }) => (
+  <div className="glass-card p-10 relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
+    <div className="relative z-10">
+      <div className="flex items-center justify-between mb-8">
+        <div className={`p-4 rounded-2xl bg-${color === 'bg-primary' ? 'primary' : 'white'}/10 text-${color === 'bg-primary' ? 'primary' : 'white'} group-hover:bg-primary/20 transition-colors duration-500`}>
+          {icon}
+        </div>
+        <div className={`flex items-center gap-1 text-[10px] font-black ${trend.includes('+') ? 'text-green-400' : 'text-red-400'} bg-white/5 px-2 py-1 rounded-full`}>
+          {trend.includes('+') ? <ArrowUpRight size={10} /> : <TrendingUp size={10} className="rotate-180" />}
+          {trend}
+        </div>
       </div>
-      <span className="flex items-center gap-1 text-[10px] font-bold text-green-500 uppercase tracking-widest bg-green-500/10 px-2 py-1 rounded-full">
-        <TrendingUp className="w-3 h-3" />
-        {trend}
-      </span>
+      <h3 className="text-muted font-black text-[10px] uppercase tracking-[0.2em] mb-2">{title}</h3>
+      <div className="text-4xl font-serif font-bold text-white tracking-tighter mb-1">
+        {value}
+      </div>
     </div>
-    <h4 className="text-muted text-xs font-bold uppercase tracking-[0.2em] mb-2">{title}</h4>
-    <div className="text-3xl font-serif font-bold text-main">{value}</div>
-    <div className="mt-6 pt-6 border-t border-border-main flex items-center justify-between group-hover:bg-primary/5 -mx-8 px-8 rounded-b-[32px] transition-colors">
-      <span className="text-[10px] font-bold uppercase tracking-widest text-muted">Ver relatório detalhado</span>
-      <ArrowUpRight className="w-4 h-4 text-primary group-hover:scale-125 transition-transform" />
+    
+    {/* Decorative Background Icon */}
+    <div className={`absolute -bottom-4 -right-4 opacity-5 text-primary group-hover:opacity-10 transition-opacity duration-500`}>
+      {React.cloneElement(icon, { size: 120 })}
     </div>
-  </motion.div>
+  </div>
 );
 
 const AdminDashboard = () => {
@@ -127,10 +128,32 @@ const AdminDashboard = () => {
   const maxRev = Math.max(...data.revenueData, 1);
 
   return (
-    <div className="space-y-10 pb-20">
-      <div>
-        <h2 className="font-serif text-4xl mb-2 text-main">Painel de <i className="text-primary italic font-normal">Controlo</i></h2>
-        <p className="text-muted text-sm font-light">Bem-vinda de volta, Leticia. Aqui está o resumo do desempenho do seu salão hoje.</p>
+    <div className="space-y-12 pb-20">
+      {/* Human Greeting Section */}
+      <div className="flex items-end justify-between animate-fade-in">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+              <Sparkles size={12} className="animate-pulse" />
+              Seja bem-vinda ao sistema de Elite
+            </span>
+          </div>
+          <h1 className="font-serif text-6xl font-bold text-white tracking-tighter leading-none mb-2">
+            Olá, Leticia <span className="text-primary italic font-normal">Silva</span>
+          </h1>
+          <p className="text-muted mt-6 text-lg max-w-2xl font-medium leading-relaxed">
+            O seu salão está com <span className="text-white font-bold">excelente performance</span> hoje. 
+            Você tem <span className="text-primary font-bold">{data.totalReservas}</span> agendamentos confirmados e <span className="text-primary font-bold">{data.newClients}</span> novos clientes este mês.
+          </p>
+        </div>
+
+        <div className="flex gap-4">
+          <button className="btn-dark flex items-center gap-3 group">
+            <TrendingUp size={16} className="text-primary group-hover:scale-110 transition-transform" />
+            Metas do Mês
+          </button>
+          <button className="btn-primary hover:shadow-primary/40">Novo Agendamento</button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -139,85 +162,66 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
+      <div className="grid lg:grid-cols-3 gap-12">
         {/* Main Chart Section */}
-        <div className="lg:col-span-2 bg-card rounded-[32px] p-8 border border-border-main shadow-sm flex flex-col">
-          <div className="flex justify-between items-center mb-8">
+        <div className="lg:col-span-2 glass-card p-10 flex flex-col">
+          <div className="flex justify-between items-center mb-10">
             <div>
-              <h3 className="font-bold text-lg tracking-tight text-main">Receita Semanal</h3>
-              <p className="text-xs text-muted mt-1">Comparação dos últimos 7 dias</p>
+              <h3 className="font-serif text-2xl font-bold text-white tracking-tight">Fluxo de Receita</h3>
+              <p className="text-[10px] text-muted font-bold uppercase tracking-[0.2em] mt-2">Desempenho dos últimos 7 dias</p>
             </div>
-            <select className="bg-main border-none rounded-xl px-4 py-2 text-sm outline-none cursor-pointer focus:ring-1 focus:ring-primary text-main font-bold">
-              <option>Esta Semana</option>
-              <option>Última Semana</option>
-              <option>Este Mês</option>
-            </select>
+            <div className="flex gap-2">
+              <div className="px-4 py-2 rounded-xl bg-white/5 border border-white/5 text-[10px] font-black uppercase tracking-widest text-primary">Semanal</div>
+            </div>
           </div>
           
-          <div className="flex-1 min-h-[250px] relative mt-4">
+          <div className="flex-1 min-h-[300px] relative mt-4">
             <svg viewBox="0 0 100 40" className="w-full h-full preserve-3d overflow-visible">
               <defs>
-                <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#E1AE2D" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#E1AE2D" stopOpacity="0" />
+                <linearGradient id="rose-gradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgb(var(--primary))" stopOpacity="0.3" />
+                  <stop offset="100%" stopColor="rgb(var(--primary))" stopOpacity="0" />
                 </linearGradient>
               </defs>
-              <line x1="0" y1="10" x2="100" y2="10" stroke="rgb(var(--border-main))" strokeWidth="0.5" />
-              <line x1="0" y1="20" x2="100" y2="20" stroke="rgb(var(--border-main))" strokeWidth="0.5" />
-              <line x1="0" y1="30" x2="100" y2="30" stroke="rgb(var(--border-main))" strokeWidth="0.5" />
               
               <motion.path
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
+                transition={{ duration: 2, ease: "circOut" }}
                 d={`M 0 ${40 - (data.revenueData[0]/maxRev)*35} ${data.revenueData.map((d, i) => `L ${(i / (data.revenueData.length - 1)) * 100} ${40 - (d/maxRev)*35}`).join(' ')}`}
                 fill="none"
-                stroke="#E1AE2D"
-                strokeWidth="1.5"
+                stroke="rgb(var(--primary))"
+                strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
               <motion.path
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 1.5, delay: 0.5 }}
+                transition={{ duration: 1.5, delay: 0.8 }}
                 d={`M 0 40 L 0 ${40 - (data.revenueData[0]/maxRev)*35} ${data.revenueData.map((d, i) => `L ${(i / (data.revenueData.length - 1)) * 100} ${40 - (d/maxRev)*35}`).join(' ')} L 100 40 Z`}
-                fill="url(#gradient)"
+                fill="url(#rose-gradient)"
               />
             </svg>
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-muted mt-4 px-2">
+            <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.3em] text-muted/40 mt-8 px-4">
               <span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span><span>Dom</span>
             </div>
           </div>
         </div>
 
-        {/* Insights Section */}
-        <div className="bg-card text-main rounded-[32px] p-8 border border-border-main shadow-xl space-y-8">
-           <div>
-              <h3 className="font-serif text-2xl mb-6">Frequência de <i className="text-primary italic font-normal">Pico</i></h3>
-              <div className="bg-main/50 rounded-2xl p-6 border border-border-main">
-                 <div className="text-[10px] uppercase font-bold tracking-widest text-muted mb-1">Dia de Maior Faturação</div>
-                 <div className="text-4xl font-serif text-primary">{data.peakDay}</div>
-                 <div className="mt-4 flex items-center gap-2 text-green-400 text-[10px] font-black uppercase">
-                    <TrendingUp className="w-3 h-3" /> +24% que a média
-                 </div>
-              </div>
-           </div>
-
-           <div>
-              <h3 className="font-serif text-xl mb-6">Métodos de <i className="text-primary italic font-normal">Pagamento</i></h3>
-              <div className="space-y-4">
-                 {data.paymentMethods.map(m => (
-                    <div key={m.name} className="flex items-center justify-between">
-                       <span className="text-[10px] font-black uppercase tracking-widest text-muted">{m.name}</span>
-                       <div className="flex-1 mx-4 h-1 bg-main rounded-full overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: m.percent }} className="h-full bg-primary" />
-                       </div>
-                       <span className="text-sm font-serif text-main">{m.percent}</span>
-                    </div>
-                 ))}
-              </div>
-           </div>
+        {/* Actionable Insight Section */}
+        <div className="glass-card p-10 flex flex-col justify-between border-primary/20 bg-gradient-to-br from-primary/10 to-transparent">
+          <div>
+            <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-8 border border-primary/30 shadow-2xl shadow-primary/20">
+              <Sparkles size={28} className="text-primary animate-pulse" />
+            </div>
+            <h3 className="font-serif text-3xl font-bold text-white mb-6">Oportunidade <i className="text-primary italic font-normal">VIP</i></h3>
+            <p className="text-muted text-sm leading-relaxed mb-8 font-medium">
+              Identificamos <span className="text-white font-bold">4 clientes de alto valor</span> que não retornam há 30 dias. <br/><br/>
+              O Belasis Marketing sugere uma campanha de reativação personalizada agora.
+            </p>
+          </div>
+          <button className="btn-primary !w-full !px-0 shadow-primary/30">Lançar Campanha</button>
         </div>
       </div>
 

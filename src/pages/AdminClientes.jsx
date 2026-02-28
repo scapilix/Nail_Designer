@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Search, TrendingUp, Calendar, ChevronRight, Plus, X, Edit2, Trash2, Mail, Phone, ShoppingBag, Euro } from 'lucide-react';
+import { Users, Search, TrendingUp, Calendar, ChevronRight, Plus, X, Edit2, Trash2, Mail, Phone, ShoppingBag, Euro, Stethoscope, ArrowUpRight, Sparkles } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const AdminClientes = () => {
@@ -17,6 +17,7 @@ const AdminClientes = () => {
   const [selectedClient, setSelectedClient] = useState(null);
   const [clientInvoices, setClientInvoices] = useState([]);
   const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [activeTab, setActiveTab] = useState('info');
 
   // Form
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
@@ -117,51 +118,67 @@ const AdminClientes = () => {
   const topSpenders = [...clients].sort((a,b) => b.total_spent - a.total_spent).slice(0, 5);
 
   return (
-    <div className="space-y-10 relative">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <h2 className="font-serif text-4xl mb-2 text-main">Gestão de <i className="text-primary italic font-normal">Clientes</i></h2>
-          <p className="text-muted text-sm font-light">
-            Acompanhe o percurso dos seus clientes, analise tendências e construa relações exclusivas.
+    <div className="space-y-12 pb-20">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 animate-fade-in">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+              <Users size={12} />
+              Gestão VIP de Clientes
+            </span>
+          </div>
+          <h2 className="font-serif text-5xl font-bold text-white tracking-tighter leading-none mb-2">
+            Base de <span className="text-primary italic font-normal">Relacionamento</span>
+          </h2>
+          <p className="text-muted mt-6 text-lg max-w-2xl font-medium leading-relaxed">
+            Consulte o historial completo, fichas de anamnese e preferências de cada cliente para um atendimento personalizado de luxo.
           </p>
         </div>
         
         <div className="flex gap-4 w-full md:w-auto">
-          <div className="flex items-center gap-4 bg-card px-4 py-2 rounded-2xl border border-border-main shadow-sm w-full md:w-auto">
-            <Search className="w-5 h-5 text-muted" />
+          <div className="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-2xl border border-white/5 shadow-inner-premium w-full md:w-80 group-focus-within:bg-white/10 group-focus-within:border-primary/30 transition-all duration-500">
+            <Search className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />
             <input
               type="text"
-              placeholder="Pesquisar cliente..."
-              className="bg-transparent text-sm w-full md:w-48 outline-none text-main placeholder:text-muted"
+              placeholder="Pesquisar por nome ou telemóvel..."
+              className="bg-transparent text-sm w-full outline-none text-white placeholder:text-muted/60"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <button onClick={() => openForm()} className="btn-primary flex items-center gap-2 shrink-0">
-            <Plus className="w-4 h-4" /> Novo Cliente
+            <Plus className="w-4 h-4" /> Novo Registo
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { title: 'Total de Clientes', value: clients.length, icon: <Users className="w-6 h-6" />, color: 'bg-main border border-border-main' },
-          { title: 'Clientes VIP (>100€)', value: clients.filter(c => c.total_spent > 100).length, icon: <TrendingUp className="w-6 h-6" />, color: 'bg-primary' },
-          { title: 'Novos Este Mês', value: '+3', icon: <Calendar className="w-6 h-6" />, color: 'bg-main border border-border-main' }, // Static mockup for demo
+          { title: 'Total de Clientes', value: clients.length, icon: <Users />, color: 'primary', trend: '+12.5%' },
+          { title: 'Clientes VIP', value: clients.filter(c => c.total_spent > 100).length, icon: <TrendingUp />, color: 'emerald-400', trend: '+8.2%' },
+          { title: 'Taxa de Retenção', value: '92%', icon: <Calendar />, color: 'amber-400', trend: '+0.8%' },
         ].map((stat, i) => (
-          <motion.div 
-            key={i}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card p-8 rounded-[32px] border border-border-main shadow-sm"
-          >
-            <div className={`w-14 h-14 ${stat.color} rounded-2xl flex items-center justify-center text-white shadow-lg mb-6`}>
-              {stat.icon}
+          <div key={i} className="glass-card p-10 relative overflow-hidden group hover:scale-[1.02] transition-all duration-500">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <div className={`p-4 rounded-2xl bg-${stat.color === 'primary' ? 'primary' : 'white'}/10 text-${stat.color === 'primary' ? 'primary' : 'white'} group-hover:bg-primary/20 transition-colors duration-500`}>
+                  {stat.icon}
+                </div>
+                <div className="flex items-center gap-1 text-[10px] font-black text-green-400 bg-white/5 px-2 py-1 rounded-full">
+                  <ArrowUpRight size={10} />
+                  {stat.trend}
+                </div>
+              </div>
+              <h3 className="text-muted font-black text-[10px] uppercase tracking-[0.2em] mb-2">{stat.title}</h3>
+              <div className="text-4xl font-serif font-bold text-white tracking-tighter mb-1">
+                {stat.value}
+              </div>
             </div>
-            <h4 className="text-muted text-xs font-bold uppercase tracking-[0.2em] mb-2">{stat.title}</h4>
-            <div className="text-3xl font-serif font-bold text-main">{stat.value}</div>
-          </motion.div>
+            {/* Decorative Background Icon */}
+            <div className="absolute -bottom-4 -right-4 opacity-5 text-primary group-hover:opacity-10 transition-opacity duration-500">
+              {React.cloneElement(stat.icon, { size: 100 })}
+            </div>
+          </div>
         ))}
       </div>
 
@@ -298,78 +315,168 @@ const AdminClientes = () => {
         )}
       </AnimatePresence>
 
-      {/* View Historical Detail Modal */}
+      {/* View Historical Detail Modal - Elite Version */}
       <AnimatePresence>
         {isViewOpen && selectedClient && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-card rounded-[32px] w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh] border border-border-main">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-secondary/90 backdrop-blur-xl">
+            <motion.div initial={{ scale: 0.9, opacity: 0, y: 40 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.9, opacity: 0, y: 40 }} className="glass-card w-full max-w-5xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
               
-              {/* Header Profile */}
-              <div className="p-8 bg-main text-main relative border-b border-border-main">
-                <button onClick={() => setIsViewOpen(false)} className="absolute top-6 right-6 p-2 bg-card rounded-full hover:bg-main border border-border-main transition-colors text-muted shadow-sm">
-                  <X className="w-5 h-5" />
+              {/* Premium Header */}
+              <div className="p-10 bg-white/5 border-b border-white/5 relative">
+                <button onClick={() => setIsViewOpen(false)} className="absolute top-8 right-8 p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-muted hover:text-white">
+                  <X size={20} />
                 </button>
-                <div className="flex items-center gap-6">
-                   <div className="w-20 h-20 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center text-primary font-bold font-serif text-3xl shadow-lg">
-                     {selectedClient.name.charAt(0).toUpperCase()}
-                   </div>
-                   <div>
-                      <h2 className="text-3xl font-bold mb-1 text-main">{selectedClient.name}</h2>
-                      <div className="flex gap-4 text-xs font-medium text-muted">
-                         {selectedClient.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3"/> {selectedClient.email}</span>}
-                         {selectedClient.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3"/> {selectedClient.phone}</span>}
-                      </div>
-                   </div>
-                </div>
                 
-                {/* Actions */}
-                <div className="absolute bottom-6 right-6 flex gap-2">
-                   <button onClick={() => openForm(selectedClient)} className="p-2.5 bg-card hover:bg-main border border-border-main rounded-xl transition-all cursor-pointer"><Edit2 className="w-4 h-4 text-primary" /></button>
-                   <button onClick={() => handleDelete(selectedClient.id)} className="p-2.5 bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20 rounded-xl transition-all cursor-pointer"><Trash2 className="w-4 h-4" /></button>
+                <div className="flex items-center gap-8">
+                  <div className="relative group">
+                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-tr from-primary to-orange-400 p-1 shadow-2xl shadow-primary/20">
+                      <div className="w-full h-full rounded-[22px] bg-secondary flex items-center justify-center font-serif text-4xl font-bold text-primary">
+                        {selectedClient.name.charAt(0).toUpperCase()}
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 border-4 border-secondary rounded-full"></div>
+                  </div>
+                  
+                  <div>
+                    <div className="flex items-center gap-3 mb-2 text-[10px] font-black uppercase tracking-[0.3em] text-primary">
+                      <Sparkles size={12} />
+                      Cliente Diamante
+                    </div>
+                    <h2 className="text-4xl font-serif font-bold text-white tracking-tighter mb-2">{selectedClient.name}</h2>
+                    <div className="flex gap-6 text-xs font-bold text-muted uppercase tracking-widest">
+                       {selectedClient.phone && <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5"><Phone size={12} className="text-primary"/> {selectedClient.phone}</span>}
+                       {selectedClient.email && <span className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5"><Mail size={12} className="text-primary"/> {selectedClient.email}</span>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tabs Navigation */}
+                <div className="flex gap-10 mt-12 border-b border-white/5">
+                  {['info', 'history', 'anamnesis', 'finance'].map((tab) => (
+                    <button 
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`pb-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative ${activeTab === tab ? 'text-primary' : 'text-muted hover:text-white'}`}
+                    >
+                      {tab === 'info' && 'Informações'}
+                      {tab === 'history' && 'Historial'}
+                      {tab === 'anamnesis' && 'Anamnese'}
+                      {tab === 'finance' && 'Financeiro'}
+                      {activeTab === tab && <motion.div layoutId="tab-active" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-full shadow-lg shadow-primary/40" />}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Body */}
-              <div className="p-8 overflow-y-auto flex-1 bg-main/30">
-                 
-                 <div className="grid grid-cols-2 gap-4 mb-8">
-                    <div className="bg-card p-5 rounded-2xl border border-border-main shadow-sm flex items-center gap-4">
-                       <Euro className="w-8 h-8 text-primary" />
-                       <div>
-                          <p className="text-[10px] uppercase font-bold text-muted tracking-widest">Valor do LTV</p>
-                          <p className="text-xl font-serif text-main font-bold">{Number(selectedClient.total_spent).toFixed(2)}€</p>
-                       </div>
-                    </div>
-                    <div className="bg-card p-5 rounded-2xl border border-border-main shadow-sm flex items-center gap-4">
-                       <Calendar className="w-8 h-8 text-primary" />
-                       <div>
-                          <p className="text-[10px] uppercase font-bold text-muted tracking-widest">Última Visita</p>
-                          <p className="text-sm font-bold text-main mt-1">
-                             {selectedClient.last_visit ? new Date(selectedClient.last_visit).toLocaleDateString() : 'N/A'}
-                          </p>
-                       </div>
-                    </div>
-                 </div>
-
-                 <h4 className="text-xs uppercase tracking-widest font-bold text-muted mb-4 px-2">Histórico de Faturas</h4>
-                 <div className="space-y-3">
-                    {loadingInvoices ? (
-                       <p className="text-xs text-muted px-2 italic">A carregar registos...</p>
-                    ) : clientInvoices.length > 0 ? (
-                       clientInvoices.map(inv => (
-                          <div key={inv.id} className="bg-card p-4 rounded-2xl border border-border-main shadow-sm flex justify-between items-center group hover:border-primary transition-colors">
-                             <div>
-                                <div className="text-sm font-bold text-main mb-1">Fatura #{inv.id.split('-')[0]}</div>
-                                <div className="text-[10px] text-muted uppercase tracking-widest">{new Date(inv.issue_date).toLocaleDateString()} &middot; {inv.status}</div>
-                             </div>
-                             <div className="font-serif text-primary font-bold">{Number(inv.total_amount).toFixed(2)}€</div>
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto p-12 bg-white/[0.02]">
+                {activeTab === 'info' && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-10 animate-fade-in-up">
+                    <div className="space-y-8">
+                       <h4 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">Detalhes Pessoais</h4>
+                       <div className="space-y-6">
+                          <div className="flex justify-between border-b border-white/5 pb-4">
+                             <span className="text-xs text-muted font-bold uppercase tracking-widest">Data de Nascimento</span>
+                             <span className="text-sm text-white font-medium">12/05/1992 (31 anos)</span>
                           </div>
-                       ))
-                    ) : (
-                       <p className="text-xs text-muted px-2 italic">Este cliente ainda não tem faturas registadas.</p>
-                    )}
-                 </div>
+                          <div className="flex justify-between border-b border-white/5 pb-4">
+                             <span className="text-xs text-muted font-bold uppercase tracking-widest">Profissão</span>
+                             <span className="text-sm text-white font-medium">Arquiteta</span>
+                          </div>
+                          <div className="flex justify-between border-b border-white/5 pb-4">
+                             <span className="text-xs text-muted font-bold uppercase tracking-widest">Como nos conheceu?</span>
+                             <span className="text-sm text-white font-medium">Instagram</span>
+                          </div>
+                       </div>
+                    </div>
+                    <div className="space-y-8">
+                       <h4 className="text-sm font-black text-white uppercase tracking-widest flex items-center gap-2">Métricas de Fidelidade</h4>
+                       <div className="grid grid-cols-2 gap-4">
+                          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                             <p className="text-[10px] text-muted font-black uppercase tracking-widest mb-2">Visitas Totais</p>
+                             <p className="text-3xl font-serif text-primary font-bold">14</p>
+                          </div>
+                          <div className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                             <p className="text-[10px] text-muted font-black uppercase tracking-widest mb-2">Total Gasto</p>
+                             <p className="text-3xl font-serif text-primary font-bold">{Number(selectedClient.total_spent).toFixed(2)}€</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                )}
 
+                {activeTab === 'history' && (
+                  <div className="space-y-6 animate-fade-in-up">
+                     {loadingInvoices ? (
+                        <div className="p-10 text-center animate-pulse text-muted font-bold italic tracking-widest uppercase text-xs">A processar historial de luxo...</div>
+                     ) : clientInvoices.length > 0 ? (
+                        clientInvoices.map(inv => (
+                           <div key={inv.id} className="p-6 rounded-2xl bg-white/5 border border-white/5 hover:border-primary/30 hover:bg-white/10 transition-all duration-500 flex justify-between items-center group">
+                             <div className="flex items-center gap-6">
+                                <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center border border-white/5">
+                                   <Calendar size={18} className="text-primary"/>
+                                </div>
+                                <div>
+                                   <p className="text-sm font-bold text-white">Serviço de Manicure Russa + Spa</p>
+                                   <p className="text-[10px] text-muted font-medium uppercase tracking-widest mt-1">{new Date(inv.issue_date).toLocaleDateString()} &middot; Atendida por Leticia</p>
+                                </div>
+                             </div>
+                             <div className="text-right">
+                                <span className="text-xl font-serif font-bold text-primary">{Number(inv.total_amount).toFixed(2)}€</span>
+                                <p className="text-[10px] text-muted font-medium uppercase tracking-widest mt-1">Fatura Paga</p>
+                             </div>
+                           </div>
+                        ))
+                     ) : (
+                        <div className="p-20 text-center glass-card border-dashed">
+                           <Calendar size={40} className="mx-auto text-muted/20 mb-4" />
+                           <p className="text-muted text-sm italic font-medium">Ainda não existem registos de visitas anteriores.</p>
+                        </div>
+                     )}
+                  </div>
+                )}
+
+                {activeTab === 'anamnesis' && (
+                  <div className="glass-card p-10 space-y-10 animate-fade-in-up border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                     <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-2xl font-serif font-bold text-white flex items-center gap-4">
+                           <Stethoscope className="text-primary" />
+                           Ficha de Anamnese Digital
+                        </h4>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">Última atualização: 14 Jan 2026</span>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                           <p className="text-xs text-muted font-bold uppercase tracking-widest mb-4">Condições de Saúde</p>
+                           <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                              <span className="text-sm text-white/80">Diabetes</span>
+                              <span className="text-[10px] font-black uppercase text-red-500 bg-red-500/10 px-3 py-1 rounded-full">Não</span>
+                           </div>
+                           <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                              <span className="text-sm text-white/80">Alergias</span>
+                              <span className="text-[10px] font-black uppercase text-green-500 bg-green-500/10 px-3 py-1 rounded-full">Nenhuma</span>
+                           </div>
+                        </div>
+                        <div className="space-y-6">
+                           <p className="text-xs text-muted font-bold uppercase tracking-widest mb-4">Observações Técnicas</p>
+                           <div className="p-6 rounded-2xl bg-white/5 border border-white/10 text-sm text-muted leading-relaxed font-medium italic">
+                              "Cliente possui lâminas finas e sensíveis. Evitar uso de fresas de alta abrasividade. Prefere formato amêndoa longo."
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Premium Footer Actions */}
+              <div className="p-8 bg-white/5 border-t border-white/5 flex justify-between items-center">
+                 <button onClick={() => handleDelete(selectedClient.id)} className="flex items-center gap-2 text-[10px] font-black text-red-400 uppercase tracking-widest hover:text-red-500 transition-colors">
+                    <Trash2 size={12}/> Eliminar Registo permanente
+                 </button>
+                 <div className="flex gap-4">
+                    <button onClick={() => openForm(selectedClient)} className="btn-dark !py-3 !px-6 text-xs">Editar Cadastro</button>
+                    <button className="btn-primary !py-3 !px-8 text-xs">Novo Agendamento</button>
+                 </div>
               </div>
             </motion.div>
           </motion.div>

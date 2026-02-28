@@ -192,15 +192,6 @@ const AdminBookings = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch(status) {
-      case 'concluido': return 'bg-green-500/10 border-green-500/20 text-green-500';
-      case 'em_andamento': return 'bg-blue-500/10 border-blue-500/20 text-blue-500';
-      case 'pendente': return 'bg-primary/10 border-primary/20 text-main';
-      case 'cancelado': return 'bg-red-500/10 border-red-500/20 text-red-400 opacity-60';
-      default: return 'bg-main/50 border-border-main text-muted';
-    }
-  };
 
   const kpis = {
     pendente: bookings.filter(b => b.status === 'pendente').length,
@@ -213,173 +204,188 @@ const AdminBookings = () => {
     return date.toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' });
   };
 
-  // Time indicator position helper
   const nowInHours = now.getHours() + now.getMinutes() / 60;
   const showTimeIndicator = nowInHours >= 9 && nowInHours <= 20;
-  const timeIndicatorTop = (nowInHours - 9) * 100; // grid cells are 100px high now for better feel
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6 flex flex-col h-[calc(100vh-140px)]">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-12 flex flex-col h-[calc(100vh-140px)]">
       
-      {/* Header & Month controls */}
-      <div className="flex justify-between items-end shrink-0">
-        <div>
-          <h2 className="font-serif text-4xl mb-2 text-main">Agenda de <i className="text-primary italic font-normal">Marcações</i></h2>
-          <p className="text-muted text-sm">Gerencie o tempo e a experiência das suas clientes num calendário unificado.</p>
-        </div>
-        <div className="flex gap-4">
-          <div className="flex items-center gap-4 bg-card rounded-[20px] border border-border-main p-2 shadow-sm">
-            <button onClick={prevWeek} className="p-2 hover:bg-main rounded-xl transition-colors"><ChevronLeft className="w-5 h-5 text-muted" /></button>
-            <div className="flex items-center gap-3 px-2">
-               <CalendarDays className="w-4 h-4 text-primary" />
-               <span className="text-sm font-bold capitalize min-w-[140px] text-center">{formatMonth(weekDays[0])}</span>
-            </div>
-            <button onClick={nextWeek} className="p-2 hover:bg-main rounded-xl transition-colors"><ChevronRight className="w-5 h-5 text-muted" /></button>
+      {/* Header & Elite Controls */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10 animate-fade-in">
+        <div className="flex-1">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+              <CalendarDays size={12} />
+              Gestão de Tempo Elite
+            </span>
           </div>
-          <button onClick={goToToday} className="px-6 py-2 bg-card border border-border-main text-main rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-main transition-colors shadow-sm">Hoje</button>
-          <button onClick={openAddModal} className="btn-primary flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Novo Agendamento
+          <h2 className="font-serif text-5xl font-bold text-white tracking-tighter leading-none mb-2">
+            Agenda <span className="text-primary italic font-normal">Privada</span>
+          </h2>
+          <p className="text-muted mt-6 text-lg max-w-2xl font-medium leading-relaxed">
+            Consulte a disponibilidade da equipa e garanta a melhor experiência para cada cliente.
+          </p>
+        </div>
+
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex items-center gap-4 bg-white/5 p-2 rounded-2xl border border-white/5 shadow-inner-premium">
+            <button onClick={prevWeek} className="p-3 hover:bg-white/5 rounded-xl transition-all text-muted hover:text-primary"><ChevronLeft size={20} /></button>
+            <div className="flex flex-col items-center px-6 min-w-[180px]">
+               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-1">{formatMonth(weekDays[0])}</span>
+               <span className="text-sm font-bold text-white">Semana {weekDays[0].getDate()} - {weekDays[5].getDate()}</span>
+            </div>
+            <button onClick={nextWeek} className="p-3 hover:bg-white/5 rounded-xl transition-all text-muted hover:text-primary"><ChevronRight size={20} /></button>
+          </div>
+          <button onClick={goToToday} className="btn-dark !py-4 !px-8 text-[10px] font-black uppercase tracking-widest">Hoje</button>
+          <button onClick={openAddModal} className="btn-primary hover:shadow-primary/40 flex items-center gap-3">
+            <Plus size={16} /> Novo Agendamento
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 shrink-0">
+      {/* Premium KPI Grid */}
+      <div className="grid grid-cols-4 gap-8 shrink-0">
          {[
-           { icon: <Clock />, val: kpis.pendente, label: 'Pendentes', color: 'bg-primary/20 text-primary' },
-           { icon: <Anchor />, val: kpis.emAndamento, label: 'Em Andamento', color: 'bg-blue-500/10 text-blue-500' },
-           { icon: <CheckCircle />, val: kpis.concluidos, label: 'Concluídos', color: 'bg-green-500/10 text-green-500' },
-           { icon: <XCircle />, val: kpis.cancelados, label: 'Cancelados', color: 'bg-red-500/10 text-red-400' }
+           { icon: <Clock />, val: kpis.pendente, label: 'Pendentes', color: 'primary' },
+           { icon: <Anchor />, val: kpis.emAndamento, label: 'Em Curso', color: 'blue-400' },
+           { icon: <CheckCircle />, val: kpis.concluidos, label: 'Finalizados', color: 'emerald-400' },
+           { icon: <XCircle />, val: kpis.cancelados, label: 'Anulados', color: 'red-400' }
          ].map((k, i) => (
-            <div key={i} className="bg-card rounded-2xl p-4 border border-border-main shadow-sm flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${k.color}`}>{React.cloneElement(k.icon, { className: 'w-5 h-5' })}</div>
+            <div key={i} className="glass-card p-6 flex items-center gap-5 group hover:scale-[1.05] transition-all duration-500">
+              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center bg-${k.color === 'primary' ? 'primary' : 'white'}/10 text-${k.color === 'primary' ? 'primary' : 'white'} group-hover:bg-primary/20 transition-colors`}>
+                {React.cloneElement(k.icon, { size: 24 })}
+              </div>
               <div>
-                 <div className="text-2xl font-serif text-main">{k.val}</div>
-                 <div className="text-[10px] font-bold uppercase tracking-widest text-muted">{k.label}</div>
+                 <div className="text-3xl font-serif font-bold text-white tracking-tighter">{k.val}</div>
+                 <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted">{k.label}</div>
               </div>
             </div>
          ))}
       </div>
 
-      {/* Calendar Grid wrapper */}
-      <div className="flex-1 bg-card rounded-[32px] overflow-hidden shadow-sm border border-border-main flex flex-col min-h-0 relative group/calendar">
+      {/* Calendar Grid wrapper - Elite Glass Effect */}
+      <div className="flex-1 glass-card overflow-hidden flex flex-col min-h-0 relative group/calendar border-white/5 bg-white/[0.01]">
         {loading && (
-          <div className="absolute inset-0 bg-main/60 z-50 flex items-center justify-center backdrop-blur-[2px]">
-             <div className="flex flex-col items-center gap-3">
-                <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                <div className="text-primary font-bold tracking-widest uppercase text-[10px]">Sincronizando...</div>
+          <div className="absolute inset-0 bg-secondary/60 z-50 flex items-center justify-center backdrop-blur-md">
+             <div className="flex flex-col items-center gap-4">
+                <div className="w-16 h-16 border-4 border-primary/10 border-t-primary rounded-full animate-spin shadow-2xl shadow-primary/20"></div>
+                <div className="text-primary font-black tracking-[0.3em] uppercase text-[10px] animate-pulse">Sincronização de Elite</div>
              </div>
           </div>
         )}
-
+ 
         {/* Calendar Day Headers */}
-        <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-border-main bg-main/50 shrink-0">
-          <div className="p-4 flex items-center justify-center border-r border-border-main">
-            <CalendarIcon className="w-5 h-5 text-muted" />
+        <div className="grid grid-cols-[100px_1fr_1fr_1fr_1fr_1fr_1fr] border-b border-white/5 bg-white/[0.02] shrink-0">
+          <div className="p-6 flex items-center justify-center border-r border-white/5">
+            <CalendarIcon size={20} className="text-muted" />
           </div>
           {daysOfWeek.map((day, i) => {
             const dateObj = weekDays[i];
             const isToday = dateObj.toDateString() === new Date().toDateString();
             return (
-               <div key={day} className={`py-4 text-center border-r border-border-main flex flex-col justify-center relative ${isToday ? 'bg-primary/5' : ''}`}>
-                 <span className={`text-[10px] font-bold uppercase tracking-widest ${isToday ? 'text-primary' : 'text-muted'}`}>{day}</span>
-                 <div className="flex items-center justify-center mt-1">
-                    <span className={`w-8 h-8 flex items-center justify-center rounded-full text-lg font-serif transition-colors ${isToday ? 'bg-primary text-white shadow-lg shadow-primary/30 font-bold' : 'text-main'}`}>
+               <div key={day} className={`py-6 text-center border-r border-white/5 flex flex-col justify-center relative transition-colors ${isToday ? 'bg-primary/5' : ''}`}>
+                 <span className={`text-[10px] font-black uppercase tracking-[0.3em] ${isToday ? 'text-primary' : 'text-muted/60'}`}>{day}</span>
+                 <div className="flex items-center justify-center mt-3">
+                    <span className={`w-10 h-10 flex items-center justify-center rounded-2xl text-xl font-serif transition-all duration-500 ${isToday ? 'bg-primary text-white shadow-2xl shadow-primary/40 font-bold scale-110' : 'text-white/80 group-hover:text-white'}`}>
                        {dateObj.getDate()}
                     </span>
                  </div>
-                 {isToday && <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary" />}
+                 {isToday && <motion.div layoutId="today-indicator" className="absolute bottom-0 left-0 right-0 h-1 bg-primary shadow-lg shadow-primary/40" />}
                </div>
             )
           })}
         </div>
 
         {/* Grid Body */}
-        <div className="flex-1 overflow-y-auto relative scrollbar-hide">
-          <div className="grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr] grid-rows-[repeat(11,minmax(100px,auto))] min-w-[900px]">
+        <div className="flex-1 overflow-y-auto relative scrollbar-hide bg-white/[0.01]">
+          <div className="grid grid-cols-[100px_1fr_1fr_1fr_1fr_1fr_1fr] grid-rows-[repeat(11,minmax(120px,auto))] min-w-[1000px]">
             {/* Time Slots Labels */}
             {hours.map((h, rIdx) => (
               <React.Fragment key={`row-${rIdx}`}>
-                <div className="border-b border-r border-border-main flex items-start justify-center pt-2 text-[11px] font-bold text-muted bg-card sticky left-0 z-20">
+                <div className="border-b border-r border-white/5 flex items-start justify-center pt-4 text-[11px] font-black tracking-widest text-muted/40 bg-secondary/50 sticky left-0 z-20 backdrop-blur-md">
                   {h}:00
                 </div>
                 {/* Column dividers and backgrounds */}
                 {Array.from({ length: 6 }).map((_, cIdx) => (
-                  <div key={`cell-${rIdx}-${cIdx}`} className={`border-b border-r border-border-main relative ${weekDays[cIdx].toDateString() === new Date().toDateString() ? 'bg-primary/[0.03]' : 'bg-card'}`}>
+                  <div key={`cell-${rIdx}-${cIdx}`} className={`border-b border-r border-white/5 relative transition-colors duration-500 ${weekDays[cIdx].toDateString() === new Date().toDateString() ? 'bg-primary/[0.02]' : 'hover:bg-white/[0.02]'}`}>
                   </div>
                 ))}
               </React.Fragment>
             ))}
-
+ 
             {/* Time Indicator Line */}
             {showTimeIndicator && (
               <div 
                 className="absolute left-0 right-0 z-30 pointer-events-none flex items-center" 
-                style={{ top: `${timeIndicatorTop}px` }}
+                style={{ top: `${(nowInHours - 9) * 120}px` }}
               >
-                 <div className="w-20 pr-2 text-right">
-                    <span className="bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow-sm">
+                 <div className="w-[100px] pr-4 text-right">
+                    <span className="bg-primary text-white text-[9px] font-black px-2 py-1 rounded-lg shadow-2xl shadow-primary/40">
                        {now.toTimeString().slice(0, 5)}
                     </span>
                  </div>
-                 <div className="flex-1 h-0.5 bg-red-500/40 relative">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 shadow-sm" />
+                 <div className="flex-1 h-[2px] bg-primary/30 relative">
+                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-primary shadow-lg shadow-primary/40 border-4 border-secondary" />
                  </div>
               </div>
             )}
 
-            {/* Bookings Overlay */}
-            <div className="absolute inset-0 grid grid-cols-[80px_1fr_1fr_1fr_1fr_1fr_1fr] grid-rows-[repeat(11,100px)] pointer-events-none min-w-[900px]">
+            {/* Bookings Overlay - Elite Glass Cards */}
+            <div className="absolute inset-0 grid grid-cols-[100px_1fr_1fr_1fr_1fr_1fr_1fr] grid-rows-[repeat(11,120px)] pointer-events-none min-w-[1000px]">
                <div className="col-start-1" /> {/* Spacer for time column */}
                {bookings.map(apt => {
                   const bDate = new Date(apt.booking_date);
-                  const dayIdx = bDate.getDay() === 0 ? 6 : bDate.getDay() - 1; // 0=Mon, 5=Sat
+                  const dayIdx = bDate.getDay() === 0 ? 6 : bDate.getDay() - 1; 
                   if (dayIdx < 0 || dayIdx > 5) return null;
-
+ 
                   const startHourNum = bDate.getHours() + (bDate.getMinutes() / 60);
                   const durationHours = (apt.service?.duration || 60) / 60;
-                  const startOffset = (startHourNum - 9) * 100;
-                  const height = durationHours * 100 - 4; // Padding
-
+                  const startOffset = (startHourNum - 9) * 120;
+                  const height = durationHours * 120 - 8; 
+ 
                   if (startHourNum < 9 || startHourNum > 19) return null;
-
+ 
                   return (
-                    <div 
+                    <motion.div 
                       key={apt.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
                       onClick={(e) => { e.stopPropagation(); openEditModal(apt); }}
-                      className={`absolute inset-x-0 mx-2 p-3 rounded-2xl border shadow-sm cursor-pointer hover:shadow-xl hover:scale-[1.03] transition-all group pointer-events-auto overflow-hidden ${getStatusColor(apt.status)}`}
+                      className={`absolute inset-x-0 mx-3 p-4 rounded-[24px] border border-white/10 shadow-2xl cursor-pointer hover:scale-[1.03] transition-all group pointer-events-auto overflow-hidden bg-white/5 backdrop-blur-md hover:bg-white/10 ${
+                        apt.status === 'cancelado' ? 'opacity-40 grayscale border-dashed' : ''
+                      }`}
                       style={{
                         gridColumn: dayIdx + 2,
-                        top: `${startOffset + 2}px`,
+                        top: `${startOffset + 4}px`,
                         height: `${height}px`,
                         zIndex: 10
                       }}
                     >
-                      <div className="flex flex-col h-full">
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="font-bold text-xs truncate uppercase tracking-tight text-inherit leading-none">{apt.client?.name || 'Sem Cliente'}</span>
+                      <div className="flex flex-col h-full relative z-10">
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="font-serif text-sm font-bold text-white tracking-tight">{apt.client?.name || 'Cliente Elite'}</span>
                         </div>
-                        <div className="text-[10px] font-medium opacity-80 leading-tight line-clamp-2">{apt.service?.name}</div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.15em] text-primary mb-2 line-clamp-1">{apt.service?.name}</div>
                         
-                        <div className="mt-auto pt-2 flex items-center justify-between opacity-70">
-                           <div className="flex items-center gap-1.5 text-[9px] font-black tracking-widest uppercase">
-                              <Clock className="w-3 h-3" /> {bDate.toTimeString().slice(0,5)}
+                        <div className="mt-auto pt-3 flex items-center justify-between border-t border-white/5">
+                           <div className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted">
+                              <Clock size={12} className="text-primary" /> {bDate.toTimeString().slice(0,5)}
                            </div>
                            {apt.team?.name && (
-                             <div className="flex items-center gap-1 px-1.5 py-0.5 bg-white/40 rounded-md text-[8px] font-bold uppercase transition-colors group-hover:bg-white/60">
+                             <div className="flex items-center gap-2 px-2 py-1 bg-primary/10 border border-primary/20 rounded-lg text-[8px] font-black uppercase text-primary transition-colors group-hover:bg-primary/20">
                                 {apt.team.name.split(' ')[0]}
                              </div>
                            )}
                         </div>
                       </div>
-
-                      {/* Side accent based on status */}
-                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${
-                        apt.status === 'concluido' ? 'bg-green-500' : 
-                        apt.status === 'em_andamento' ? 'bg-blue-500' : 
-                        apt.status === 'cancelado' ? 'bg-red-400' : 'bg-primary'
+ 
+                      {/* Left accent bar */}
+                      <div className={`absolute left-0 top-0 bottom-0 w-1.5 shadow-[2px_0_10px_rgba(0,0,0,0.5)] ${
+                        apt.status === 'concluido' ? 'bg-emerald-400' : 
+                        apt.status === 'em_andamento' ? 'bg-blue-400' : 
+                        apt.status === 'cancelado' ? 'bg-muted' : 'bg-primary'
                       }`} />
-                    </div>
+                    </motion.div>
                   );
                })}
             </div>
@@ -392,113 +398,107 @@ const AdminBookings = () => {
         {isModalOpen && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div initial={{ scale: 0.9, y: 30 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 30 }} className="bg-card rounded-[40px] w-full max-w-xl overflow-hidden shadow-2xl border border-border-main">
-              <div className="p-10 border-b border-border-main flex justify-between items-center bg-main/50">
+              <div className="p-10 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <div>
-                  <h3 className="font-serif text-3xl text-main">
-                    {selectedBooking ? 'Ficha do' : 'Novo'} <i className="text-primary italic font-normal">Agendamento</i>
+                  <h3 className="font-serif text-4xl text-white tracking-tighter">
+                    {selectedBooking ? 'Ficha de' : 'Nova'} <i className="text-primary italic font-normal">Reserva</i>
                   </h3>
-                  <p className="text-xs text-muted mt-1 uppercase tracking-widest font-bold">Gestão Premium de Reservas</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                    <p className="text-[10px] text-muted uppercase tracking-[0.3em] font-black">Elite Diamond Service</p>
+                  </div>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="w-10 h-10 bg-main border border-border-main rounded-full flex items-center justify-center shadow-sm hover:scale-110 transition-transform">
-                  <X className="w-5 h-5 text-muted" />
+                <button onClick={() => setIsModalOpen(false)} className="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center hover:bg-primary transition-all duration-500 group">
+                  <X size={20} className="text-muted group-hover:text-white transition-colors" />
                 </button>
               </div>
 
-              <form onSubmit={handleSave} className="p-10 space-y-8 max-h-[75vh] overflow-y-auto custom-scrollbar">
+              <form onSubmit={handleSave} className="p-10 space-y-10 max-h-[75vh] overflow-y-auto scrollbar-hide">
                  {selectedBooking && (
-                    <div className="grid grid-cols-3 gap-3 mb-4 p-2 bg-main rounded-[24px] border border-border-main">
-                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'em_andamento')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-blue-500 text-white shadow-lg shadow-blue-500/20 hover:bg-blue-600 transition-all">Iniciar</button>
-                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'concluido')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-green-500 text-white shadow-lg shadow-green-500/20 hover:bg-green-600 transition-all">Concluir</button>
-                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'cancelado')} className="py-3 text-[10px] font-black uppercase tracking-[0.1em] rounded-2xl bg-main border border-border-main text-muted hover:bg-red-500 hover:text-white transition-all">Anular</button>
+                    <div className="grid grid-cols-3 gap-3 p-2 bg-white/[0.02] rounded-[24px] border border-white/5">
+                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'em_andamento')} className="flex flex-col items-center gap-1 py-3 text-[9px] font-black uppercase tracking-widest rounded-2xl hover:bg-blue-500/10 text-blue-400 transition-all border border-transparent hover:border-blue-500/20">
+                         <Anchor size={14} /> Iniciar
+                       </button>
+                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'concluido')} className="flex flex-col items-center gap-1 py-3 text-[9px] font-black uppercase tracking-widest rounded-2xl hover:bg-emerald-500/10 text-emerald-400 transition-all border border-transparent hover:border-emerald-500/20">
+                         <CheckCircle size={14} /> Finalizar
+                       </button>
+                       <button type="button" onClick={() => updateStatus(selectedBooking.id, 'cancelado')} className="flex flex-col items-center gap-1 py-3 text-[9px] font-black uppercase tracking-widest rounded-2xl hover:bg-red-500/10 text-red-400 transition-all border border-transparent hover:border-red-500/20">
+                         <XCircle size={14} /> Anular
+                       </button>
                     </div>
                  )}
 
-                <div className="grid grid-cols-2 gap-8">
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                       <User className="w-3 h-3" /> Identificação da Cliente
+                <div className="grid grid-cols-2 gap-10">
+                  <div className="space-y-4 col-span-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                       <User size={14} /> Cliente VIP
                     </label>
-                    <select required value={formData.client_id} onChange={e => setFormData({...formData, client_id: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-medium outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card transition-all">
-                      <option value="" disabled className="bg-card">Selecionar Cliente</option>
-                      {clients.map(c => <option key={c.id} value={c.id} className="bg-card">{c.name}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                       <Sparkles className="w-3 h-3" /> Serviço a Executar
-                    </label>
-                    <select required value={formData.service_id} onChange={e => setFormData({...formData, service_id: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-medium outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card transition-all">
-                      <option value="" disabled className="bg-card">Selecionar Serviço</option>
-                      {services.map(s => <option key={s.id} value={s.id} className="bg-card">{s.name} &middot; {s.duration}min &middot; {s.price}€</option>)}
+                    <select required value={formData.client_id} onChange={e => setFormData({...formData, client_id: e.target.value})} className="luxury-input !py-5">
+                      <option value="" disabled className="bg-secondary">Selecionar do Portfólio</option>
+                      {clients.map(c => <option key={c.id} value={c.id} className="bg-secondary">{c.name}</option>)}
                     </select>
                   </div>
 
                   <div className="space-y-4 col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                       <Scissors className="w-3 h-3" /> Profissional Responsável
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                       <Sparkles size={14} /> Ritual de Beleza
+                    </label>
+                    <select required value={formData.service_id} onChange={e => setFormData({...formData, service_id: e.target.value})} className="luxury-input !py-5">
+                      <option value="" disabled className="bg-secondary">Selecionar Experiência</option>
+                      {services.map(s => <option key={s.id} value={s.id} className="bg-secondary">{s.name} &middot; {s.duration}min &middot; {s.price}€</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-4 col-span-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                       <Scissors size={14} /> Artista Designada
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* Flex/Auto Option */}
-                      <button
-                        type="button"
-                        onClick={() => setFormData({...formData, team_member_id: ''})}
-                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!formData.team_member_id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-main border-border-main hover:border-primary/30'}`}
-                      >
-                        <div className="w-10 h-10 rounded-full bg-card flex items-center justify-center text-muted">
-                          <User className="w-5 h-5" />
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-main italic">Diana Silva</p>
-                           <p className="text-[9px] text-muted uppercase tracking-wider">Atribuição Flexível</p>
-                        </div>
-                      </button>
-
                        {team.map((pro) => (
                         <button
                           key={pro.id}
                           type="button"
                           onClick={() => setFormData({...formData, team_member_id: pro.id})}
-                          className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${formData.team_member_id === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-main border-border-main hover:border-primary/30'}`}
+                          className={`flex items-center gap-4 p-4 rounded-3xl border transition-all duration-500 text-left relative overflow-hidden group/pro ${formData.team_member_id === pro.id ? 'bg-primary/10 border-primary shadow-2xl shadow-primary/20' : 'bg-white/[0.02] border-white/5 hover:border-primary/40'}`}
                         >
-                          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-border-main shadow-sm flex-shrink-0">
+                          <div className="w-12 h-12 rounded-2xl overflow-hidden border border-white/10 shadow-lg flex-shrink-0 grayscale group-hover/pro:grayscale-0 transition-all duration-700">
                             <img src={pro.photo_url} alt={pro.name} className="w-full h-full object-cover" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-bold text-main truncate">{pro.name}</p>
-                            <p className="text-[9px] text-muted uppercase tracking-wider truncate">{pro.role}</p>
+                            <p className="text-xs font-bold text-white group-hover/pro:text-primary transition-colors">{pro.name}</p>
+                            <p className="text-[9px] text-muted uppercase tracking-widest mt-1 font-black">{pro.role}</p>
                           </div>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                       <CalendarIcon className="w-3 h-3" /> Data
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                       <CalendarIcon size={14} /> Data
                     </label>
-                    <input required type="date" value={formData.booking_date} onChange={e => setFormData({...formData, booking_date: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-bold outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card" />
+                    <input required type="date" value={formData.booking_date} onChange={e => setFormData({...formData, booking_date: e.target.value})} className="luxury-input" />
                   </div>
 
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                       <Clock className="w-3 h-3" /> Horário
+                  <div className="space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
+                       <Clock size={14} /> Horário
                     </label>
-                    <input required type="time" value={formData.booking_time} onChange={e => setFormData({...formData, booking_time: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm font-bold outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card" />
+                    <input required type="time" value={formData.booking_time} onChange={e => setFormData({...formData, booking_time: e.target.value})} className="luxury-input" />
                   </div>
 
-                  <div className="space-y-3 col-span-2">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-primary block">Informações Adicionais</label>
-                    <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="w-full bg-main border border-border-main rounded-2xl px-5 py-4 text-sm outline-none text-main focus:ring-2 focus:ring-primary/20 focus:bg-card h-24 resize-none transition-all" placeholder="Preferências, alergias ou notas técnicas..."></textarea>
+                  <div className="space-y-4 col-span-2">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary block">Notas Particulares</label>
+                    <textarea value={formData.notes} onChange={e => setFormData({...formData, notes: e.target.value})} className="luxury-input h-32 resize-none" placeholder="Especificações técnicas, preferências ou observações da cliente..."></textarea>
                   </div>
                 </div>
 
-                <div className="pt-10 flex justify-end gap-5">
-                  <button type="button" onClick={() => setIsModalOpen(false)} className="px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted hover:text-main transition-colors">
-                    Descartar
+                <div className="pt-10 flex justify-end gap-6 items-center">
+                  <button type="button" onClick={() => setIsModalOpen(false)} className="text-[10px] font-black uppercase tracking-[0.3em] text-muted hover:text-white transition-colors">
+                    Cancelar
                   </button>
-                  <button type="submit" className="bg-primary text-white hover:bg-primary-light px-10 py-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl shadow-primary/20">
-                    {selectedBooking ? 'Salvar Alterações' : 'Confirmar Reserva'}
+                  <button type="submit" className="btn-primary !px-12 !py-5 shadow-2xl shadow-primary/30 hover:scale-105 transition-all">
+                    {selectedBooking ? 'Atualizar Reserva' : 'Confirmar Reserva Elite'}
                   </button>
                 </div>
               </form>

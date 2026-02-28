@@ -76,6 +76,16 @@ function App() {
             <Route path="invoices" element={<AdminInvoices />} />
             <Route path="plans" element={<AdminPlans />} />
             <Route path="settings" element={<AdminSettings />} />
+            
+            {/* New ERP Modules (Placeholders) */}
+            <Route path="orders" element={<PlaceholderPage title="Comandas & Vendas" />} />
+            <Route path="commissions" element={<PlaceholderPage title="Gestão de Comissões" />} />
+            <Route path="cashier" element={<PlaceholderPage title="Controle de Caixa" />} />
+            <Route path="goals" element={<PlaceholderPage title="Metas e Performance" />} />
+            <Route path="reports" element={<PlaceholderPage title="Relatórios Avançados" />} />
+            <Route path="anamnesis" element={<PlaceholderPage title="Fichas de Anamnese" />} />
+            <Route path="online-booking" element={<PlaceholderPage title="Configuração de Agendamento" />} />
+            <Route path="whatsapp" element={<PlaceholderPage title="WhatsApp Marketing" />} />
           </Route>
         </Routes>
       </ImageProvider>
