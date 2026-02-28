@@ -13,6 +13,8 @@ export default {
         card: "rgb(var(--bg-card))",
         "border-main": "rgb(var(--border-main))",
         muted: "rgb(var(--text-muted))",
+        main: "rgb(var(--text-main))",
+        "bg-main": "rgb(var(--bg-main))",
         dark: {
           DEFAULT: "rgb(var(--dark))",
           lighter: "rgb(var(--dark-lighter))",
