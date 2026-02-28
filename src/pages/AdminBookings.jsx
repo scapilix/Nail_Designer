@@ -24,6 +24,8 @@ const AdminBookings = () => {
     booking_date: '', booking_time: '09:00', status: 'pendente', notes: ''
   });
 
+  const [filterTeamMember, setFilterTeamMember] = useState('');
+
   useEffect(() => {
     const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
@@ -175,7 +177,31 @@ const AdminBookings = () => {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Stat Cards */}
+      <div className="grid grid-cols-4 gap-4">
+        <div className="stat-card">
+          <p className="text-xs font-medium text-muted uppercase">Total</p>
+          <p className="text-2xl font-bold text-dark mt-1">{bookings.length}</p>
+          <p className="text-xs text-muted mt-0.5">esta semana</p>
+        </div>
+        <div className="stat-card">
+          <p className="text-xs font-medium text-muted uppercase">Pendentes</p>
+          <p className="text-2xl font-bold text-amber-600 mt-1">{bookings.filter(b => b.status === 'pendente').length}</p>
+          <p className="text-xs text-muted mt-0.5">a confirmar</p>
+        </div>
+        <div className="stat-card">
+          <p className="text-xs font-medium text-muted uppercase">Confirmados</p>
+          <p className="text-2xl font-bold text-emerald-600 mt-1">{bookings.filter(b => b.status === 'confirmado').length}</p>
+          <p className="text-xs text-muted mt-0.5">prontos</p>
+        </div>
+        <div className="stat-card">
+          <p className="text-xs font-medium text-muted uppercase">Concluídos</p>
+          <p className="text-2xl font-bold text-blue-600 mt-1">{bookings.filter(b => b.status === 'concluido').length}</p>
+          <p className="text-xs text-muted mt-0.5">finalizados</p>
+        </div>
+      </div>
+
+      {/* Header with Navigation + Filter */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button onClick={prevWeek} className="p-2 rounded-lg hover:bg-slate-100 text-muted transition-colors">
@@ -195,15 +221,14 @@ const AdminBookings = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button className="btn-secondary flex items-center gap-2 text-xs">
-            <Eye size={14} /> Visualização
-          </button>
-          <button className="btn-secondary flex items-center gap-2 text-xs">
-            <Filter size={14} /> Filtrar
-          </button>
-          <button className="btn-secondary flex items-center gap-2 text-xs">
-            <Settings size={14} />
-          </button>
+          <select
+            value={filterTeamMember}
+            onChange={(e) => setFilterTeamMember(e.target.value)}
+            className="px-3 py-2 rounded-lg border border-border-main bg-white text-sm text-dark outline-none focus:ring-2 focus:ring-primary/20"
+          >
+            <option value="">Todos os profissionais</option>
+            {team.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
           <button onClick={() => openNewBooking()} className="btn-primary flex items-center gap-2 text-xs">
             <Plus size={14} /> Novo
           </button>
@@ -226,7 +251,7 @@ const AdminBookings = () => {
         </div>
 
         {/* Time slots */}
-        <div ref={scrollRef} className="relative max-h-[calc(100vh-220px)] overflow-y-auto">
+        <div ref={scrollRef} className="relative max-h-[calc(100vh-380px)] overflow-y-auto">
           {/* Current time indicator */}
           {nowInHours >= 8 && nowInHours <= 20 && (
             <div 
@@ -250,7 +275,11 @@ const AdminBookings = () => {
                 </div>
                 {weekDays.map((day, dayIndex) => {
                   const dateStr = day.toISOString().split('T')[0];
-                  const dayBookings = bookings.filter(b => b.booking_date === dateStr && b.booking_time === time);
+                  const dayBookings = bookings.filter(b => 
+                    b.booking_date === dateStr && 
+                    b.booking_time === time && 
+                    (!filterTeamMember || b.team_member_id === filterTeamMember)
+                  );
 
                   return (
                     <div
