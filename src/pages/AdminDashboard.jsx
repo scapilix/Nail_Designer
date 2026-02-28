@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { 
   TrendingUp, 
@@ -33,6 +34,7 @@ const StatCard = ({ title, value, icon, trend, trendUp, subtitle }) => (
 );
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState({
     totalReservas: 0,
     newClients: 0,
@@ -102,8 +104,8 @@ const AdminDashboard = () => {
           <p className="text-muted text-sm mt-1">Bem-vinda de volta, Leticia! Aqui está o resumo do seu salão.</p>
         </div>
         <div className="flex gap-3">
-          <button className="btn-secondary">Relatório</button>
-          <button className="btn-primary">+ Novo Agendamento</button>
+          <button onClick={() => navigate('/admin/reports')} className="btn-secondary">Relatório</button>
+          <button onClick={() => navigate('/admin/bookings')} className="btn-primary">+ Novo Agendamento</button>
         </div>
       </div>
 
@@ -156,22 +158,22 @@ const AdminDashboard = () => {
         <div className="card p-6">
           <h3 className="text-lg font-semibold text-dark mb-4">Ações Rápidas</h3>
           <div className="space-y-3">
-            <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-medium text-left">
+            <button onClick={() => navigate('/admin/bookings')} className="w-full flex items-center gap-3 p-3 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors text-sm font-medium text-left">
               <Calendar size={18} />
               <span>Novo Agendamento</span>
               <ChevronRight size={14} className="ml-auto" />
             </button>
-            <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium text-left">
+            <button onClick={() => navigate('/admin/clients')} className="w-full flex items-center gap-3 p-3 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-sm font-medium text-left">
               <Users size={18} />
               <span>Adicionar Cliente</span>
               <ChevronRight size={14} className="ml-auto" />
             </button>
-            <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors text-sm font-medium text-left">
+            <button onClick={() => navigate('/admin/orders')} className="w-full flex items-center gap-3 p-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium text-left">
               <DollarSign size={18} />
               <span>Registar Venda</span>
               <ChevronRight size={14} className="ml-auto" />
             </button>
-            <button className="w-full flex items-center gap-3 p-3 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors text-sm font-medium text-left">
+            <button onClick={() => navigate('/admin/reports')} className="w-full flex items-center gap-3 p-3 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors text-sm font-medium text-left">
               <Star size={18} />
               <span>Ver Relatórios</span>
               <ChevronRight size={14} className="ml-auto" />
@@ -186,7 +188,7 @@ const AdminDashboard = () => {
         <div className="card p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-dark">Top Clientes</h3>
-            <button className="text-xs text-primary font-semibold hover:underline">Ver todos</button>
+            <button onClick={() => navigate('/admin/clients')} className="text-xs text-primary font-semibold hover:underline">Ver todos</button>
           </div>
           <div className="space-y-3">
             {data.topClients.map((client, i) => (
@@ -213,7 +215,7 @@ const AdminDashboard = () => {
         <div className="card p-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-semibold text-dark">Últimos Agendamentos</h3>
-            <button className="text-xs text-primary font-semibold hover:underline">Ver todos</button>
+            <button onClick={() => navigate('/admin/bookings')} className="text-xs text-primary font-semibold hover:underline">Ver todos</button>
           </div>
           <div className="space-y-3">
             {data.recentBookings.map((booking) => (
