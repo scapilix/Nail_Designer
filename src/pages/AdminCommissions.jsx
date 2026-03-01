@@ -1,9 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { supabase } from '../lib/supabase';
 import { DollarSign, Users, CheckCircle, X, Calendar, Clock, Euro, TrendingUp, ArrowLeft, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const AdminCommissions = () => {
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null, errorInfo: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error, errorInfo) {
+    this.setState({ errorInfo });
+    console.error("ErrorBoundary caught an error", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 bg-red-50 text-red-900 min-h-screen">
+          <h2 className="text-2xl font-bold mb-4">Erro Crítico na Página</h2>
+          <pre className="p-4 bg-white/50 rounded overflow-auto text-sm border border-red-200">
+            {this.state.error && this.state.error.toString()}
+            <br />
+            {this.state.errorInfo && this.state.errorInfo.componentStack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+const AdminCommissionsContent = () => {
   const [commissions, setCommissions] = useState([]);
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -297,5 +326,11 @@ const AdminCommissions = () => {
     </div>
   );
 };
+
+const AdminCommissions = () => (
+  <ErrorBoundary>
+    <AdminCommissionsContent />
+  </ErrorBoundary>
+);
 
 export default AdminCommissions;
