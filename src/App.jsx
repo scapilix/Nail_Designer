@@ -24,6 +24,7 @@ import AdminBookings from './pages/AdminBookings';
 import AdminStore from './pages/AdminStore';
 import AdminExpenses from './pages/AdminExpenses';
 import AdminInvoices from './pages/AdminInvoices';
+import AdminFaturas from './pages/AdminFaturas';
 import AdminSettings from './pages/AdminSettings';
 import AdminTeam from './pages/AdminTeam';
 import AdminClientes from './pages/AdminClientes';
@@ -104,6 +105,7 @@ function App() {
             <Route path="store" element={<AdminStore />} />
             <Route path="expenses" element={<AdminExpenses />} />
             <Route path="invoices" element={<AdminInvoices />} />
+            <Route path="faturas" element={<AdminFaturas />} />
             <Route path="plans" element={<AdminPlans />} />
             <Route path="settings" element={<AdminSettings />} />
             <Route path="orders" element={<AdminOrders />} />

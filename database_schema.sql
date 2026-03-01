@@ -515,4 +515,21 @@ INSERT INTO public.anamnesis (client_name, allergies, medications, health_condit
 -- ✅ CONCLUÍDO! Fevereiro 2026 totalmente populado.
 -- Total: 12 clientes, 12 serviços, 4 profissionais, 12 produtos
 -- ~88 agendamentos, ~46 faturas, 19 despesas, 15 comandas
--- 16 comissões, 34 registos de caixa, 5 metas, 4 pacotes, 7 anamneses
+-- 16 comissões, 34 registos de caixa, 5 metas, 4 pacotes, 7 anamneses 
+-- ==================  
+-- 4. TABELA DE FATURAS (COMPRA/VENDA)  
+-- ==================  
+CREATE TABLE IF NOT EXISTS public.faturas (  
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  
+  type TEXT NOT NULL DEFAULT 'venda', -- 'compra' ou 'venda'  
+  description TEXT NOT NULL,  
+  entity_name TEXT,  
+  nif TEXT,  
+  amount NUMERIC DEFAULT 0,  
+  date DATE DEFAULT CURRENT_DATE,  
+  status TEXT DEFAULT 'pago',  
+  payment_method TEXT DEFAULT 'dinheiro',  
+  attachment_url TEXT,  
+  notes TEXT,  
+  created_at TIMESTAMPTZ DEFAULT now()  
+); 
