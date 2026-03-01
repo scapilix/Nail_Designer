@@ -16,20 +16,21 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  const login = async (pin) => {
+  const login = async (userId, pin) => {
     try {
       setLoading(true);
-      if (!pin) throw new Error('PIN inválido');
+      if (!userId || !pin) throw new Error('Dados inválidos');
 
-      // Fetch user matching the pin from team_members
+      // Fetch user matching the id and pin from team_members
       const { data, error } = await supabase
         .from('team_members')
         .select('*')
+        .eq('id', userId)
         .eq('pin_code', pin)
         .single();
         
       if (error || !data) {
-        throw new Error('PIN incorreto ou utilizador não encontrado.');
+        throw new Error('PIN incorreto.');
       }
 
       // Format the user session object
@@ -54,13 +55,49 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setupPin = async (userId, newPin) => {
+    try {
+      setLoading(true);
+      if (!userId || !newPin || newPin.length !== 4) throw new Error('PIN inválido');
+
+      const { data, error } = await supabase
+        .from('team_members')
+        .update({ pin_code: newPin })
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error || !data) throw new Error('Erro ao configurar o PIN.');
+
+      // Login equivalent
+      const sessionUser = {
+        id: data.id,
+        name: data.name,
+        role: data.role,
+        access_level: data.access_level || 'employee',
+        color: data.color || '#3B82F6',
+        photo_url: data.photo_url
+      };
+
+      setUser(sessionUser);
+      localStorage.setItem('tobeauty_user', JSON.stringify(sessionUser));
+      return { success: true, user: sessionUser };
+
+    } catch (err) {
+      setLoading(false);
+      return { success: false, error: err.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('tobeauty_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, setupPin, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
