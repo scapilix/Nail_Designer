@@ -110,6 +110,24 @@ CREATE TABLE IF NOT EXISTS public.site_images (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS public.settings (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  salon_name TEXT DEFAULT 'TO Beauty',
+  phone TEXT, email TEXT, address TEXT,
+  opening_hours TEXT DEFAULT '09:00 - 20:00',
+  days_open TEXT DEFAULT 'Segunda a Sábado',
+  slot_duration INTEGER DEFAULT 15,
+  allow_online_booking BOOLEAN DEFAULT true,
+  auto_confirm_booking BOOLEAN DEFAULT false,
+  send_sms_reminder BOOLEAN DEFAULT true,
+  reminder_hours_before INTEGER DEFAULT 24,
+  max_advance_days INTEGER DEFAULT 30,
+  primary_color TEXT DEFAULT '#B48228',
+  currency TEXT DEFAULT 'EUR',
+  timezone TEXT DEFAULT 'Europe/Lisbon',
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
 -- ==================
 -- 2. COLUNAS EM FALTA (seguro para executar várias vezes)
 -- ==================
@@ -142,7 +160,7 @@ BEGIN
   FOR t IN SELECT unnest(ARRAY[
     'clients','services','team_members','products','bookings',
     'invoices','expenses','plans','orders','commissions',
-    'cash_register','goals','anamnesis','site_images'
+    'cash_register','goals','anamnesis','site_images','settings'
   ])
   LOOP
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
@@ -163,6 +181,7 @@ DELETE FROM public.services;
 DELETE FROM public.team_members;
 DELETE FROM public.products;
 DELETE FROM public.plans;
+DELETE FROM public.settings;
 
 -- === 12 CLIENTES ===
 INSERT INTO public.clients (name, email, phone, birthday, address, referral_source, total_spent, visit_count, last_visit) VALUES
@@ -194,12 +213,15 @@ INSERT INTO public.services (name, category, duration, price, description) VALUE
   ('Remoção de Gel',       'Manutenção',  30, 15.00, 'Remoção segura de verniz gel ou acrílico'),
   ('Verniz Gel Premium',   'Manicure',   60,  40.00, 'Verniz gel com marcas premium importadas');
 
--- === 4 PROFISSIONAIS ===
+-- === 3 PROFISSIONAIS ===
 INSERT INTO public.team_members (name, role, phone, email, commission_rate) VALUES
   ('Leticia Silva',  'Nail Designer Sénior', '+351 912 345 678', 'leticia@tobeauty.pt', 40),
   ('Ana Santos',     'Esteticista',          '+351 923 456 789', 'ana@tobeauty.pt',     35),
-  ('Carla Mendes',   'Nail Designer',        '+351 934 567 890', 'carla@tobeauty.pt',   40),
-  ('Rita Almeida',   'Manicure Júnior',      '+351 945 678 901', 'rita@tobeauty.pt',    30);
+  ('Carla Mendes',   'Nail Designer',        '+351 934 567 890', 'carla@tobeauty.pt',   40);
+
+-- === DEFINIÇÕES DO SALÃO ===
+INSERT INTO public.settings (id, salon_name, phone, email, address, primary_color, currency, timezone) VALUES
+  (1, 'TO Beauty', '+351 912 345 678', 'info@tobeauty.pt', 'Rua da Beleza 123, Lisboa', '#B48228', 'EUR', 'Europe/Lisbon');
 
 -- === 12 PRODUTOS ===
 INSERT INTO public.products (name, category, brand, stock_quantity, min_stock, price, cost_price, total_sold) VALUES

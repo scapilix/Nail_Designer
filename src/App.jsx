@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { applyPrimaryColor } from './lib/colorUtils';
+import { supabase } from './lib/supabase';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AboutUs from './components/AboutUs';
@@ -59,6 +61,23 @@ function App() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+
+  // Load saved primary color on app startup
+  useEffect(() => {
+    // Instant load from localStorage
+    const cached = localStorage.getItem('primary_color');
+    if (cached) applyPrimaryColor(cached);
+
+    // Authoritative load from Supabase
+    supabase.from('settings').select('primary_color').limit(1).single()
+      .then(({ data }) => {
+        if (data?.primary_color) {
+          applyPrimaryColor(data.primary_color);
+          localStorage.setItem('primary_color', data.primary_color);
+        }
+      })
+      .catch(() => {}); // settings table may not exist yet
+  }, []);
 
   return (
     <ThemeProvider>
