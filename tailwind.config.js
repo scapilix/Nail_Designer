@@ -11,15 +11,22 @@ export default {
         },
         secondary: "rgb(var(--secondary))",
         card: "rgb(var(--bg-card))",
-        "bg-main": "rgb(var(--bg-main))",
         "border-main": "rgb(var(--border-main))",
         muted: "rgb(var(--text-muted))",
-        main: "rgb(var(--text-main))",
         dark: {
           DEFAULT: "rgb(var(--dark))",
         },
         accent: "rgb(var(--accent))",
         sidebar: "rgb(var(--nav-bg))",
+      },
+      backgroundColor: {
+        main: "rgb(var(--bg-main))",
+      },
+      textColor: {
+        main: "rgb(var(--text-main))",
+      },
+      borderColor: {
+        main: "rgb(var(--border-main))",
       },
       fontFamily: {
         serif: ["Playfair Display", "serif"],
