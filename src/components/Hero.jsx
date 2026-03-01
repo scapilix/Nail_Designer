@@ -8,24 +8,15 @@ const Hero = () => {
   const { images } = useImage();
 
   return (
-    <section
-      id="inicio"
-      style={{
-        position: 'relative',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-        marginLeft: 'calc(-50vw + 50%)',
-      }}
-    >
+    <section id="inicio" className="relative w-screen h-screen overflow-hidden">
       {/* Full-screen Remotion Video */}
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
+      <div className="absolute inset-0">
         <Suspense
           fallback={
             <img
               src={images.hero_bg1}
               alt="Luxury Salon Interior"
-              style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.25)' }}
+              className="w-full h-full object-cover brightness-[0.25]"
             />
           }
         >
