@@ -29,17 +29,23 @@ const AdminCommissions = () => {
       const teamQuery = supabase.from('team_members').select('id, name, commission_rate, photo_url');
 
       if (!isAdmin && user?.id) {
-        if (user.name) {
-          commQuery.or(`team_member_id.eq.${user.id},member_name.eq."${user.name}"`);
-        } else {
-          commQuery.eq('team_member_id', user.id);
-        }
+        commQuery.eq('team_member_id', user.id);
         teamQuery.eq('id', user.id);
       }
 
       const [c, t] = await Promise.all([commQuery, teamQuery]);
-      setCommissions(c.data || []);
+      const fetchedCommissions = c.data || [];
+      setCommissions(fetchedCommissions);
       setTeam(t.data || []);
+      
+      // Auto-select the month of the most recent commission if none exist for current month
+      if (fetchedCommissions.length > 0) {
+        const latestDate = fetchedCommissions[0].date;
+        if (latestDate) {
+          const [y, m] = latestDate.split('-');
+          setSelectedMonth(`${y}-${m}`);
+        }
+      }
     } catch (e) { console.error(e); }
     setLoading(false);
   };
