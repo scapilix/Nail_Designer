@@ -75,23 +75,14 @@ const Login = () => {
     }
   };
 
-  const handleNumClick = (num) => {
-    if (pin.length < 4) {
-      const newPin = pin + num;
-      setPin(newPin);
-      setError('');
-      
-      // Auto-submit when reaching 4 digits
-      if (newPin.length === 4) {
-        attemptLogin(newPin);
-      }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (pin.trim().length === 0) {
+      setError('Por favor, introduza a sua palavra-passe.');
+      return;
     }
+    attemptLogin(pin);
   };
-
-  const handleClear = () => setPin('');
-  const handleDelete = () => setPin(prev => prev.slice(0, -1));
-
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 'C', 0, '⌫'];
 
   if (loading && teamMembers.length === 0) {
     return (
@@ -110,19 +101,19 @@ const Login = () => {
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -20, transition: { duration: 0.2 } }}
-            className="w-full max-w-4xl"
+            className="w-full max-w-4xl mx-auto"
           >
             <div className="text-center mb-10">
               <h1 className="text-3xl font-bold text-dark mb-3 tracking-tight">Portal da Equipa</h1>
               <p className="text-muted">Selecione o seu perfil para entrar</p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+            <div className="flex flex-wrap justify-center gap-4 md:gap-6">
               {teamMembers.map(m => (
                 <button
                   key={m.id}
                   onClick={() => handleMemberSelect(m)}
-                  className="card p-4 hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-4 group text-center border-2 border-transparent hover:shadow-lg"
+                  className="card p-5 w-36 sm:w-44 hover:-translate-y-1 transition-all duration-300 flex flex-col items-center justify-center gap-4 group text-center border-2 border-transparent hover:shadow-lg"
                   style={{ ':hover': { borderColor: m.color || '#3B82F6' } }}
                 >
                   {m.photo_url ? (
@@ -180,9 +171,9 @@ const Login = () => {
                 </div>
               </div>
 
-              <div className="space-y-6 relative z-10">
+              <form onSubmit={handleSubmit} className="space-y-6 relative z-10 w-full">
                 <p className="text-muted text-sm font-medium">
-                  {isSetupMode ? 'Crie o seu novo PIN de 4 dígitos' : 'Insira o seu PIN de acesso'}
+                  {isSetupMode ? 'Crie a sua nova palavra-passe' : 'Insira a sua palavra-passe'}
                 </p>
 
                 {error && (
@@ -192,45 +183,33 @@ const Login = () => {
                   </motion.div>
                 )}
 
-                <div className="flex justify-center gap-4">
-                  {[...Array(4)].map((_, i) => (
-                    <div 
-                      key={i}
-                      className={`w-14 h-16 rounded-2xl border-2 flex items-center justify-center text-3xl font-bold transition-all duration-200
-                        ${pin.length > i 
-                          ? 'border-dark text-dark bg-white shadow-sm scale-110' 
-                          : 'border-slate-200 bg-slate-50 text-transparent'
-                        }`}
-                      style={{ borderColor: pin.length > i ? (selectedMember.color || '#1A1A1E') : undefined }}
-                    >
-                      {pin.length > i ? '•' : ''}
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-3">
+                  <input
+                    type="password"
+                    autoFocus
+                    value={pin}
+                    onChange={(e) => {
+                      setPin(e.target.value);
+                      setError('');
+                    }}
+                    placeholder="Palavra-passe"
+                    className="luxury-input text-center text-xl tracking-widest py-4 border-2"
+                    style={{ borderColor: pin.length > 0 ? (selectedMember.color || '#1A1A1E') : undefined }}
+                  />
+                  <button 
+                    type="submit" 
+                    disabled={loading || pin.length === 0}
+                    className="w-full h-14 bg-dark text-white rounded-xl font-bold text-lg flex items-center justify-center gap-2 hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                    style={{ backgroundColor: selectedMember.color || '#1A1A1E' }}
+                  >
+                    {loading ? (
+                      <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    ) : (
+                      <>{isSetupMode ? 'Guardar e Entrar' : 'Entrar'} <ArrowRight size={20} /></>
+                    )}
+                  </button>
                 </div>
-
-                <div className="grid grid-cols-3 gap-3 pt-6">
-                  {numbers.map((num, i) => (
-                    <button
-                      key={i}
-                      disabled={loading}
-                      type="button"
-                      onClick={() => {
-                        if (num === 'C') handleClear();
-                        else if (num === '⌫') handleDelete();
-                        else handleNumClick(num.toString());
-                      }}
-                      className={`h-16 rounded-2xl text-2xl font-medium transition-all transform active:scale-95 disabled:opacity-50
-                        ${typeof num === 'number' 
-                          ? 'bg-slate-50 hover:bg-slate-100 text-dark' 
-                          : 'bg-transparent hover:bg-slate-50 text-muted'
-                        }
-                      `}
-                    >
-                      {num}
-                    </button>
-                  ))}
-                </div>
-              </div>
+              </form>
             </div>
           </motion.div>
         )}

@@ -193,7 +193,7 @@ const AdminCommissions = () => {
             {filteredCommissions.map(c => (
               <tr key={c.id} className="table-row">
                 <td className="px-6 py-4 text-sm font-medium text-dark">{c.member_name || '—'}</td>
-                <td className="px-6 py-4 text-sm text-muted">{c.date ? new Date(c.date + 'T12:00:00').toLocaleDateString('pt-PT') : '-'}</td>
+                <td className="px-6 py-4 text-sm text-muted">{c.date ? new Date(c.date.split('T')[0] + 'T12:00:00').toLocaleDateString('pt-PT') : '-'}</td>
                 <td className="px-6 py-4 text-sm text-muted">{c.rate}%</td>
                 <td className="px-6 py-4">
                   {c.status === 'pendente' ? <button onClick={(e) => { e.stopPropagation(); markPaid(c.id); }} className="badge badge-warning cursor-pointer hover:bg-amber-100">Pendente → Pagar</button> : <span className="badge badge-success">Pago</span>}
@@ -258,7 +258,7 @@ const AdminCommissions = () => {
                       <div key={b.id} className="px-6 py-3 flex items-center justify-between hover:bg-slate-50/50">
                         <div className="flex items-center gap-3">
                           <div className="text-center min-w-[50px]">
-                            <p className="text-[11px] text-muted">{b.booking_date ? new Date(b.booking_date + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }) : '-'}</p>
+                            <p className="text-[11px] text-muted">{b.booking_date ? new Date(b.booking_date.split('T')[0] + 'T12:00:00').toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }) : '-'}</p>
                             <p className="text-[11px] font-bold text-dark flex items-center gap-0.5 justify-center"><Clock size={10} />{b.booking_time}</p>
                           </div>
                           <div>

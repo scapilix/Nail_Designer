@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
   const setupPin = async (userId, newPin) => {
     try {
       setLoading(true);
-      if (!userId || !newPin || newPin.length !== 4) throw new Error('PIN inválido');
+      if (!userId || !newPin || newPin.trim().length === 0) throw new Error('Palavra-passe inválida');
 
       const { data, error } = await supabase
         .from('team_members')
