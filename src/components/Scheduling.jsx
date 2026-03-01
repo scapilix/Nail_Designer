@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check, X, CheckCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check, X, CheckCircle, Sparkles, Shield, Star } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const Scheduling = () => {
@@ -19,14 +19,13 @@ const Scheduling = () => {
   
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
+  const [step, setStep] = useState(1); // Multi-step flow
 
   const generateTimeSlots = () => {
     const slots = [];
     for (let i = 9; i <= 20; i++) {
       slots.push(`${String(i).padStart(2, '0')}:00`);
-      if (i !== 20) {
-        slots.push(`${String(i).padStart(2, '0')}:30`);
-      }
+      if (i !== 20) slots.push(`${String(i).padStart(2, '0')}:30`);
     }
     return slots;
   };
@@ -36,13 +35,9 @@ const Scheduling = () => {
     const fetchTeamAndServices = async () => {
       try {
         const [teamRes, servicesRes] = await Promise.all([
-          supabase.from('team').select('*').order('name'),
+          supabase.from('team_members').select('*').order('name'),
           supabase.from('services').select('*').order('name')
         ]);
-        
-        if (teamRes.error) throw teamRes.error;
-        if (servicesRes.error) throw servicesRes.error;
-        
         setTeam(teamRes.data || []);
         setServices(servicesRes.data || []);
       } catch (err) {
@@ -59,95 +54,78 @@ const Scheduling = () => {
       return;
     }
 
-    if (!bookingTime.endsWith('00') && !bookingTime.endsWith('30')) {
-      setStatusMessage({ type: 'error', text: 'Os horários devem ser à hora certa ou meia hora (ex: 10:00 ou 10:30).' });
-      return;
-    }
-
     setIsSubmitting(true);
     setStatusMessage({ type: '', text: '' });
     setSuggestedSlots([]);
 
     try {
-      const dayStart = new Date(`${bookingDate}T00:00:00`).toISOString();
-      const dayEnd = new Date(`${bookingDate}T23:59:59`).toISOString();
-      const desiredTime = new Date(`${bookingDate}T${bookingTime}:00`).getTime();
-
+      const dateStr = bookingDate;
+      
       let assignedProId = selectedProfessional;
 
       if (selectedProfessional) {
         const { data: dayBookings, error: dayErr } = await supabase
           .from('bookings')
-          .select('booking_date')
+          .select('booking_time')
           .eq('team_member_id', selectedProfessional)
-          .gte('booking_date', dayStart)
-          .lte('booking_date', dayEnd)
+          .eq('booking_date', dateStr)
           .neq('status', 'cancelado');
           
         if (dayErr) throw dayErr;
         
-        const bookedTimes = dayBookings.map(b => new Date(b.booking_date).getTime());
+        const bookedTimes = dayBookings.map(b => b.booking_time);
         
-        if (bookedTimes.includes(desiredTime)) {
+        if (bookedTimes.includes(bookingTime)) {
           const suggestions = [];
+          const [hh, mm] = bookingTime.split(':').map(Number);
+          const totalMin = hh * 60 + mm;
           const offsets = [-60, -30, 30, 60];
           for (let offset of offsets) {
-             const timeToCheck = desiredTime + (offset * 60 * 1000);
-             if (!bookedTimes.includes(timeToCheck)) {
-                const d = new Date(timeToCheck);
-                const hh = d.getHours();
-                if (hh >= 9 && hh <= 20) {
-                   const hhStr = String(hh).padStart(2, '0');
-                   const mmStr = String(d.getMinutes()).padStart(2, '0');
-                   suggestions.push(`${hhStr}:${mmStr}`);
-                }
-             }
+            const newMin = totalMin + offset;
+            const newH = Math.floor(newMin / 60);
+            const newM = newMin % 60;
+            if (newH >= 9 && newH <= 20) {
+              const slot = `${String(newH).padStart(2,'0')}:${String(newM).padStart(2,'0')}`;
+              if (!bookedTimes.includes(slot)) suggestions.push(slot);
+            }
           }
           
           setSuggestedSlots(suggestions);
-          setStatusMessage({ type: 'error', text: 'Desculpe, a profissional selecionada já tem marcação nesse horário. Que tal uma destas opções?' });
+          setStatusMessage({ type: 'error', text: 'A profissional já tem marcação nesse horário.' });
           setIsSubmitting(false);
           return;
         }
       } else {
         const { data: dayBookings, error: dayErr } = await supabase
           .from('bookings')
-          .select('team_member_id, booking_date')
-          .gte('booking_date', dayStart)
-          .lte('booking_date', dayEnd)
+          .select('team_member_id, booking_time')
+          .eq('booking_date', dateStr)
           .neq('status', 'cancelado');
           
         if (dayErr) throw dayErr;
 
-        const bookingsByTime = {};
-        dayBookings.forEach(b => {
-          const t = new Date(b.booking_date).getTime();
-          if (!bookingsByTime[t]) bookingsByTime[t] = [];
-          bookingsByTime[t].push(b.team_member_id);
-        });
+        const busyPros = dayBookings
+          .filter(b => b.booking_time === bookingTime)
+          .map(b => b.team_member_id);
 
-        const busyProsAtDesiredTime = bookingsByTime[desiredTime] || [];
-        const freePro = team.find(p => !busyProsAtDesiredTime.includes(p.id));
+        const freePro = team.find(p => !busyPros.includes(p.id));
 
         if (!freePro) {
           const suggestions = [];
-          const offsets = [-60, -30, 30, 60];
-          for (let offset of offsets) {
-            const timeToCheck = desiredTime + (offset * 60 * 1000);
-            const busyProsAtTime = bookingsByTime[timeToCheck] || [];
-            if (team.some(p => !busyProsAtTime.includes(p.id))) {
-              const d = new Date(timeToCheck);
-              const hh = d.getHours();
-              if (hh >= 9 && hh <= 20) {
-                 const hhStr = String(hh).padStart(2, '0');
-                 const mmStr = String(d.getMinutes()).padStart(2, '0');
-                 suggestions.push(`${hhStr}:${mmStr}`);
-              }
+          const [hh, mm] = bookingTime.split(':').map(Number);
+          const totalMin = hh * 60 + mm;
+          for (let offset of [-60, -30, 30, 60]) {
+            const newMin = totalMin + offset;
+            const newH = Math.floor(newMin / 60);
+            const newM = newMin % 60;
+            if (newH >= 9 && newH <= 20) {
+              const slot = `${String(newH).padStart(2,'0')}:${String(newM).padStart(2,'0')}`;
+              const busyAt = dayBookings.filter(b => b.booking_time === slot).map(b => b.team_member_id);
+              if (team.some(p => !busyAt.includes(p.id))) suggestions.push(slot);
             }
           }
-
           setSuggestedSlots(suggestions);
-          setStatusMessage({ type: 'error', text: 'Desculpe, não temos profissionais disponíveis nesse horário. Que tal uma destas opções?' });
+          setStatusMessage({ type: 'error', text: 'Sem profissionais disponíveis nesse horário.' });
           setIsSubmitting(false);
           return;
         }
@@ -160,7 +138,7 @@ const Scheduling = () => {
       
     } catch (error) {
       console.error('Error checking availability:', error);
-      setStatusMessage({ type: 'error', text: 'Ocorreu um erro ao verificar disponibilidade.' });
+      setStatusMessage({ type: 'error', text: 'Erro ao verificar disponibilidade.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -176,26 +154,17 @@ const Scheduling = () => {
     setIsSubmitting(true);
     
     try {
-      const dtIso = new Date(`${bookingDate}T${bookingTime}:00`).toISOString();
-      
       let clientId;
-      const { data: existingClients, error: clientErr } = await supabase
-        .from('clients')
-        .select('id')
-        .eq('phone', clientPhone)
-        .limit(1);
+      const { data: existingClients } = await supabase
+        .from('clients').select('id').eq('phone', clientPhone).limit(1);
 
-      if (clientErr) throw clientErr;
-
-      if (existingClients && existingClients.length > 0) {
+      if (existingClients?.length > 0) {
         clientId = existingClients[0].id;
       } else {
         const { data: newClient, error: newClientErr } = await supabase
           .from('clients')
           .insert([{ name: clientName, email: clientEmail, phone: clientPhone }])
-          .select('id')
-          .single();
-          
+          .select('id').single();
         if (newClientErr) throw newClientErr;
         clientId = newClient.id;
       }
@@ -206,272 +175,369 @@ const Scheduling = () => {
           client_id: clientId,
           service_id: selectedService,
           team_member_id: availableProId,
-          booking_date: dtIso,
+          booking_date: bookingDate,
+          booking_time: bookingTime,
           status: 'pendente'
         }]);
 
       if (bookingErr) throw bookingErr;
 
-      setStatusMessage({ type: 'success', text: 'Reserva efetuada com sucesso! Aguarde a nossa confirmação.' });
+      setStatusMessage({ type: 'success', text: 'Reserva efetuada com sucesso!' });
       
       setTimeout(() => {
           setIsModalOpen(false);
-          setClientName('');
-          setClientPhone('');
-          setClientEmail('');
-          setSelectedService('');
-          setSelectedProfessional('');
-          setBookingDate('');
-          setBookingTime('');
+          setClientName(''); setClientPhone(''); setClientEmail('');
+          setSelectedService(''); setSelectedProfessional('');
+          setBookingDate(''); setBookingTime('');
           setStatusMessage({ type: '', text: '' });
+          setStep(1);
       }, 3000);
       
     } catch (error) {
       console.error('Error submitting booking:', error);
-      setStatusMessage({ type: 'error', text: 'Ocorreu um erro ao processar a reserva. Tente novamente.' });
+      setStatusMessage({ type: 'error', text: 'Erro ao processar a reserva.' });
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const selectedServiceObj = services.find(s => s.id === selectedService);
 
   return (
-    <section id="agendamento" className="py-24 bg-main relative overflow-hidden">
-      <div className="container mx-auto px-6">
-        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row bg-black rounded-[32px] overflow-hidden shadow-2xl">
-          {/* Left Side - Info */}
-          <div className="lg:w-2/5 p-12 lg:p-16 text-white flex flex-col justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-6 block">Agendamento Online</span>
-              <h2 className="font-serif text-4xl mb-8 leading-tight">
-                Reserve o seu <br />
-                <i className="text-primary font-normal italic">Momento de Exclusividade</i>
-              </h2>
-              <p className="text-gray-400 font-light mb-12 leading-relaxed">
-                Escolha o serviço desejado e a sua profissional de eleição. O luxo começa na ponta dos seus dedos.
-              </p>
-              
-              <div className="space-y-8">
-                {[
-                  { icon: <User className="w-5 h-5" />, title: 'Escolha Profissional', desc: 'Sinta-se à vontade com a sua especialista favorita.' },
-                  { icon: <Clock className="w-5 h-5" />, title: 'Disponibilidade Real', desc: 'Verifique horários atualizados em tempo real.' },
-                ].map((item, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center text-primary flex-shrink-0">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-sm mb-1">{item.title}</h4>
-                      <p className="text-xs text-gray-500">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-[80px] -ml-32 -mb-32"></div>
-          </div>
+    <section id="agendamento" className="py-28 relative overflow-hidden" style={{ backgroundColor: 'rgb(var(--bg-main))' }}>
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-96 h-96 rounded-full blur-[120px] opacity-20" style={{ background: 'rgb(var(--primary))' }}></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full blur-[120px] opacity-10" style={{ background: 'rgb(var(--primary))' }}></div>
+      
+      <div className="container mx-auto px-6 relative z-10">
+        {/* Section Header */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          whileInView={{ opacity: 1, y: 0 }} 
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <span className="text-primary font-bold tracking-[0.3em] text-xs uppercase mb-4 block">Agendamento Online</span>
+          <h2 className="font-serif text-5xl mb-6" style={{ color: 'rgb(var(--text-main))' }}>
+            Reserve o seu <i className="text-primary font-normal italic">Momento</i>
+          </h2>
+          <p className="max-w-lg mx-auto text-sm leading-relaxed" style={{ color: 'rgb(var(--text-muted))' }}>
+            Escolha o serviço, a profissional e o horário ideal. Processo simples, rápido e elegante.
+          </p>
+        </motion.div>
 
-          {/* Right Side - Form */}
-          <div className="flex-1 bg-secondary p-12 lg:p-16">
-            <form onSubmit={handleCheckAvailability} className="space-y-8">
-              {statusMessage.text && !isModalOpen && (
-                <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
-                  {statusMessage.text}
-                  {suggestedSlots.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-2">
-                       {suggestedSlots.map(slot => (
-                          <button 
-                            key={slot}
-                            type="button"
-                            onClick={() => {
-                               setBookingTime(slot);
-                               setSuggestedSlots([]);
-                               setStatusMessage({ type: '', text: '' });
-                            }}
-                            className="px-3 py-1.5 bg-card text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/10 transition-colors shadow-sm text-xs tracking-wider"
-                          >
-                            {slot}
-                          </button>
-                       ))}
-                    </div>
-                  )}
+        {/* Steps Indicator */}
+        <div className="flex items-center justify-center gap-3 mb-12">
+          {[
+            { n: 1, label: 'Serviço' },
+            { n: 2, label: 'Profissional' },
+            { n: 3, label: 'Data & Hora' },
+          ].map((s, i) => (
+            <React.Fragment key={s.n}>
+              <button 
+                onClick={() => s.n < step ? setStep(s.n) : null}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition-all ${
+                  step === s.n 
+                    ? 'bg-primary text-white shadow-lg' 
+                    : step > s.n 
+                      ? 'bg-primary/10 text-primary cursor-pointer hover:bg-primary/20' 
+                      : 'border text-muted'
+                }`}
+                style={step < s.n ? { borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-muted))' } : {}}
+              >
+                {step > s.n ? <Check size={14} /> : <span>{s.n}</span>}
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+              {i < 2 && <div className="w-8 h-[1px]" style={{ background: step > s.n ? 'rgb(var(--primary))' : 'rgb(var(--border-main))' }}></div>}
+            </React.Fragment>
+          ))}
+        </div>
+
+        {/* Status Messages */}
+        {statusMessage.text && !isModalOpen && (
+          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="max-w-2xl mx-auto mb-8">
+            <div className={`p-4 rounded-2xl text-sm font-semibold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
+              {statusMessage.text}
+              {suggestedSlots.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {suggestedSlots.map(slot => (
+                    <button 
+                      key={slot}
+                      type="button"
+                      onClick={() => { setBookingTime(slot); setSuggestedSlots([]); setStatusMessage({ type: '', text: '' }); }}
+                      className="px-4 py-2 bg-white text-primary border border-primary/20 rounded-xl hover:bg-primary/5 transition-colors text-xs font-bold"
+                    >
+                      {slot}
+                    </button>
+                  ))}
                 </div>
               )}
+            </div>
+          </motion.div>
+        )}
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-3 col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Serviço Especializado</label>
-                  <select 
-                    value={selectedService}
-                    onChange={(e) => setSelectedService(e.target.value)}
-                    className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm"
-                  >
-                    <option value="">Selecione um serviço</option>
-                    {services.map(s => (
-                      <option key={s.id} value={s.id}>{s.name} ({s.duration}min / {s.price}€)</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="space-y-4 md:col-span-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Escolha a sua Profissional</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedProfessional('')}
-                      className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-card border-border-main hover:border-primary/50'}`}
-                    >
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">
-                        <User className="w-6 h-6" />
-                      </div>
+        {/* Main Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }} 
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="max-w-3xl mx-auto"
+        >
+          <div className="rounded-3xl border shadow-xl overflow-hidden" style={{ backgroundColor: 'rgb(var(--bg-card))', borderColor: 'rgb(var(--border-main))' }}>
+            <form onSubmit={handleCheckAvailability}>
+              <AnimatePresence mode="wait">
+                {/* Step 1: Choose Service */}
+                {step === 1 && (
+                  <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><Sparkles size={18} /></div>
                       <div>
-                        <p className="text-sm font-bold text-main">Qualquer uma</p>
-                        <p className="text-[10px] text-gray-400 uppercase tracking-wider">Disponível agora</p>
+                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Qual serviço deseja?</h3>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Selecione o tratamento pretendido</p>
                       </div>
-                    </button>
-
-                    {team.map((pro) => (
-                      <button
-                        key={pro.id}
-                        type="button"
-                        onClick={() => setSelectedProfessional(pro.id)}
-                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left relative overflow-hidden ${selectedProfessional === pro.id ? 'bg-primary/10 border-primary ring-1 ring-primary' : 'bg-card border-border-main hover:border-primary/50'}`}
-                      >
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-gray-100">
-                          <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-main truncate">{pro.name}</p>
-                          <p className="text-[10px] text-gray-400 uppercase tracking-wider truncate">{pro.role}</p>
-                        </div>
-                        {selectedProfessional === pro.id && (
-                          <div className="absolute top-2 right-2">
-                            <Check className="w-3 h-3 text-primary" />
+                    </div>
+                    
+                    <div className="grid gap-3">
+                      {services.map(s => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => { setSelectedService(s.id); setStep(2); }}
+                          className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group hover:shadow-md ${
+                            selectedService === s.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''
+                          }`}
+                          style={selectedService !== s.id ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
+                        >
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm" style={{ color: 'rgb(var(--text-main))' }}>{s.name}</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--text-muted))' }}>{s.category} · {s.duration} min</p>
                           </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Data Preferencial</label>
-                  <div className="relative">
-                    <input 
-                      required
-                      type="date" 
-                      value={bookingDate}
-                      onChange={e => setBookingDate(e.target.value)}
-                      className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12"
-                    />
-                    <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-                
-                <div className="space-y-3">
-                  <label className="text-xs font-bold uppercase tracking-widest text-main block">Horário</label>
-                  <div className="relative">
-                    <select 
-                      required
-                      value={bookingTime}
-                      onChange={e => setBookingTime(e.target.value)}
-                      className="w-full bg-main border border-border-main rounded-custom px-4 py-4 text-sm text-main focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all shadow-sm pl-12 appearance-none"
-                    >
-                      <option value="" disabled hidden>Selecione a hora</option>
-                      {timeSlots.map(time => (
-                        <option key={time} value={time}>{time}</option>
+                          <div className="flex items-center gap-3">
+                            <span className="font-bold text-primary text-lg">{Number(s.price).toFixed(0)}€</span>
+                            <ChevronRight size={16} className="text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                          </div>
+                        </button>
                       ))}
-                    </select>
-                    <Clock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
+                    </div>
+                  </motion.div>
+                )}
 
-              <div className="pt-4">
-                <button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  className="w-full bg-main border border-border-main text-main font-bold py-5 rounded-custom hover:bg-primary hover:text-white transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting ? 'A Verificar...' : 'Verificar Disponibilidade'}
-                  {!isSubmitting && <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />}
-                </button>
-              </div>
+                {/* Step 2: Choose Professional */}
+                {step === 2 && (
+                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><User size={18} /></div>
+                      <div>
+                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Com quem prefere?</h3>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Escolha a sua profissional ou qualquer uma disponível</p>
+                      </div>
+                    </div>
 
-              
-              <p className="text-center text-[10px] text-gray-400 uppercase tracking-widest">
-                Confirmação instantânea via SMS & Email.
-              </p>
+                    {selectedServiceObj && (
+                      <div className="flex items-center gap-2 mb-6 px-4 py-3 rounded-xl border" style={{ borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' }}>
+                        <Check size={14} className="text-primary" />
+                        <span className="text-sm font-semibold" style={{ color: 'rgb(var(--text-main))' }}>{selectedServiceObj.name}</span>
+                        <span className="text-xs ml-auto text-primary font-bold">{Number(selectedServiceObj.price).toFixed(0)}€</span>
+                      </div>
+                    )}
+
+                    <div className="grid sm:grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => { setSelectedProfessional(''); setStep(3); }}
+                        className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}
+                        style={selectedProfessional ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
+                      >
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
+                          <Star size={22} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm" style={{ color: 'rgb(var(--text-main))' }}>Qualquer profissional</p>
+                          <p className="text-[11px]" style={{ color: 'rgb(var(--text-muted))' }}>Primeira disponível</p>
+                        </div>
+                      </button>
+
+                      {team.map((pro) => (
+                        <button
+                          key={pro.id}
+                          type="button"
+                          onClick={() => { setSelectedProfessional(pro.id); setStep(3); }}
+                          className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative ${selectedProfessional === pro.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}
+                          style={selectedProfessional !== pro.id ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
+                        >
+                          <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-slate-100">
+                            <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm truncate" style={{ color: 'rgb(var(--text-main))' }}>{pro.name}</p>
+                            <p className="text-[11px] truncate" style={{ color: 'rgb(var(--text-muted))' }}>{pro.role}</p>
+                          </div>
+                          {selectedProfessional === pro.id && (
+                            <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <Check size={12} className="text-white" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 3: Date & Time */}
+                {step === 3 && (
+                  <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><CalendarIcon size={18} /></div>
+                      <div>
+                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Quando pretende?</h3>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Selecione a data e hora pretendida</p>
+                      </div>
+                    </div>
+
+                    {/* Summary */}
+                    <div className="flex flex-wrap gap-2 mb-8">
+                      {selectedServiceObj && (
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                          <Sparkles size={12} /> {selectedServiceObj.name}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                        <User size={12} /> {selectedProfessional ? team.find(t => t.id === selectedProfessional)?.name : 'Qualquer'}
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-widest mb-2 block" style={{ color: 'rgb(var(--text-main))' }}>Data</label>
+                        <input 
+                          required type="date" value={bookingDate}
+                          onChange={e => setBookingDate(e.target.value)}
+                          min={new Date().toISOString().split('T')[0]}
+                          className="w-full rounded-xl px-4 py-4 text-sm outline-none transition-all border focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                          style={{ backgroundColor: 'rgb(var(--bg-main))', borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-main))' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold uppercase tracking-widest mb-3 block" style={{ color: 'rgb(var(--text-main))' }}>Horário</label>
+                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                          {timeSlots.map(time => (
+                            <button
+                              key={time}
+                              type="button"
+                              onClick={() => setBookingTime(time)}
+                              className={`py-3 rounded-xl text-xs font-bold transition-all border ${
+                                bookingTime === time 
+                                  ? 'bg-primary text-white border-primary shadow-md' 
+                                  : 'hover:border-primary/50'
+                              }`}
+                              style={bookingTime !== time ? { borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
+                            >
+                              {time}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <button 
+                        type="submit" 
+                        disabled={isSubmitting || !bookingDate || !bookingTime}
+                        className="w-full bg-primary text-white font-bold py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-widest"
+                      >
+                        {isSubmitting ? 'A Verificar...' : 'Verificar Disponibilidade'}
+                        {!isSubmitting && <ChevronRight size={16} />}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </form>
           </div>
-        </div>
+
+          {/* Trust Badges */}
+          <div className="flex items-center justify-center gap-8 mt-8">
+            {[
+              { icon: <Shield size={14} />, text: 'Dados seguros' },
+              { icon: <CheckCircle size={14} />, text: 'Confirmação imediata' },
+              { icon: <Clock size={14} />, text: 'Cancelamento gratuito' },
+            ].map((badge, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs" style={{ color: 'rgb(var(--text-muted))' }}>
+                <span className="text-primary">{badge.icon}</span>
+                {badge.text}
+              </div>
+            ))}
+          </div>
+        </motion.div>
       </div>
 
       {/* Confirmation Modal */}
       <AnimatePresence>
         {isModalOpen && (
           <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
           >
             <motion.div 
-              initial={{ scale: 0.95, y: 20 }} 
-              animate={{ scale: 1, y: 0 }} 
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-card border border-border-main rounded-[32px] w-full max-w-lg overflow-hidden shadow-2xl"
+              initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
+              className="border rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl"
+              style={{ backgroundColor: 'rgb(var(--bg-card))', borderColor: 'rgb(var(--border-main))' }}
             >
-              <div className="p-8 border-b border-border-main flex justify-between items-center bg-main">
+              <div className="p-8 border-b flex justify-between items-center" style={{ borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' }}>
                 <div>
-                   <h3 className="font-serif text-2xl text-main">Quase <i className="text-primary italic font-normal">Lá!</i></h3>
-                   <p className="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Horário Disponível</p>
+                   <h3 className="font-serif text-2xl" style={{ color: 'rgb(var(--text-main))' }}>Quase <i className="text-primary italic font-normal">Lá!</i></h3>
+                   <p className="text-xs mt-1 uppercase tracking-widest font-bold text-primary">Horário Disponível ✓</p>
                 </div>
-                <button onClick={() => setIsModalOpen(false)} className="p-2 bg-card border border-border-main rounded-full hover:bg-main transition-colors">
-                  <X className="w-5 h-5 text-gray-500" />
+                <button onClick={() => setIsModalOpen(false)} className="p-2 border rounded-full hover:opacity-70 transition-colors" style={{ borderColor: 'rgb(var(--border-main))' }}>
+                  <X className="w-5 h-5" style={{ color: 'rgb(var(--text-muted))' }} />
                 </button>
               </div>
 
-              <form onSubmit={handleConfirmBooking} className="p-8 space-y-6">
-                
+              <form onSubmit={handleConfirmBooking} className="p-8 space-y-5">
                 {statusMessage.text && (
-                  <div className={`p-4 rounded-xl text-sm font-bold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-500 border-red-100' : 'bg-green-50 text-green-600 border-green-100'}`}>
+                  <div className={`p-4 rounded-xl text-sm font-semibold border ${statusMessage.type === 'error' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-emerald-50 text-emerald-600 border-emerald-100'}`}>
                     {statusMessage.text}
                   </div>
                 )}
                 
+                {/* Booking Summary */}
+                <div className="rounded-2xl p-4 border space-y-2" style={{ backgroundColor: 'rgb(var(--bg-main))', borderColor: 'rgb(var(--border-main))' }}>
+                  <div className="flex justify-between text-sm"><span style={{ color: 'rgb(var(--text-muted))' }}>Serviço</span><span className="font-semibold" style={{ color: 'rgb(var(--text-main))' }}>{selectedServiceObj?.name}</span></div>
+                  <div className="flex justify-between text-sm"><span style={{ color: 'rgb(var(--text-muted))' }}>Data</span><span className="font-semibold" style={{ color: 'rgb(var(--text-main))' }}>{bookingDate && new Date(bookingDate).toLocaleDateString('pt-PT')}</span></div>
+                  <div className="flex justify-between text-sm"><span style={{ color: 'rgb(var(--text-muted))' }}>Hora</span><span className="font-semibold" style={{ color: 'rgb(var(--text-main))' }}>{bookingTime}</span></div>
+                  <div className="flex justify-between text-sm pt-2 border-t" style={{ borderColor: 'rgb(var(--border-main))' }}><span className="font-bold" style={{ color: 'rgb(var(--text-main))' }}>Total</span><span className="font-bold text-primary text-lg">{selectedServiceObj ? Number(selectedServiceObj.price).toFixed(0) : 0}€</span></div>
+                </div>
+
                 <div className="space-y-4">
-                  <p className="text-sm text-muted mb-6">Por favor, insira os seus dados para confirmar a marcação no dia <strong className="text-main">{new Date(bookingDate).toLocaleDateString('pt-PT')}</strong> às <strong className="text-main">{bookingTime}</strong>.</p>
-                  
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Nome Completo</label>
-                     <input required type="text" value={clientName} onChange={e => setClientName(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="O seu nome" />
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-widest text-primary block mb-1.5">Nome Completo</label>
+                    <input required type="text" value={clientName} onChange={e => setClientName(e.target.value)} 
+                      className="w-full rounded-xl px-4 py-3 text-sm outline-none border focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                      style={{ backgroundColor: 'rgb(var(--bg-main))', borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-main))' }}
+                      placeholder="O seu nome" />
                   </div>
-                  
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Telemóvel</label>
-                     <input required type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="+351 900 000 000" />
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-widest text-primary block mb-1.5">Telemóvel</label>
+                    <input required type="tel" value={clientPhone} onChange={e => setClientPhone(e.target.value)} 
+                      className="w-full rounded-xl px-4 py-3 text-sm outline-none border focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                      style={{ backgroundColor: 'rgb(var(--bg-main))', borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-main))' }}
+                      placeholder="+351 900 000 000" />
                   </div>
-                  
-                  <div className="space-y-2">
-                     <label className="text-[10px] font-black uppercase tracking-widest text-primary">Email (Opcional)</label>
-                     <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} className="w-full bg-secondary border-none rounded-xl px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-primary" placeholder="O seu melhor email" />
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-widest text-primary block mb-1.5">Email (Opcional)</label>
+                    <input type="email" value={clientEmail} onChange={e => setClientEmail(e.target.value)} 
+                      className="w-full rounded-xl px-4 py-3 text-sm outline-none border focus:ring-2 focus:ring-primary/20 focus:border-primary" 
+                      style={{ backgroundColor: 'rgb(var(--bg-main))', borderColor: 'rgb(var(--border-main))', color: 'rgb(var(--text-main))' }}
+                      placeholder="O seu melhor email" />
                   </div>
                 </div>
 
-                <div className="pt-6">
+                <div className="pt-4">
                   {statusMessage.type !== 'success' && (
                      <button 
-                       type="submit" 
-                       disabled={isSubmitting}
-                       className="w-full btn-primary flex items-center justify-center gap-2 py-4 shadow-xl shadow-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                       type="submit" disabled={isSubmitting}
+                       className="w-full bg-primary text-white font-bold py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm uppercase tracking-widest"
                      >
-                       {isSubmitting ? 'A Confirmar...' : <><CheckCircle className="w-5 h-5" /> Confirmar Marcação</>}
+                       {isSubmitting ? 'A Confirmar...' : <><CheckCircle size={16} /> Confirmar Marcação</>}
                      </button>
                   )}
                 </div>
@@ -480,7 +546,6 @@ const Scheduling = () => {
           </motion.div>
         )}
       </AnimatePresence>
-
     </section>
   );
 };
