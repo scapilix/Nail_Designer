@@ -29,7 +29,11 @@ const AdminCommissions = () => {
       const teamQuery = supabase.from('team_members').select('id, name, commission_rate, photo_url');
 
       if (!isAdmin && user?.id) {
-        commQuery.eq('team_member_id', user.id);
+        if (user.name) {
+          commQuery.or(`team_member_id.eq.${user.id},member_name.eq."${user.name}"`);
+        } else {
+          commQuery.eq('team_member_id', user.id);
+        }
         teamQuery.eq('id', user.id);
       }
 
@@ -136,7 +140,7 @@ const AdminCommissions = () => {
 
       {/* Team Cards - Clickable */}
       <div className="card p-6">
-        <h3 className="text-lg font-semibold text-dark mb-4">Taxas de Comissão por Profissional</h3>
+        <h3 className="text-lg font-semibold text-dark mb-4">{isAdmin ? 'Taxas de Comissão por Profissional' : 'O Meu Resumo Diário/Mensal'}</h3>
         <div className="space-y-3">
           {team.map(m => {
             const memberTotal = filteredCommissions.filter(c => c.team_member_id === m.id || c.member_name === m.name).reduce((a, c) => a + Number(c.amount || 0), 0);

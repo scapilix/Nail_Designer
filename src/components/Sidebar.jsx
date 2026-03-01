@@ -109,7 +109,7 @@ const Sidebar = () => {
     <aside className="w-56 bg-[#1A1A1E] flex flex-col h-screen sticky top-0 z-50">
       {/* Brand */}
       <div className="p-4 pb-2">
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-4">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-primary-light flex items-center justify-center">
             <Scissors className="text-white" size={14} />
           </div>
@@ -117,7 +117,21 @@ const Sidebar = () => {
             TO<span className="text-primary font-normal">Beauty</span>
           </h1>
         </div>
-        <p className="text-[10px] text-white/40 mt-1 uppercase">Olá, {user?.name?.split(' ')[0] || 'Utilizador'}</p>
+        
+        {/* User Profile / Portal */}
+        <div className="flex items-center gap-3 bg-white/5 rounded-xl p-3 border border-white/5 mb-2">
+          {user?.photo_url ? (
+            <img src={user.photo_url} alt={user.name} className="w-11 h-11 rounded-full object-cover border-2 flex-shrink-0" style={{ borderColor: user.color || '#3B82F6' }} />
+          ) : (
+            <div className="w-11 h-11 rounded-full flex flex-shrink-0 items-center justify-center text-lg font-bold text-white shadow-inner" style={{ backgroundColor: user?.color || '#3B82F6' }}>
+              {user?.name?.charAt(0) || 'U'}
+            </div>
+          )}
+          <div className="overflow-hidden">
+            <p className="text-sm font-bold text-white truncate">{user?.name?.split(' ')[0] || 'Utilizador'}</p>
+            <p className="text-[9px] text-white/50 uppercase tracking-widest mt-0.5 truncate">{isAdmin ? 'Admin' : 'Profissional'}</p>
+          </div>
+        </div>
       </div>
 
       {/* New Button */}

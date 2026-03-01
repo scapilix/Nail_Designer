@@ -38,7 +38,8 @@ export const AuthProvider = ({ children }) => {
         name: data.name,
         role: data.role,
         access_level: data.access_level || 'employee',
-        color: data.color || '#3B82F6'
+        color: data.color || '#3B82F6',
+        photo_url: data.photo_url
       };
 
       setUser(sessionUser);
