@@ -31,25 +31,30 @@ const AdminExpenses = () => {
     try {
       const ext = file.name.split('.').pop();
       const fileName = `expense_${Date.now()}.${ext}`;
-      const { data, error } = await supabase.storage
+
+      // Try Supabase Storage first
+      const { error } = await supabase.storage
         .from('expenses')
         .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
-      if (error) {
-        // If bucket doesn't exist, try public bucket
-        const { data: d2, error: e2 } = await supabase.storage
-          .from('public')
-          .upload(`expenses/${fileName}`, file, { cacheControl: '3600', upsert: false });
-        if (e2) { alert('Erro ao carregar ficheiro. Verifique se o bucket "expenses" existe no Supabase Storage.'); setUploading(false); return; }
-        const { data: urlData } = supabase.storage.from('public').getPublicUrl(`expenses/${fileName}`);
-        setFormData(prev => ({ ...prev, attachment_url: urlData.publicUrl }));
-      } else {
+      if (!error) {
         const { data: urlData } = supabase.storage.from('expenses').getPublicUrl(fileName);
         setFormData(prev => ({ ...prev, attachment_url: urlData.publicUrl }));
+      } else {
+        // Fallback: convert to data URL (works without storage bucket)
+        const reader = new FileReader();
+        reader.onload = () => {
+          setFormData(prev => ({ ...prev, attachment_url: reader.result }));
+        };
+        reader.readAsDataURL(file);
       }
-    } catch (err) {
-      console.error(err);
-      alert('Erro ao carregar ficheiro');
+    } catch {
+      // Final fallback: data URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        setFormData(prev => ({ ...prev, attachment_url: reader.result }));
+      };
+      reader.readAsDataURL(e.target.files[0]);
     }
     setUploading(false);
   };

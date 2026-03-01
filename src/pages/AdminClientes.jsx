@@ -3,7 +3,8 @@ import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
 import { 
   Users, Search, Plus, X, Phone, Mail, Calendar, 
-  ChevronRight, Filter, MoreVertical, Edit, Trash2, Eye
+  ChevronRight, Filter, MoreVertical, Edit, Trash2, Eye,
+  DollarSign, TrendingUp
 } from 'lucide-react';
 
 const AdminClientes = () => {
@@ -187,6 +188,55 @@ const AdminClientes = () => {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Client Rankings */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Top 5 by Spending */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600"><DollarSign size={18} /></div>
+            <h3 className="font-semibold text-dark">Top 5 — Maior Faturação</h3>
+          </div>
+          <div className="space-y-3">
+            {[...clients].sort((a, b) => Number(b.total_spent || 0) - Number(a.total_spent || 0)).slice(0, 5).map((c, i) => (
+              <div key={c.id} className="flex items-center justify-between py-2 border-b border-border-main last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg min-w-[28px]">{['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
+                  <div>
+                    <div className="text-sm font-semibold text-dark">{c.name}</div>
+                    <div className="text-xs text-muted">{c.phone || c.email || '—'}</div>
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-emerald-600">{Number(c.total_spent || 0).toFixed(0)}€</div>
+              </div>
+            ))}
+            {clients.length === 0 && <p className="text-sm text-muted text-center py-4">Sem dados</p>}
+          </div>
+        </div>
+
+        {/* Top 5 by Visits */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary"><TrendingUp size={18} /></div>
+            <h3 className="font-semibold text-dark">Top 5 — Mais Agendamentos</h3>
+          </div>
+          <div className="space-y-3">
+            {[...clients].sort((a, b) => (b.visit_count || 0) - (a.visit_count || 0)).slice(0, 5).map((c, i) => (
+              <div key={c.id} className="flex items-center justify-between py-2 border-b border-border-main last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg min-w-[28px]">{['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
+                  <div>
+                    <div className="text-sm font-semibold text-dark">{c.name}</div>
+                    <div className="text-xs text-muted">Última visita: {c.last_visit ? new Date(c.last_visit).toLocaleDateString('pt-PT') : '—'}</div>
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-primary">{c.visit_count || 0} visitas</div>
+              </div>
+            ))}
+            {clients.length === 0 && <p className="text-sm text-muted text-center py-4">Sem dados</p>}
+          </div>
+        </div>
       </div>
 
       {/* Create/Edit Modal */}

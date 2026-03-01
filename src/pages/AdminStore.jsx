@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShoppingBag, Plus, X, Edit, Trash2, Search, AlertTriangle, Package } from 'lucide-react';
+import { ShoppingBag, Plus, X, Edit, Trash2, Search, AlertTriangle, Package, TrendingUp, TrendingDown } from 'lucide-react';
 
 const AdminStore = () => {
   const [products, setProducts] = useState([]);
@@ -79,6 +79,58 @@ const AdminStore = () => {
             {filtered.length === 0 && <tr><td colSpan="5" className="px-6 py-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhum produto'}</td></tr>}
           </tbody>
         </table>
+      </div>
+
+      {/* Rankings */}
+      <div className="grid lg:grid-cols-2 gap-6">
+        {/* Top 5 Best Sellers */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600"><TrendingUp size={18} /></div>
+            <h3 className="font-semibold text-dark">Top 5 — Mais Vendidos</h3>
+          </div>
+          <div className="space-y-3">
+            {[...products].sort((a, b) => (b.total_sold || 0) - (a.total_sold || 0)).slice(0, 5).map((p, i) => (
+              <div key={p.id} className="flex items-center justify-between py-2 border-b border-border-main last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg min-w-[28px]">{['🥇','🥈','🥉','4️⃣','5️⃣'][i]}</span>
+                  <div>
+                    <div className="text-sm font-semibold text-dark">{p.name}</div>
+                    <div className="text-xs text-muted">{p.brand || p.category || '—'}</div>
+                  </div>
+                </div>
+                <div className="text-sm font-bold text-emerald-600">{p.total_sold || 0} un.</div>
+              </div>
+            ))}
+            {products.length === 0 && <p className="text-sm text-muted text-center py-4">Sem dados</p>}
+          </div>
+        </div>
+
+        {/* Top 5 Worst Sellers */}
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="p-2 rounded-lg bg-red-50 text-red-600"><TrendingDown size={18} /></div>
+            <h3 className="font-semibold text-dark">Top 5 — Menos Vendidos</h3>
+          </div>
+          <div className="space-y-3">
+            {[...products].sort((a, b) => (a.total_sold || 0) - (b.total_sold || 0)).slice(0, 5).map((p, i) => (
+              <div key={p.id} className="flex items-center justify-between py-2 border-b border-border-main last:border-0">
+                <div className="flex items-center gap-3">
+                  <span className="text-lg min-w-[28px]">{i + 1}.</span>
+                  <div>
+                    <div className="text-sm font-semibold text-dark">{p.name}</div>
+                    <div className="text-xs text-muted">{p.brand || p.category || '—'}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-sm font-bold text-red-600">{p.total_sold || 0} un.</div>
+                  {(p.stock_quantity || 0) <= (p.min_stock || 5) && <AlertTriangle size={14} className="text-amber-500" />}
+                </div>
+              </div>
+            ))}
+            {products.length === 0 && <p className="text-sm text-muted text-center py-4">Sem dados</p>}
+          </div>
+        </div>
       </div>
 
       <AnimatePresence>
