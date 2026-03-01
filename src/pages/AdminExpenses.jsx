@@ -249,9 +249,14 @@ const AdminExpenses = () => {
                         <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp" onChange={handleFileUpload} className="hidden" disabled={uploading} />
                       </label>
                       {formData.attachment_url && (
-                        <a href={formData.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary font-semibold hover:underline">
-                          <FileText size={14} /> Pré-visualizar
-                        </a>
+                        <div className="flex items-center gap-3">
+                          <a href={formData.attachment_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-primary font-semibold hover:underline">
+                            <FileText size={14} /> Pré-visualizar
+                          </a>
+                          <button type="button" onClick={() => setFormData({ ...formData, attachment_url: '' })} className="flex items-center gap-1 text-xs text-red-500 font-semibold hover:underline">
+                            <X size={14} /> Remover
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
