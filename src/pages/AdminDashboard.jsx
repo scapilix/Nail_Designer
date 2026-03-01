@@ -165,22 +165,28 @@ const AdminDashboard = () => {
             </div>
           </div>
           
-          <div className="h-48 flex items-end gap-3 px-4">
+          <div className="h-56 flex items-end gap-3 px-4 pb-2">
             {chartItems.map((item, i) => {
-              const height = (item.value / maxChartVal) * 100;
+              const heightPct = maxChartVal > 0 ? (item.value / maxChartVal) * 100 : 0;
+              const barHeight = Math.max(heightPct, 2); // At least 2% to be visible
+              
               return (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-[10px] font-bold text-primary">{item.value > 0 ? `${item.value.toFixed(0)}€` : ''}</span>
+                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
+                  <span className="text-[10px] font-bold text-primary mt-auto">
+                    {item.value > 0 ? `${item.value.toFixed(0)}€` : ''}
+                  </span>
+                  
                   <div 
                     className="w-full bg-primary/10 rounded-t-lg hover:bg-primary/20 transition-colors relative group cursor-pointer"
-                    style={{ height: `${Math.max(height, 5)}%` }}
+                    style={{ height: `${barHeight}%`, minHeight: '4px' }}
                     title={`${item.label}: ${item.value.toFixed(2)}€`}
                   >
                     <div 
                       className="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all"
-                      style={{ height: `${Math.max(height * 0.7, 3)}%` }}
+                      style={{ height: `${Math.max(barHeight * 0.8, 10)}%` }}
                     />
                   </div>
+                  
                   <span className="text-[10px] font-medium text-muted">{item.label}</span>
                 </div>
               );

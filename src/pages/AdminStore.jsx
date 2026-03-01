@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ShoppingBag, Plus, X, Edit, Trash2, Search, AlertTriangle, Package, TrendingUp, TrendingDown } from 'lucide-react';
+import { ShoppingBag, Plus, X, Edit, Trash2, Search, AlertTriangle, Package, TrendingUp, TrendingDown, Image as ImageIcon, Upload } from 'lucide-react';
 
 const AdminStore = () => {
   const [products, setProducts] = useState([]);
@@ -9,10 +9,18 @@ const AdminStore = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [formData, setFormData] = useState({ name: '', category: '', brand: '', price: 0, cost_price: 0, stock_quantity: 0, min_stock: 5 });
+  const [formData, setFormData] = useState({ name: '', category: '', brand: '', price: 0, cost_price: 0, stock_quantity: 0, min_stock: 5, image_url: '' });
 
   const fetchData = async () => { setLoading(true); const { data } = await supabase.from('products').select('*').order('name'); setProducts(data || []); setLoading(false); };
   useEffect(() => { fetchData(); }, []);
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setFormData(prev => ({ ...prev, image_url: reader.result }));
+    reader.readAsDataURL(file);
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -22,8 +30,8 @@ const AdminStore = () => {
   };
 
   const handleDelete = async (id) => { if (!confirm('Apagar?')) return; await supabase.from('products').delete().eq('id', id); fetchData(); };
-  const openNew = () => { setSelected(null); setFormData({ name: '', category: '', brand: '', price: 0, cost_price: 0, stock_quantity: 0, min_stock: 5 }); setIsModalOpen(true); };
-  const openEdit = (p) => { setSelected(p); setFormData({ name: p.name||'', category: p.category||'', brand: p.brand||'', price: p.price||0, cost_price: p.cost_price||0, stock_quantity: p.stock_quantity||0, min_stock: p.min_stock||5 }); setIsModalOpen(true); };
+  const openNew = () => { setSelected(null); setFormData({ name: '', category: '', brand: '', price: 0, cost_price: 0, stock_quantity: 0, min_stock: 5, image_url: '' }); setIsModalOpen(true); };
+  const openEdit = (p) => { setSelected(p); setFormData({ name: p.name||'', category: p.category||'', brand: p.brand||'', price: p.price||0, cost_price: p.cost_price||0, stock_quantity: p.stock_quantity||0, min_stock: p.min_stock||5, image_url: p.image_url||'' }); setIsModalOpen(true); };
 
   const filtered = products.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()));
   const lowStock = products.filter(p => (p.stock_quantity || 0) <= (p.min_stock || 5));
@@ -59,7 +67,7 @@ const AdminStore = () => {
           <tbody>
             {filtered.map(p => (
               <tr key={p.id} className="table-row">
-                <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="p-2 rounded-lg bg-primary/10 text-primary"><Package size={16} /></div><div><div className="text-sm font-semibold text-dark">{p.name}</div>{p.brand && <div className="text-xs text-muted">{p.brand}</div>}</div></div></td>
+                <td className="px-6 py-4"><div className="flex items-center gap-3">{p.image_url ? <img src={p.image_url} alt={p.name} className="w-9 h-9 rounded-lg object-cover" /> : <div className="p-2 rounded-lg bg-primary/10 text-primary"><Package size={16} /></div>}<div><div className="text-sm font-semibold text-dark">{p.name}</div>{p.brand && <div className="text-xs text-muted">{p.brand}</div>}</div></div></td>
                 <td className="px-6 py-4">{p.category && <span className="badge badge-info">{p.category}</span>}</td>
                 <td className="px-6 py-4 text-sm font-semibold text-dark">{Number(p.price||0).toFixed(2)}€</td>
                 <td className="px-6 py-4">
@@ -99,7 +107,10 @@ const AdminStore = () => {
                     <div className="text-xs text-muted">{p.brand || p.category || '—'}</div>
                   </div>
                 </div>
-                <div className="text-sm font-bold text-emerald-600">{p.total_sold || 0} un.</div>
+                <div className="text-right">
+                  <div className="text-sm font-bold text-emerald-600">{p.total_sold || 0} un.</div>
+                  <div className="text-[10px] font-semibold text-muted">{(Number(p.total_sold||0) * Number(p.price||0)).toFixed(2)}€</div>
+                </div>
               </div>
             ))}
             {products.length === 0 && <p className="text-sm text-muted text-center py-4">Sem dados</p>}
@@ -140,7 +151,16 @@ const AdminStore = () => {
               <form onSubmit={handleSave}>
                 <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">{selected ? 'Editar' : 'Novo'} Produto</h2><button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
                 <div className="p-6 space-y-4">
-                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Nome *</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="luxury-input" /></div>
+                  <div className="flex items-center gap-4">
+                    <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-slate-100 flex-shrink-0 border border-border-main flex items-center justify-center">
+                      {formData.image_url ? <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" /> : <ImageIcon className="text-slate-400" size={24} />}
+                      <label className="absolute inset-0 bg-black/40 opacity-0 hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                        <Upload size={16} className="text-white" />
+                        <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                      </label>
+                    </div>
+                    <div className="flex-1"><label className="text-sm font-medium text-dark mb-1.5 block">Nome *</label><input required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="luxury-input w-full" /></div>
+                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div><label className="text-sm font-medium text-dark mb-1.5 block">Categoria</label><input value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} className="luxury-input" /></div>
                     <div><label className="text-sm font-medium text-dark mb-1.5 block">Marca</label><input value={formData.brand} onChange={e => setFormData({...formData, brand: e.target.value})} className="luxury-input" /></div>

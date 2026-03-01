@@ -4,6 +4,7 @@ import { Calendar as CalendarIcon, User, Clock, ChevronRight, Check, X, CheckCir
 import { supabase } from '../lib/supabase';
 
 const Scheduling = () => {
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedService, setSelectedService] = useState('');
   const [selectedProfessional, setSelectedProfessional] = useState('');
   const [bookingDate, setBookingDate] = useState('');
@@ -199,7 +200,7 @@ const Scheduling = () => {
       setTimeout(() => {
           setIsModalOpen(false);
           setClientName(''); setClientPhone(''); setClientEmail('');
-          setSelectedService(''); setSelectedProfessional('');
+          setSelectedCategory(''); setSelectedService(''); setSelectedProfessional('');
           setBookingDate(''); setBookingTime('');
           setStatusMessage({ type: '', text: '' });
           setStep(1);
@@ -241,9 +242,10 @@ const Scheduling = () => {
         {/* Steps Indicator */}
         <div className="flex items-center justify-center gap-3 mb-12">
           {[
-            { n: 1, label: 'Serviço' },
-            { n: 2, label: 'Profissional' },
-            { n: 3, label: 'Data & Hora' },
+            { n: 1, label: 'Área' },
+            { n: 2, label: 'Serviço' },
+            { n: 3, label: 'Profissional' },
+            { n: 4, label: 'Data & Hora' },
           ].map((s, i) => (
             <React.Fragment key={s.n}>
               <button 
@@ -260,7 +262,7 @@ const Scheduling = () => {
                 {step > s.n ? <Check size={14} /> : <span>{s.n}</span>}
                 <span className="hidden sm:inline">{s.label}</span>
               </button>
-              {i < 2 && <div className="w-8 h-[1px]" style={{ background: step > s.n ? 'rgb(var(--primary))' : 'rgb(var(--border-main))' }}></div>}
+              {i < 3 && <div className="w-8 h-[1px]" style={{ background: step > s.n ? 'rgb(var(--primary))' : 'rgb(var(--border-main))' }}></div>}
             </React.Fragment>
           ))}
         </div>
@@ -298,23 +300,57 @@ const Scheduling = () => {
           <div className="rounded-3xl border shadow-xl overflow-hidden" style={{ backgroundColor: 'rgb(var(--bg-card))', borderColor: 'rgb(var(--border-main))' }}>
             <form onSubmit={handleCheckAvailability}>
               <AnimatePresence mode="wait">
-                {/* Step 1: Choose Service */}
+                {/* Step 1: Choose Category */}
                 {step === 1 && (
                   <motion.div key="step1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><Sparkles size={18} /></div>
                       <div>
-                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Qual serviço deseja?</h3>
-                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Selecione o tratamento pretendido</p>
+                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Qual área deseja?</h3>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Selecione a categoria de serviço</p>
                       </div>
                     </div>
                     
                     <div className="grid gap-3">
-                      {services.map(s => (
+                      {[...new Set(services.map(s => s.category).filter(Boolean))].sort().map(cat => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => { setSelectedCategory(cat); setStep(2); }}
+                          className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group hover:shadow-md ${
+                            selectedCategory === cat ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''
+                          }`}
+                          style={selectedCategory !== cat ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
+                        >
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm capitalize" style={{ color: 'rgb(var(--text-main))' }}>{cat}</p>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <ChevronRight size={16} className="text-muted opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Step 2: Choose Service */}
+                {step === 2 && (
+                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><Sparkles size={18} /></div>
+                      <div>
+                        <h3 className="font-bold text-lg" style={{ color: 'rgb(var(--text-main))' }}>Qual serviço {selectedCategory ? `de ${selectedCategory.toLowerCase()}` : 'deseja'}?</h3>
+                        <p className="text-xs" style={{ color: 'rgb(var(--text-muted))' }}>Selecione o tratamento pretendido</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                      {(selectedCategory ? services.filter(s => s.category === selectedCategory) : services).map(s => (
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => { setSelectedService(s.id); setStep(2); }}
+                          onClick={() => { setSelectedService(s.id); setStep(3); }}
                           className={`flex items-center justify-between p-4 rounded-2xl border transition-all text-left group hover:shadow-md ${
                             selectedService === s.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''
                           }`}
@@ -322,7 +358,7 @@ const Scheduling = () => {
                         >
                           <div className="flex-1">
                             <p className="font-semibold text-sm" style={{ color: 'rgb(var(--text-main))' }}>{s.name}</p>
-                            <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--text-muted))' }}>{s.category} · {s.duration} min</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'rgb(var(--text-muted))' }}>{s.duration} min</p>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="font-bold text-primary text-lg">{Number(s.price).toFixed(0)}€</span>
@@ -334,9 +370,9 @@ const Scheduling = () => {
                   </motion.div>
                 )}
 
-                {/* Step 2: Choose Professional */}
-                {step === 2 && (
-                  <motion.div key="step2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                {/* Step 3: Choose Professional */}
+                {step === 3 && (
+                  <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><User size={18} /></div>
                       <div>
@@ -356,7 +392,7 @@ const Scheduling = () => {
                     <div className="grid sm:grid-cols-2 gap-3">
                       <button
                         type="button"
-                        onClick={() => { setSelectedProfessional(''); setStep(3); }}
+                        onClick={() => { setSelectedProfessional(''); setStep(4); }}
                         className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${!selectedProfessional ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}
                         style={selectedProfessional ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
                       >
@@ -373,7 +409,7 @@ const Scheduling = () => {
                         <button
                           key={pro.id}
                           type="button"
-                          onClick={() => { setSelectedProfessional(pro.id); setStep(3); }}
+                          onClick={() => { setSelectedProfessional(pro.id); setStep(4); }}
                           className={`flex items-center gap-4 p-4 rounded-2xl border transition-all text-left relative ${selectedProfessional === pro.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : ''}`}
                           style={selectedProfessional !== pro.id ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
                         >
@@ -406,9 +442,9 @@ const Scheduling = () => {
                   </motion.div>
                 )}
 
-                {/* Step 3: Date & Time */}
-                {step === 3 && (
-                  <motion.div key="step3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
+                {/* Step 4: Date & Time */}
+                {step === 4 && (
+                  <motion.div key="step4" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="p-8 sm:p-10">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary"><CalendarIcon size={18} /></div>
                       <div>

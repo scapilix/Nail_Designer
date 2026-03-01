@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Wallet, Plus, X, Search, Trash2, ArrowDownRight, Calendar, Tag, Paperclip, Download, FileText } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminExpenses = () => {
   const [expenses, setExpenses] = useState([]);
@@ -73,6 +74,39 @@ const AdminExpenses = () => {
     fetchData();
   };
 
+  const viewAttachment = (url) => {
+    if (!url) return;
+    try {
+      if (url.startsWith('data:')) {
+        const arr = url.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } else {
+        window.open(url, '_blank');
+      }
+    } catch {
+      alert("Não foi possível pré-visualizar o anexo.");
+    }
+  };
+
+  const chartData = useMemo(() => {
+    const grouped = [...expenses].reduce((acc, curr) => {
+      acc[curr.date] = (acc[curr.date] || 0) + Number(curr.amount || 0);
+      return acc;
+    }, {});
+    return Object.entries(grouped)
+      .map(([date, value]) => ({ date: date.substring(5).replace('-', '/'), value }))
+      .sort((a,b) => a.date.localeCompare(b.date));
+  }, [expenses]);
+
   const totalExpenses = expenses.reduce((a, e) => a + Number(e.amount || 0), 0);
   const thisMonth = expenses.filter(e => { const d = new Date(e.date); const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); });
   const monthExpenses = thisMonth.reduce((a, e) => a + Number(e.amount || 0), 0);
@@ -95,6 +129,25 @@ const AdminExpenses = () => {
         <div className="stat-card"><div className="p-2 rounded-lg bg-red-50 text-red-600 w-fit mb-2"><ArrowDownRight size={18} /></div><p className="text-xs font-medium text-muted uppercase">Total Despesas</p><p className="text-2xl font-bold text-dark mt-1">{totalExpenses.toFixed(2)}€</p></div>
         <div className="stat-card"><div className="p-2 rounded-lg bg-amber-50 text-amber-600 w-fit mb-2"><Calendar size={18} /></div><p className="text-xs font-medium text-muted uppercase">Este Mês</p><p className="text-2xl font-bold text-dark mt-1">{monthExpenses.toFixed(2)}€</p></div>
         <div className="stat-card"><div className="p-2 rounded-lg bg-blue-50 text-blue-600 w-fit mb-2"><Tag size={18} /></div><p className="text-xs font-medium text-muted uppercase">Nº Despesas</p><p className="text-2xl font-bold text-dark mt-1">{expenses.length}</p></div>
+      </div>
+
+      <div className="card p-6">
+        <h3 className="text-lg font-semibold text-dark mb-6">Evolução de Gastos</h3>
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} dy={10} />
+              <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12}} tickFormatter={(val) => `${val}€`} dx={-10} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                formatter={(value) => [`${value}€`, 'Gasto']}
+                labelStyle={{ color: '#0f172a', fontWeight: 'bold' }}
+              />
+              <Line type="monotone" dataKey="value" stroke="#ef4444" strokeWidth={3} dot={{r: 4, strokeWidth: 2}} activeDot={{r: 6, fill: '#ef4444'}} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="flex items-center gap-2 bg-white border border-border-main px-4 py-2.5 rounded-lg">
@@ -124,10 +177,10 @@ const AdminExpenses = () => {
                 <td className="px-6 py-4"><span className={`badge ${categoryColors[exp.category] || 'bg-slate-100 text-slate-700'}`}>{categoryLabels[exp.category] || exp.category}</span></td>
                 <td className="px-6 py-4 text-center">
                   {exp.attachment_url ? (
-                    <a href={exp.attachment_url} target="_blank" rel="noopener noreferrer"
-                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-semibold">
+                    <button type="button" onClick={() => viewAttachment(exp.attachment_url)}
+                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-semibold cursor-pointer">
                       <Download size={14} /> Ver
-                    </a>
+                    </button>
                   ) : (
                     <span className="text-xs text-muted">—</span>
                   )}

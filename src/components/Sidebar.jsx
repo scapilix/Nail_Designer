@@ -49,6 +49,7 @@ const Sidebar = () => {
         { name: 'Comissões', icon: <Gift />, path: '/admin/commissions' },
         { name: 'Caixa', icon: <ShoppingBag />, path: '/admin/cashier' },
         { name: 'Despesas', icon: <Wallet />, path: '/admin/expenses' },
+        { name: 'Faturas', icon: <FileText />, path: '/admin/invoices' },
       ]
     },
     {
