@@ -11,29 +11,37 @@ const VideoPlayer = () => {
   const { images } = useImage();
 
   return (
-    <Player
-      component={NailShowcase}
-      inputProps={{ images }}
-      durationInFrames={TOTAL_FRAMES}
-      compositionWidth={1920}
-      compositionHeight={1080}
-      fps={30}
-      style={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        minWidth: '100%',
-        minHeight: '100%',
-        width: 'auto',
-        height: 'auto',
-        borderRadius: 0,
-      }}
-      autoPlay
-      loop
-      controls={false}
-      clickToPlay={false}
-    />
+    <>
+      <style>{`
+        .remotion-player-container > div {
+          width: 100% !important;
+          height: 100% !important;
+          max-width: none !important;
+          max-height: none !important;
+        }
+        .remotion-player-container video {
+          object-fit: cover !important;
+        }
+      `}</style>
+      <div className="remotion-player-container" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+        <Player
+          component={NailShowcase}
+          inputProps={{ images }}
+          durationInFrames={TOTAL_FRAMES}
+          compositionWidth={1920}
+          compositionHeight={1080}
+          fps={30}
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+          autoPlay
+          loop
+          controls={false}
+          clickToPlay={false}
+        />
+      </div>
+    </>
   );
 };
 
