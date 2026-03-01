@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Component } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { DollarSign, Users, CheckCircle, X, Calendar, Clock, Euro, TrendingUp, ArrowLeft, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
