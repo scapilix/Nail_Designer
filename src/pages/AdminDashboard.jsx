@@ -5,6 +5,7 @@ import {
   TrendingUp, Users, Calendar, ShoppingBag,
   ArrowUpRight, ArrowDownRight, ChevronRight, DollarSign, Clock, Star
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts';
 
 const StatCard = ({ title, value, icon, trend, trendUp, subtitle }) => (
   <div className="stat-card group hover:shadow-md transition-all">
@@ -165,34 +166,48 @@ const AdminDashboard = () => {
             </div>
           </div>
           
-          <div className="h-56 flex items-end gap-3 px-4 pb-2">
-            {chartItems.map((item, i) => {
-              const heightPct = maxChartVal > 0 ? (item.value / maxChartVal) * 100 : 0;
-              const barHeight = Math.max(heightPct, 2); // At least 2% to be visible
-              
-              return (
-                <div key={i} className="flex-1 flex flex-col items-center justify-end gap-2 h-full">
-                  <span className="text-[10px] font-bold text-primary mt-auto">
-                    {item.value > 0 ? `${item.value.toFixed(0)}€` : ''}
-                  </span>
-                  
-                  <div 
-                    className="w-full bg-primary/10 rounded-t-lg hover:bg-primary/20 transition-colors relative group cursor-pointer"
-                    style={{ height: `${barHeight}%`, minHeight: '4px' }}
-                    title={`${item.label}: ${item.value.toFixed(2)}€`}
-                  >
-                    <div 
-                      className="absolute bottom-0 w-full bg-primary rounded-t-lg transition-all"
-                      style={{ height: `${Math.max(barHeight * 0.8, 10)}%` }}
-                    />
-                  </div>
-                  
-                  <span className="text-[10px] font-medium text-muted">{item.label}</span>
-                </div>
-              );
-            })}
-            {chartItems.length === 0 && (
-              <div className="w-full text-center text-sm text-muted py-8">Sem dados de caixa</div>
+          <div className="h-64 px-4 pb-2 w-full mt-4">
+            {chartItems.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartItems} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgb(var(--border-main))" opacity={0.5} />
+                  <XAxis 
+                    dataKey="label" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: 'rgb(var(--text-muted))', fontSize: 11 }} 
+                    dy={10} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: 'rgb(var(--text-muted))', fontSize: 11 }}
+                    tickFormatter={(value) => `${value}€`}
+                  />
+                  <RechartsTooltip 
+                    cursor={{ fill: 'rgb(var(--primary))', opacity: 0.05 }}
+                    contentStyle={{ 
+                      backgroundColor: 'rgb(var(--bg-card))', 
+                      borderRadius: '12px',
+                      border: '1px solid rgb(var(--border-main))',
+                      boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                      color: 'rgb(var(--text-main))'
+                    }}
+                    formatter={(value) => [`${Number(value).toFixed(2)}€`, 'Receita']}
+                    labelStyle={{ color: 'rgb(var(--text-muted))', marginBottom: '4px' }}
+                  />
+                  <Bar 
+                    dataKey="value" 
+                    fill="rgb(var(--primary))" 
+                    radius={[6, 6, 0, 0]} 
+                    maxBarSize={60}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-sm text-muted">
+                Sem dados de caixa neste período
+              </div>
             )}
           </div>
         </div>
