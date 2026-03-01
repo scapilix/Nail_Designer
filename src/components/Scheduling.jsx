@@ -19,6 +19,7 @@ const Scheduling = () => {
   
   const [team, setTeam] = useState([]);
   const [services, setServices] = useState([]);
+  const [serviceLinks, setServiceLinks] = useState([]);
   const [step, setStep] = useState(1); // Multi-step flow
 
   const generateTimeSlots = () => {
@@ -34,18 +35,25 @@ const Scheduling = () => {
   useEffect(() => {
     const fetchTeamAndServices = async () => {
       try {
-        const [teamRes, servicesRes] = await Promise.all([
+        const [teamRes, servicesRes, linksRes] = await Promise.all([
           supabase.from('team_members').select('*').order('name'),
-          supabase.from('services').select('*').order('name')
+          supabase.from('services').select('*').order('name'),
+          supabase.from('team_member_services').select('*').catch(() => ({ data: [] }))
         ]);
         setTeam(teamRes.data || []);
         setServices(servicesRes.data || []);
+        setServiceLinks(linksRes.data || []);
       } catch (err) {
         console.error('Error fetching data for scheduling:', err);
       }
     };
     fetchTeamAndServices();
   }, []);
+
+  // Filter professionals by selected service (if links exist)
+  const filteredTeam = selectedService && serviceLinks.length > 0
+    ? team.filter(p => serviceLinks.some(l => l.team_member_id === p.id && l.service_id === selectedService))
+    : team; // Show all if no links configured
 
   const handleCheckAvailability = async (e) => {
     e.preventDefault();
@@ -357,7 +365,7 @@ const Scheduling = () => {
                         </div>
                       </button>
 
-                      {team.map((pro) => (
+                      {filteredTeam.map((pro) => (
                         <button
                           key={pro.id}
                           type="button"
@@ -366,7 +374,13 @@ const Scheduling = () => {
                           style={selectedProfessional !== pro.id ? { borderColor: 'rgb(var(--border-main))', backgroundColor: 'rgb(var(--bg-main))' } : {}}
                         >
                           <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-white shadow-sm flex-shrink-0 bg-slate-100">
-                            <img src={pro.photo_url || 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop'} alt={pro.name} className="w-full h-full object-cover" />
+                            {pro.photo_url ? (
+                              <img src={pro.photo_url} alt={pro.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary text-xl font-bold">
+                                {pro.name?.charAt(0)}
+                              </div>
+                            )}
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-bold text-sm truncate" style={{ color: 'rgb(var(--text-main))' }}>{pro.name}</p>
@@ -379,6 +393,11 @@ const Scheduling = () => {
                           )}
                         </button>
                       ))}
+                      {filteredTeam.length === 0 && (
+                        <div className="col-span-2 text-center py-6 text-sm" style={{ color: 'rgb(var(--text-muted))' }}>
+                          Nenhuma profissional disponível para este serviço
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 )}

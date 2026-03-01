@@ -43,7 +43,11 @@ const AdminTeam = () => {
           <div key={m.id} className="card p-5 hover:shadow-md transition-all">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-bold">{m.name?.charAt(0)}</div>
+                {m.photo_url ? (
+                    <img src={m.photo_url} alt={m.name} className="w-12 h-12 rounded-full object-cover border-2 border-primary/20" />
+                  ) : (
+                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-bold">{m.name?.charAt(0)}</div>
+                  )}
                 <div>
                   <h3 className="font-semibold text-dark">{m.name}</h3>
                   <span className="badge badge-info">{m.role || 'Profissional'}</span>
