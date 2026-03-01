@@ -35,14 +35,18 @@ const Scheduling = () => {
   useEffect(() => {
     const fetchTeamAndServices = async () => {
       try {
-        const [teamRes, servicesRes, linksRes] = await Promise.all([
+        const [teamRes, servicesRes] = await Promise.all([
           supabase.from('team_members').select('*').order('name'),
-          supabase.from('services').select('*').order('name'),
-          supabase.from('team_member_services').select('*').catch(() => ({ data: [] }))
+          supabase.from('services').select('*').order('name')
         ]);
         setTeam(teamRes.data || []);
         setServices(servicesRes.data || []);
-        setServiceLinks(linksRes.data || []);
+
+        // Fetch service links separately (table may not exist)
+        try {
+          const { data: linksData } = await supabase.from('team_member_services').select('*');
+          setServiceLinks(linksData || []);
+        } catch { setServiceLinks([]); }
       } catch (err) {
         console.error('Error fetching data for scheduling:', err);
       }

@@ -11,7 +11,7 @@ const Team = () => {
   const fetchTeam = React.useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .from('team')
+        .from('team_members')
         .select('*')
         .order('name');
       if (error) throw error;
