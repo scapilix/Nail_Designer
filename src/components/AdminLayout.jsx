@@ -7,8 +7,16 @@ import {
   Settings,
   HelpCircle
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminLayout = () => {
+  const { user } = useAuth();
+  
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  };
+
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans">
       {/* Sidebar */}
@@ -43,12 +51,16 @@ const AdminLayout = () => {
 
             <div className="h-6 w-px bg-border-main mx-1"></div>
 
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-full overflow-hidden border border-border-main">
-                <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150&auto=format&fit=crop" alt="Admin" className="w-full h-full object-cover" />
+            <div className="flex items-center gap-2 cursor-pointer hover:bg-slate-50 p-1.5 pl-2 rounded-xl transition-colors">
+              <div 
+                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm"
+                style={{ backgroundColor: user?.color || '#7C3AED' }}
+              >
+                {getInitials(user?.name)}
               </div>
               <div className="text-right hidden md:block">
-                <div className="text-sm font-semibold text-dark">Leticia Silva</div>
+                <div className="text-sm font-semibold text-dark leading-tight">{user?.name?.split(' ')[0] || 'Utilizador'}</div>
+                <div className="text-[10px] text-muted capitalize">{user?.role || 'Membro'}</div>
               </div>
             </div>
           </div>

@@ -69,19 +69,6 @@ const Navbar = () => {
           >
             AGENDAR AGORA
           </a>
-
-          <Link
-            to="/admin"
-            className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] transition-all duration-300 group"
-            style={{ color: scrolled ? 'rgb(var(--text-muted))' : 'rgba(255,255,255,0.7)' }}
-          >
-            <div className="p-2 border rounded-full transition-colors group-hover:bg-primary group-hover:text-white"
-              style={{ borderColor: scrolled ? 'rgb(var(--border-main))' : 'rgba(255,255,255,0.3)' }}
-            >
-              <LogIn size={14} />
-            </div>
-            <span>LOGIN</span>
-          </Link>
         </div>
 
         {/* Mobile Toggle */}
@@ -124,15 +111,6 @@ const Navbar = () => {
               >
                 AGENDAR AGORA
               </a>
-              <Link
-                to="/admin"
-                className="flex items-center justify-center gap-3 py-4 border-t font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
-                style={{ color: 'rgb(var(--text-main))', borderColor: 'rgb(var(--border-main))' }}
-                onClick={() => setIsOpen(false)}
-              >
-                <LogIn size={18} />
-                ADMIN LOGIN
-              </Link>
             </div>
           </Motion.div>
         )}

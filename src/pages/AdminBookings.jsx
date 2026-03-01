@@ -4,12 +4,15 @@ import { supabase } from '../lib/supabase';
 import { 
   Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, Clock, User, CheckCircle, XCircle, X, Eye, Filter, Settings
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminBookings = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [now, setNow] = useState(new Date());
+  const { user } = useAuth();
+  const isAdmin = user?.access_level === 'admin';
   const scrollRef = useRef(null);
 
   const [clients, setClients] = useState([]);
@@ -74,13 +77,18 @@ const AdminBookings = () => {
       const startDate = weekDays[0]?.toISOString().split('T')[0];
       const endDate = weekDays[weekDays.length - 1]?.toISOString().split('T')[0];
 
-      const { data } = await supabase
+      let query = supabase
         .from('bookings')
-        .select('*, clients(name), services(name, duration), team_members(name)')
+        .select('*, clients(name), services(name, duration), team_members(name, color)')
         .gte('booking_date', startDate)
         .lte('booking_date', endDate)
         .order('booking_time', { ascending: true });
 
+      if (!isAdmin && user?.id) {
+        query = query.eq('team_member_id', user.id);
+      }
+
+      const { data } = await query;
       setBookings(data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
@@ -90,14 +98,14 @@ const AdminBookings = () => {
     const [c, s, t] = await Promise.all([
       supabase.from('clients').select('id, name').order('name'),
       supabase.from('services').select('id, name, duration, price'),
-      supabase.from('team_members').select('id, name, role'),
+      supabase.from('team_members').select('id, name, role, color'),
     ]);
     setClients(c.data || []);
     setServices(s.data || []);
     setTeam(t.data || []);
   };
 
-  useEffect(() => { fetchBookings(); }, [weekDays]);
+  useEffect(() => { fetchBookings(); }, [weekDays, user]);
   useEffect(() => { fetchDropdownData(); }, []);
 
   const handleSave = async (e) => {
@@ -141,23 +149,13 @@ const AdminBookings = () => {
     setIsModalOpen(true);
   };
 
-  const getStatusColor = (status) => {
+  const getStatusIcon = (status) => {
     switch(status) {
-      case 'confirmado': return 'bg-emerald-500';
-      case 'pendente': return 'bg-amber-500';
-      case 'cancelado': return 'bg-red-500';
-      case 'concluido': return 'bg-blue-500';
-      default: return 'bg-slate-400';
-    }
-  };
-
-  const getStatusBg = (status) => {
-    switch(status) {
-      case 'confirmado': return 'bg-emerald-50 border-emerald-200 text-emerald-800';
-      case 'pendente': return 'bg-amber-50 border-amber-200 text-amber-800';
-      case 'cancelado': return 'bg-red-50 border-red-200 text-red-800';
-      case 'concluido': return 'bg-blue-50 border-blue-200 text-blue-800';
-      default: return 'bg-slate-50 border-slate-200 text-slate-800';
+      case 'confirmado': return <CheckCircle size={12} className="text-emerald-500" />;
+      case 'pendente': return <Clock size={12} className="text-amber-500" />;
+      case 'cancelado': return <XCircle size={12} className="text-red-500" />;
+      case 'concluido': return <CheckCircle size={12} className="text-blue-500" />;
+      default: return null;
     }
   };
 
@@ -235,6 +233,18 @@ const AdminBookings = () => {
         </div>
       </div>
 
+      {isAdmin && team.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3 bg-white p-3 rounded-xl border border-border-main">
+          <span className="text-xs font-semibold text-muted uppercase tracking-wider">Profissionais:</span>
+          {team.map(t => (
+            <div key={t.id} className="flex items-center gap-1.5 text-sm font-medium text-dark">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: t.color || '#3B82F6' }}></div>
+              {t.name.split(' ')[0]}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Calendar Grid */}
       <div className="card overflow-hidden">
         {/* Professional columns header */}
@@ -287,20 +297,28 @@ const AdminBookings = () => {
                       className={`border-r border-border-main last:border-0 relative cursor-pointer hover:bg-blue-50/50 transition-colors ${isToday(day) ? 'bg-primary/[0.02]' : ''}`}
                       onClick={() => openNewBooking(dateStr, time)}
                     >
-                      {dayBookings.map((booking) => (
-                        <div
-                          key={booking.id}
-                          onClick={(e) => { e.stopPropagation(); openEditBooking(booking); }}
-                          className={`absolute inset-x-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium border cursor-pointer z-10 ${getStatusBg(booking.status)}`}
-                          style={{ minHeight: '24px' }}
-                        >
-                          <div className="flex items-center gap-1">
-                            <div className={`w-1.5 h-1.5 rounded-full ${getStatusColor(booking.status)}`}></div>
-                            <span className="truncate font-semibold">{booking.clients?.name}</span>
+                      {dayBookings.map((booking) => {
+                        const evtColor = booking.team_members?.color || '#3B82F6';
+                        return (
+                          <div
+                            key={booking.id}
+                            onClick={(e) => { e.stopPropagation(); openEditBooking(booking); }}
+                            className={`absolute inset-x-0.5 rounded px-1.5 py-0.5 text-[10px] font-medium border cursor-pointer z-10 transition-transform hover:scale-[1.02]`}
+                            style={{ 
+                              minHeight: '24px',
+                              backgroundColor: `${evtColor}15`,
+                              borderColor: `${evtColor}30`,
+                              color: evtColor
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="truncate font-semibold text-dark">{booking.clients?.name}</span>
+                              {getStatusIcon(booking.status)}
+                            </div>
+                            <div className="truncate opacity-80" style={{ color: evtColor }}>{booking.services?.name}</div>
                           </div>
-                          <div className="truncate opacity-70">{booking.services?.name}</div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   );
                 })}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { AnimatePresence, motion } from 'framer-motion';
 import { DollarSign, Users, CheckCircle, X, Calendar, Clock, Euro, TrendingUp, ArrowLeft, Filter } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const AdminCommissions = () => {
   const [commissions, setCommissions] = useState([]);
@@ -19,20 +19,28 @@ const AdminCommissions = () => {
   const [memberBookings, setMemberBookings] = useState([]);
   const [loadingBookings, setLoadingBookings] = useState(false);
 
+  const { user } = useAuth();
+  const isAdmin = user?.access_level === 'admin';
+
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [c, t] = await Promise.all([
-        supabase.from('commissions').select('*').order('date', { ascending: false }),
-        supabase.from('team_members').select('id, name, commission_rate, photo_url')
-      ]);
+      const commQuery = supabase.from('commissions').select('*').order('date', { ascending: false });
+      const teamQuery = supabase.from('team_members').select('id, name, commission_rate, photo_url');
+
+      if (!isAdmin && user?.id) {
+        commQuery.eq('team_member_id', user.id);
+        teamQuery.eq('id', user.id);
+      }
+
+      const [c, t] = await Promise.all([commQuery, teamQuery]);
       setCommissions(c.data || []);
       setTeam(t.data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [user]);
 
   const markPaid = async (id) => {
     await supabase.from('commissions').update({ status: 'pago' }).eq('id', id);

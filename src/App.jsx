@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { applyPrimaryColor } from './lib/colorUtils';
 import { supabase } from './lib/supabase';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AboutUs from './components/AboutUs';
@@ -55,6 +57,13 @@ const PublicPage = () => (
 import { ThemeProvider } from './context/ThemeContext';
 import { ImageProvider } from './context/ImageContext';
 
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return <div className="h-screen flex items-center justify-center bg-slate-50"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+};
+
 function App() {
   const { pathname } = useLocation();
 
@@ -80,11 +89,13 @@ function App() {
   }, []);
 
   return (
-    <ThemeProvider>
-      <ImageProvider>
-        <Routes>
-          <Route path="/" element={<PublicPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
+    <AuthProvider>
+      <ThemeProvider>
+        <ImageProvider>
+          <Routes>
+            <Route path="/" element={<PublicPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/admin" element={<PrivateRoute><AdminLayout /></PrivateRoute>}>
             <Route index element={<AdminDashboard />} />
             <Route path="bookings" element={<AdminBookings />} />
             <Route path="clients" element={<AdminClientes />} />
@@ -107,6 +118,7 @@ function App() {
         </Routes>
       </ImageProvider>
     </ThemeProvider>
+  </AuthProvider>
   );
 }
 

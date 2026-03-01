@@ -9,7 +9,7 @@ const AdminTeam = () => {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
-  const [formData, setFormData] = useState({ name: '', role: '', phone: '', email: '', commission_rate: 0 });
+  const [formData, setFormData] = useState({ name: '', role: '', phone: '', email: '', commission_rate: 0, access_level: 'employee', pin_code: '', color: '#3B82F6' });
   const [photoFile, setPhotoFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -103,7 +103,7 @@ const AdminTeam = () => {
 
   const openNew = () => {
     setSelected(null);
-    setFormData({ name: '', role: '', phone: '', email: '', commission_rate: 0 });
+    setFormData({ name: '', role: '', phone: '', email: '', commission_rate: 0, access_level: 'employee', pin_code: '', color: '#3B82F6' });
     setPhotoFile(null);
     setPhotoPreview('');
     setIsModalOpen(true);
@@ -112,7 +112,7 @@ const AdminTeam = () => {
   const openEdit = (m, e) => {
     e.stopPropagation();
     setSelected(m);
-    setFormData({ name: m.name || '', role: m.role || '', phone: m.phone || '', email: m.email || '', commission_rate: m.commission_rate || 0 });
+    setFormData({ name: m.name || '', role: m.role || '', phone: m.phone || '', email: m.email || '', commission_rate: m.commission_rate || 0, access_level: m.access_level || 'employee', pin_code: m.pin_code || '', color: m.color || '#3B82F6' });
     setPhotoFile(null);
     setPhotoPreview(m.photo_url || '');
     setIsModalOpen(true);
@@ -340,7 +340,29 @@ const AdminTeam = () => {
                     <div><label className="text-sm font-medium text-dark mb-1.5 block">Telefone</label><input value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} className="luxury-input" /></div>
                     <div><label className="text-sm font-medium text-dark mb-1.5 block">Email</label><input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} className="luxury-input" /></div>
                   </div>
-                  <div><label className="text-sm font-medium text-dark mb-1.5 block">Taxa de Comissão (%)</label><input type="number" value={formData.commission_rate} onChange={e => setFormData({ ...formData, commission_rate: Number(e.target.value) })} className="luxury-input" /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-dark mb-1.5 block">Nível de Acesso *</label>
+                      <select required value={formData.access_level} onChange={e => setFormData({ ...formData, access_level: e.target.value })} className="luxury-input">
+                        <option value="employee">Profissional (Restrito)</option>
+                        <option value="admin">Administrador (Acesso Total)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-dark mb-1.5 block">PIN de Login *</label>
+                      <input required type="password" value={formData.pin_code} onChange={e => setFormData({ ...formData, pin_code: e.target.value })} className="luxury-input" placeholder="Ex: 1234" maxLength={6} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><label className="text-sm font-medium text-dark mb-1.5 block">Taxa de Comissão (%)</label><input type="number" value={formData.commission_rate} onChange={e => setFormData({ ...formData, commission_rate: Number(e.target.value) })} className="luxury-input" /></div>
+                    <div>
+                      <label className="text-sm font-medium text-dark mb-1.5 block">Cor na Agenda *</label>
+                      <div className="flex items-center gap-3">
+                        <input required type="color" value={formData.color} onChange={e => setFormData({ ...formData, color: e.target.value })} className="h-10 w-14 rounded-lg cursor-pointer border border-border-main p-1 bg-white" />
+                        <span className="text-sm text-muted font-medium uppercase">{formData.color}</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl">
                   <button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancelar</button>

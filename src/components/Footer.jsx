@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, Youtube, Mail, MapPin, Phone, ArrowUpRight } from 'lucide-react';
+import { Instagram, Youtube, Mail, MapPin, Phone, ArrowUpRight, LogIn } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -27,10 +27,10 @@ const Footer = () => {
           <div>
             <h5 className="font-bold text-xs uppercase tracking-[0.2em] mb-8 text-main">Explorar</h5>
             <ul className="space-y-4 text-sm font-medium text-muted">
-              {['Início', 'Serviços', 'Sobre nós', 'Equipa', 'Galeria', 'Admin'].map((link) => (
+              {['Início', 'Serviços', 'Sobre nós', 'Equipa', 'Galeria'].map((link) => (
                 <li key={link}>
                   <a 
-                    href={link === 'Admin' ? '/admin' : `#${link.toLowerCase().replace(' ', '')}`} 
+                    href={`#${link.toLowerCase().replace(' ', '')}`} 
                     className="hover:text-primary transition-colors flex items-center gap-1 group"
                   >
                     {link}
@@ -81,10 +81,14 @@ const Footer = () => {
 
         <div className="pt-8 border-t border-border-main flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-muted font-bold uppercase tracking-widest">
           <p>© 2024 TO Beauty Salon. Todos os direitos reservados.</p>
-          <div className="flex gap-8">
+          <div className="flex gap-6 items-center flex-wrap justify-center">
             <a href="#" className="hover:text-primary">Privacidade</a>
             <a href="#" className="hover:text-primary">Termos</a>
             <a href="#" className="hover:text-primary">Cookies</a>
+            <div className="w-px h-3 bg-border-main hidden md:block"></div>
+            <a href="/admin" className="hover:text-primary flex items-center gap-1 text-primary">
+              <LogIn size={12} /> Login Profissional
+            </a>
           </div>
         </div>
       </div>

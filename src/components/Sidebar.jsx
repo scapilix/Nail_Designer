@@ -6,6 +6,7 @@ import {
   ShoppingBag, Gift, MessageSquare, Share2, Settings, 
   LogOut, Plus, UserPlus
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const SidebarSection = ({ title, items }) => (
   <div className="mb-5">
@@ -78,6 +79,32 @@ const Sidebar = () => {
     }
   ];
 
+  const { user, logout } = useAuth();
+  const isAdmin = user?.access_level === 'admin';
+
+  // Filter sections for employees
+  const visibleSections = isAdmin ? sections : [
+    {
+      title: 'Principal',
+      items: [
+        { name: 'Painel', icon: <LayoutDashboard />, path: '/admin' },
+        { name: 'Agenda', icon: <Calendar />, path: '/admin/bookings' },
+      ]
+    },
+    {
+      title: 'Registos',
+      items: [
+        { name: 'Clientes', icon: <Users />, path: '/admin/clients' },
+      ]
+    },
+    {
+      title: 'Financeiro',
+      items: [
+        { name: 'Minhas Comissões', icon: <Gift />, path: '/admin/commissions' },
+      ]
+    }
+  ];
+
   return (
     <aside className="w-56 bg-[#1A1A1E] flex flex-col h-screen sticky top-0 z-50">
       {/* Brand */}
@@ -90,7 +117,7 @@ const Sidebar = () => {
             TO<span className="text-primary font-normal">Beauty</span>
           </h1>
         </div>
-        <p className="text-[10px] text-white/40 mt-1">Olá, LETICIA</p>
+        <p className="text-[10px] text-white/40 mt-1 uppercase">Olá, {user?.name?.split(' ')[0] || 'Utilizador'}</p>
       </div>
 
       {/* New Button */}
@@ -103,18 +130,20 @@ const Sidebar = () => {
 
       {/* Nav */}
       <div className="flex-1 overflow-y-auto px-2 pb-2">
-        {sections.map((s) => (
+        {visibleSections.map((s) => (
           <SidebarSection key={s.title} title={s.title} items={s.items} />
         ))}
       </div>
 
       {/* Footer */}
       <div className="p-3 border-t border-white/5">
-        <NavLink to="/admin/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : 'text-white/50 hover:text-white hover:bg-white/10'}`}>
-          <Settings size={16} />
-          <span className="text-sm">Definições</span>
-        </NavLink>
-        <button className="sidebar-link text-white/50 hover:text-red-300 hover:bg-red-500/10 w-full">
+        {isAdmin && (
+          <NavLink to="/admin/settings" className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : 'text-white/50 hover:text-white hover:bg-white/10'}`}>
+            <Settings size={16} />
+            <span className="text-sm">Definições</span>
+          </NavLink>
+        )}
+        <button onClick={logout} className="sidebar-link text-white/50 hover:text-red-300 hover:bg-red-500/10 w-full mt-1">
           <LogOut size={16} />
           <span className="text-sm">Sair</span>
         </button>
