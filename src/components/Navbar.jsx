@@ -8,9 +8,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -26,47 +24,60 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-[rgb(var(--nav-bg)/0.95)] backdrop-blur-md py-4 shadow-lg border-b border-primary/10' : 'bg-transparent py-8'}`}>
-      {/* Dynamic top gradient for visibility on transparent mode */}
+    <nav
+      className={`fixed w-full z-50 transition-all duration-500 ${
+        scrolled
+          ? 'py-3 shadow-lg border-b backdrop-blur-xl'
+          : 'py-8 bg-transparent'
+      }`}
+      style={scrolled ? {
+        backgroundColor: 'rgba(var(--bg-main), 0.97)',
+        borderColor: 'rgba(var(--border-main), 0.5)',
+      } : {}}
+    >
+      {/* Gradient overlay when transparent (hero visible) */}
       {!scrolled && (
-        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[rgb(var(--nav-gradient)/0.8)] to-transparent pointer-events-none -z-10"></div>
+        <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-black/60 to-transparent pointer-events-none -z-10"></div>
       )}
 
       <div className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className={`font-serif text-2xl font-bold tracking-tighter transition-colors duration-300 ${scrolled ? 'text-dark' : 'text-white'}`}>
+        <Link
+          to="/"
+          className="font-serif text-2xl font-bold tracking-tighter transition-colors duration-300"
+          style={{ color: scrolled ? 'rgb(var(--text-main))' : '#fff' }}
+        >
           TO<span className="text-primary italic">Beauty</span>
         </Link>
 
         {/* Desktop Links */}
-        <div className={`hidden lg:flex items-center gap-10 ${scrolled ? 'text-dark' : 'text-white'}`}>
+        <div className="hidden lg:flex items-center gap-10">
           {navLinks.map((link) => (
-            <a 
-              key={link.name} 
+            <a
+              key={link.name}
               href={link.href}
-              className="text-[10px] font-bold uppercase tracking-[0.25em] hover:text-primary transition-all duration-300 drop-shadow-sm"
+              className="text-xs font-bold uppercase tracking-[0.2em] hover:text-primary transition-all duration-300"
+              style={{ color: scrolled ? 'rgb(var(--text-muted))' : 'rgba(255,255,255,0.9)' }}
             >
               {link.name}
             </a>
           ))}
+
           <a
             href="#agendamento"
-            className={`px-6 py-2.5 rounded-custom text-xs font-bold transition-all duration-300 shadow-md flex items-center gap-2 ${
-              scrolled 
-                ? 'bg-main text-white hover:bg-primary border border-border-main' 
-                : 'bg-card text-main border border-border-main hover:bg-primary hover:text-white'
-            }`}
+            className="px-6 py-2.5 rounded-lg text-xs font-bold transition-all duration-300 shadow-md bg-primary text-white hover:opacity-90"
           >
             AGENDAR AGORA
           </a>
 
           <Link
             to="/admin"
-            className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] transition-all duration-300 group ${
-              scrolled ? 'text-gray-400 hover:text-dark' : 'text-white/70 hover:text-white'
-            }`}
+            className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] transition-all duration-300 group"
+            style={{ color: scrolled ? 'rgb(var(--text-muted))' : 'rgba(255,255,255,0.7)' }}
           >
-            <div className={`p-2 border border-border-main rounded-full transition-colors ${scrolled ? 'bg-card group-hover:bg-primary group-hover:text-white' : 'bg-main/50 group-hover:bg-primary'}`}>
+            <div className="p-2 border rounded-full transition-colors group-hover:bg-primary group-hover:text-white"
+              style={{ borderColor: scrolled ? 'rgb(var(--border-main))' : 'rgba(255,255,255,0.3)' }}
+            >
               <LogIn size={14} />
             </div>
             <span>LOGIN</span>
@@ -75,7 +86,8 @@ const Navbar = () => {
 
         {/* Mobile Toggle */}
         <button
-          className={`lg:hidden p-2 transition-colors duration-300 ${scrolled ? 'text-dark' : 'text-white'}`}
+          className="lg:hidden p-2 transition-colors duration-300"
+          style={{ color: scrolled ? 'rgb(var(--text-main))' : '#fff' }}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle Menu"
         >
@@ -90,14 +102,16 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-card border-t border-border-main overflow-hidden shadow-2xl"
+            className="lg:hidden overflow-hidden shadow-2xl border-t"
+            style={{ backgroundColor: 'rgb(var(--bg-card))', borderColor: 'rgb(var(--border-main))' }}
           >
             <div className="flex flex-col p-8 space-y-6">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="text-main font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                  className="font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                  style={{ color: 'rgb(var(--text-main))' }}
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
@@ -105,14 +119,15 @@ const Navbar = () => {
               ))}
               <a
                 href="#agendamento"
-                className="btn-dark text-center py-4"
+                className="btn-primary text-center py-4"
                 onClick={() => setIsOpen(false)}
               >
                 AGENDAR AGORA
               </a>
               <Link
                 to="/admin"
-                className="flex items-center justify-center gap-3 py-4 border-t border-border-main text-main font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                className="flex items-center justify-center gap-3 py-4 border-t font-bold uppercase tracking-widest text-sm hover:text-primary transition-colors"
+                style={{ color: 'rgb(var(--text-main))', borderColor: 'rgb(var(--border-main))' }}
                 onClick={() => setIsOpen(false)}
               >
                 <LogIn size={18} />
