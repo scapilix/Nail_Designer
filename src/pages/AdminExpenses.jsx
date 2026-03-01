@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Wallet, Plus, X, Search, Trash2, ArrowDownRight, Calendar, Tag, Paperclip, Download, FileText } from 'lucide-react';
+import { Wallet, Plus, X, Search, Trash2, ArrowDownRight, Calendar, Tag, Paperclip, Download, FileText, Pencil } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const AdminExpenses = () => {
@@ -9,6 +9,7 @@ const AdminExpenses = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
     description: '', category: 'fornecedor', amount: 0,
@@ -62,10 +63,29 @@ const AdminExpenses = () => {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    await supabase.from('expenses').insert([formData]);
+    if (editingId) {
+      await supabase.from('expenses').update(formData).eq('id', editingId);
+    } else {
+      await supabase.from('expenses').insert([formData]);
+    }
     setIsModalOpen(false);
+    setEditingId(null);
     setFormData({ description: '', category: 'fornecedor', amount: 0, date: new Date().toISOString().split('T')[0], notes: '', paid_to: '', attachment_url: '' });
     fetchData();
+  };
+
+  const handleEdit = (exp) => {
+    setFormData({
+      description: exp.description || '',
+      category: exp.category || 'fornecedor',
+      amount: exp.amount || 0,
+      date: exp.date || new Date().toISOString().split('T')[0],
+      notes: exp.notes || '',
+      paid_to: exp.paid_to || '',
+      attachment_url: exp.attachment_url || ''
+    });
+    setEditingId(exp.id);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
@@ -122,7 +142,7 @@ const AdminExpenses = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-dark">Despesas</h1><p className="text-muted text-sm mt-1">Controlo de gastos do salão</p></div>
-        <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Despesa</button>
+        <button onClick={() => { setEditingId(null); setFormData({ description: '', category: 'fornecedor', amount: 0, date: new Date().toISOString().split('T')[0], notes: '', paid_to: '', attachment_url: '' }); setIsModalOpen(true); }} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Despesa</button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -186,7 +206,12 @@ const AdminExpenses = () => {
                   )}
                 </td>
                 <td className="px-6 py-4 text-right text-sm font-bold text-red-600">-{Number(exp.amount || 0).toFixed(2)}€</td>
-                <td className="px-6 py-4 text-right"><button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 text-muted hover:text-red-600"><Trash2 size={16} /></button></td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => handleEdit(exp)} className="p-2 rounded-lg hover:bg-blue-50 text-muted hover:text-blue-600"><Pencil size={16} /></button>
+                    <button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 text-muted hover:text-red-600"><Trash2 size={16} /></button>
+                  </div>
+                </td>
               </tr>
             ))}
             {filtered.length === 0 && <tr><td colSpan="7" className="px-6 py-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhuma despesa'}</td></tr>}
@@ -199,7 +224,7 @@ const AdminExpenses = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="modal-content w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
               <form onSubmit={handleSave}>
-                <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">Nova Despesa</h2><button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
+                <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">{editingId ? 'Editar Despesa' : 'Nova Despesa'}</h2><button type="button" onClick={() => { setIsModalOpen(false); setEditingId(null); }} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
                 <div className="p-6 space-y-4">
                   <div><label className="text-sm font-medium text-dark mb-1.5 block">Descrição *</label><input required value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="luxury-input" /></div>
                   <div><label className="text-sm font-medium text-dark mb-1.5 block">Pago a</label><input value={formData.paid_to} onChange={e => setFormData({...formData, paid_to: e.target.value})} placeholder="Nome do fornecedor ou pessoa" className="luxury-input" /></div>
@@ -231,7 +256,7 @@ const AdminExpenses = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl"><button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
+                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl"><button type="button" onClick={() => { setIsModalOpen(false); setEditingId(null); }} className="btn-secondary">Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
               </form>
             </motion.div>
           </motion.div>

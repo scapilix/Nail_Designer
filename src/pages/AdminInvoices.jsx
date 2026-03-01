@@ -1,19 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Wallet, Plus, X, Search, Filter, ArrowUpRight, ArrowDownRight, DollarSign, Calendar } from 'lucide-react';
+import { Wallet, Plus, X, Search, Filter, ArrowUpRight, ArrowDownRight, DollarSign, Calendar, Pencil, Trash2 } from 'lucide-react';
 
 const AdminInvoices = () => {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ client_name: '', service_name: '', total_amount: 0, payment_method: 'dinheiro', status: 'pago', date: new Date().toISOString().split('T')[0] });
 
   const fetchData = async () => { setLoading(true); const { data } = await supabase.from('invoices').select('*').order('created_at', { ascending: false }); setInvoices(data || []); setLoading(false); };
   useEffect(() => { fetchData(); }, []);
 
-  const handleSave = async (e) => { e.preventDefault(); await supabase.from('invoices').insert([formData]); setIsModalOpen(false); fetchData(); };
+  const handleSave = async (e) => { 
+    e.preventDefault(); 
+    if (editingId) {
+      await supabase.from('invoices').update(formData).eq('id', editingId);
+    } else {
+      await supabase.from('invoices').insert([formData]); 
+    }
+    setIsModalOpen(false); 
+    setEditingId(null);
+    setFormData({ client_name: '', service_name: '', total_amount: 0, payment_method: 'dinheiro', status: 'pago', date: new Date().toISOString().split('T')[0] });
+    fetchData(); 
+  };
+
+  const handleEdit = (inv) => {
+    setFormData({
+      client_name: inv.client_name || '',
+      service_name: inv.service_name || '',
+      total_amount: inv.total_amount || 0,
+      payment_method: inv.payment_method || 'dinheiro',
+      status: inv.status || 'pago',
+      date: inv.date || (inv.created_at ? new Date(inv.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
+    });
+    setEditingId(inv.id);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Tem a certeza que pretende apagar esta transação?')) return;
+    await supabase.from('invoices').delete().eq('id', id);
+    fetchData();
+  };
 
   const totalRevenue = invoices.reduce((a, i) => a + Number(i.total_amount||0), 0);
   const thisMonth = invoices.filter(i => { const d = new Date(i.created_at); const n = new Date(); return d.getMonth() === n.getMonth() && d.getFullYear() === n.getFullYear(); });
@@ -30,7 +61,7 @@ const AdminInvoices = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div><h1 className="text-2xl font-bold text-dark">Transações</h1><p className="text-muted text-sm mt-1">Histórico financeiro</p></div>
-        <button onClick={() => setIsModalOpen(true)} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Transação</button>
+        <button onClick={() => { setEditingId(null); setFormData({ client_name: '', service_name: '', total_amount: 0, payment_method: 'dinheiro', status: 'pago', date: new Date().toISOString().split('T')[0] }); setIsModalOpen(true); }} className="btn-primary flex items-center gap-2"><Plus size={16} /> Nova Transação</button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -67,6 +98,7 @@ const AdminInvoices = () => {
             <th className="table-header text-left px-6 py-3">Pagamento</th>
             <th className="table-header text-left px-6 py-3">Estado</th>
             <th className="table-header text-right px-6 py-3">Valor</th>
+            <th className="table-header text-right px-6 py-3">Ações</th>
           </tr></thead>
           <tbody>
             {filtered.map(inv => (
@@ -77,9 +109,15 @@ const AdminInvoices = () => {
                 <td className="px-6 py-4">{inv.payment_method && <span className="badge badge-info">{methodLabel[inv.payment_method] || inv.payment_method}</span>}</td>
                 <td className="px-6 py-4"><span className={`badge ${inv.status === 'pago' ? 'badge-success' : inv.status === 'pendente' ? 'badge-warning' : 'badge-danger'}`}>{inv.status}</span></td>
                 <td className="px-6 py-4 text-right text-sm font-bold text-dark">{Number(inv.total_amount||0).toFixed(2)}€</td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <button onClick={() => handleEdit(inv)} className="p-2 rounded-lg hover:bg-blue-50 text-muted hover:text-blue-600"><Pencil size={16} /></button>
+                    <button onClick={() => handleDelete(inv.id)} className="p-2 rounded-lg hover:bg-red-50 text-muted hover:text-red-600"><Trash2 size={16} /></button>
+                  </div>
+                </td>
               </tr>
             ))}
-            {filtered.length === 0 && <tr><td colSpan="6" className="px-6 py-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhuma transação'}</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan="7" className="px-6 py-12 text-center text-muted">{loading ? 'A carregar...' : 'Nenhuma transação'}</td></tr>}
           </tbody>
         </table>
       </div>
@@ -89,7 +127,7 @@ const AdminInvoices = () => {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="modal-content w-full max-w-lg mx-4" onClick={e => e.stopPropagation()}>
               <form onSubmit={handleSave}>
-                <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">Nova Transação</h2><button type="button" onClick={() => setIsModalOpen(false)} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
+                <div className="flex items-center justify-between p-6 border-b border-border-main"><h2 className="text-lg font-bold text-dark">{editingId ? 'Editar Transação' : 'Nova Transação'}</h2><button type="button" onClick={() => { setIsModalOpen(false); setEditingId(null); }} className="p-2 rounded-lg hover:bg-slate-100 text-muted"><X size={18} /></button></div>
                 <div className="p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div><label className="text-sm font-medium text-dark mb-1.5 block">Cliente</label><input value={formData.client_name} onChange={e => setFormData({...formData, client_name: e.target.value})} className="luxury-input" /></div>
@@ -112,7 +150,7 @@ const AdminInvoices = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl"><button type="button" onClick={() => setIsModalOpen(false)} className="btn-secondary">Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
+                <div className="flex justify-end gap-3 p-6 border-t border-border-main bg-slate-50 rounded-b-2xl"><button type="button" onClick={() => { setIsModalOpen(false); setEditingId(null); }} className="btn-secondary">Cancelar</button><button type="submit" className="btn-primary">Guardar</button></div>
               </form>
             </motion.div>
           </motion.div>
