@@ -2,23 +2,30 @@ import React, { Suspense, lazy } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { useImage } from '../hooks/useImage';
 
-// Lazy-load the video player to avoid blocking initial render
 const VideoPlayer = lazy(() => import('../video/VideoPlayer'));
 
 const Hero = () => {
   const { images } = useImage();
 
   return (
-    <section id="inicio" className="relative h-screen flex items-center justify-center bg-main overflow-hidden">
-
-      {/* ── Full-screen Remotion Video (speaks for itself) ──────── */}
-      <div className="absolute inset-0 z-0">
+    <section
+      id="inicio"
+      style={{
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+        marginLeft: 'calc(-50vw + 50%)',
+      }}
+    >
+      {/* Full-screen Remotion Video */}
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}>
         <Suspense
           fallback={
             <img
               src={images.hero_bg1}
               alt="Luxury Salon Interior"
-              className="w-full h-full object-cover brightness-[0.25]"
+              style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.25)' }}
             />
           }
         >
@@ -26,7 +33,7 @@ const Hero = () => {
         </Suspense>
       </div>
 
-      {/* ── Scroll Indicator ────────────────────────────────────── */}
+      {/* Scroll Indicator */}
       <Motion.div
         animate={{ y: [0, 10, 0] }}
         transition={{ repeat: Infinity, duration: 2 }}
